@@ -1,5 +1,9 @@
+import { globalErrorMap } from '@core/errors/zod.error';
 import { NestFactory } from '@nestjs/core';
+import { z } from 'zod';
 import { AppModule } from './app.module';
+
+z.setErrorMap(globalErrorMap);
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
