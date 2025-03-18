@@ -1,4 +1,4 @@
-import { HTTP_ERROR_STATUS } from './types/http-error-status.enum.error';
+import { HttpStatus } from '@nestjs/common';
 import { ErrorOptions } from './types/error-options.type.error';
 
 export interface InfrastructureErrorPayload {
@@ -65,7 +65,7 @@ export class InfrastructureError extends Error {
 
 export const DatabaseError = (message: string = 'Database error', cause?: Error, options?: ErrorOptions) => {
     return InfrastructureError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         errorCode: options?.errorCode,
         error: 'DATABASE_ERROR',
         message,

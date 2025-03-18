@@ -1,4 +1,4 @@
-import { HTTP_ERROR_STATUS } from './types/http-error-status.enum.error';
+import { HttpStatus } from '@nestjs/common';
 import { ErrorOptions } from './types/error-options.type.error';
 
 export interface DomainErrorPayload {
@@ -50,7 +50,7 @@ export class DomainError extends Error {
 // 400
 export const BadRequestError = (message: string = 'Data is invalid', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
         error: 'Bad Request',
         message: message,
         errorCode: options?.errorCode || null,
@@ -61,7 +61,7 @@ export const BadRequestError = (message: string = 'Data is invalid', options?: E
 // 401
 export const UnauthorizedError = (message: string = 'Unauthorized', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.UNAUTHORIZED,
+        statusCode: HttpStatus.UNAUTHORIZED,
         error: 'Unauthorized',
         message: message,
         errorCode: options?.errorCode || null,
@@ -72,7 +72,7 @@ export const UnauthorizedError = (message: string = 'Unauthorized', options?: Er
 // 403
 export const ForbiddenError = (message: string = 'Forbidden', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.FORBIDDEN,
+        statusCode: HttpStatus.FORBIDDEN,
         error: 'Forbidden',
         message: message,
         errorCode: options?.errorCode || null,
@@ -83,7 +83,7 @@ export const ForbiddenError = (message: string = 'Forbidden', options?: ErrorOpt
 // 404
 export const NotFoundError = (message: string = 'Not Found', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         error: 'Not Found',
         message: message,
         errorCode: options?.errorCode || null,
@@ -94,7 +94,7 @@ export const NotFoundError = (message: string = 'Not Found', options?: ErrorOpti
 // 500
 export const InternalServerError = (message: string = 'Internal Server Error', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         error: 'Internal Server Error',
         message: message,
         errorCode: options?.errorCode || null,
@@ -104,7 +104,7 @@ export const InternalServerError = (message: string = 'Internal Server Error', o
 
 export const NotSupportedMethodError = (message: string = 'Not Supported Method', options?: ErrorOptions) => {
     return DomainError.fromJSON({
-        statusCode: HTTP_ERROR_STATUS.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         error: 'Not Supported Method',
         message: message,
         errorCode: options?.errorCode || null,

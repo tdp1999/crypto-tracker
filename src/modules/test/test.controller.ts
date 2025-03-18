@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, BadRequestException } from '@nestjs/common';
 import { TestService } from './test.service';
 
 @Controller('test')
@@ -8,5 +8,10 @@ export class TestController {
     @Get()
     getTest() {
         return this.testService.getTest();
+    }
+
+    @Get('error')
+    getError() {
+        throw new BadRequestException('This is a test error');
     }
 }

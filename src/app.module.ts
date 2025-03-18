@@ -1,8 +1,11 @@
 import generalConfig from '@core/configs/general.config';
 import databaseConfig from '@core/configs/postgres-database.config';
 import { DatabaseError } from '@core/errors/infrastructure.error';
+import { GlobalExceptionFilter } from '@core/filters/global-exception.filter';
+import { TransformInterceptor } from '@core/interceptors/transform.interceptor';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { TestEntity } from './modules/test/test.entity';
@@ -38,6 +41,15 @@ const featuredModules = [TestModule];
         ...featuredModules,
     ],
     controllers: [AppController],
-    providers: [],
+    providers: [
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: TransformInterceptor,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: GlobalExceptionFilter,
+        },
+    ],
 })
 export class AppModule {}
