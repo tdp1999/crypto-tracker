@@ -109,6 +109,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 error: 'Internal Server Error',
                 message: errorMessage,
                 errorCode: null,
+                remarks: '[Unknown Exception]',
             },
         ];
     }

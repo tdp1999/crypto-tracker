@@ -3,15 +3,16 @@ import databaseConfig from '@core/configs/postgres-database.config';
 import { DatabaseError } from '@core/errors/infrastructure.error';
 import { GlobalExceptionFilter } from '@core/filters/global-exception.filter';
 import { TransformInterceptor } from '@core/interceptors/transform.interceptor';
-import { Module } from '@nestjs/common';
+import { ProviderModule } from '@modules/provider/provider.module';
+import { TestModule } from '@modules/test/test.module';
+import { TestEntity } from '@modules/test/test.persisten';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
-import { TestEntity } from './modules/test/test.entity';
-import { TestModule } from './modules/test/test.module';
 
-const featuredModules = [TestModule];
+const featuredModules = [TestModule, ProviderModule] as unknown as DynamicModule[];
 
 @Module({
     imports: [

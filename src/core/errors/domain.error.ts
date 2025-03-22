@@ -1,12 +1,29 @@
 import { HttpStatus } from '@nestjs/common';
 import { ErrorOptions } from './types/error-options.type.error';
 
-export interface DomainErrorPayload {
+// Only for internal use
+interface DomainErrorContructPayload {
     statusCode: number;
     errorCode?: string | null;
     error: string;
     message: string;
     remarks?: string;
+}
+
+export interface DomainErrorPayload {
+    statusCode: number;
+    errorCode?: string | null;
+    error: string;
+    message: string;
+    options?: ErrorOptions;
+}
+
+export function constructRemarks(options?: ErrorOptions): string | undefined {
+    if (!options || (!options.remarks && !options.remarks)) return undefined;
+
+    const prefix = options.layer ? `[${options.layer.toUpperCase()}]` : '';
+
+    return `${prefix} ${options.remarks}`.trim();
 }
 
 export class DomainError extends Error {
@@ -17,7 +34,7 @@ export class DomainError extends Error {
     remarks?: string;
 
     /* Factory method - https://refactoring.guru/design-patterns/factory-method */
-    private constructor(payload: DomainErrorPayload) {
+    private constructor(payload: DomainErrorContructPayload) {
         super();
         Object.assign(this, payload);
         Object.setPrototypeOf(this, DomainError.prototype);
@@ -42,7 +59,7 @@ export class DomainError extends Error {
             errorCode: json.errorCode,
             error: json.error,
             message: json.message,
-            remarks: json.remarks,
+            remarks: constructRemarks(json.options),
         });
     }
 }
@@ -54,7 +71,7 @@ export const BadRequestError = (message: string = 'Data is invalid', options?: E
         error: 'Bad Request',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };
 
@@ -65,7 +82,7 @@ export const UnauthorizedError = (message: string = 'Unauthorized', options?: Er
         error: 'Unauthorized',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };
 
@@ -76,7 +93,7 @@ export const ForbiddenError = (message: string = 'Forbidden', options?: ErrorOpt
         error: 'Forbidden',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };
 
@@ -87,7 +104,7 @@ export const NotFoundError = (message: string = 'Not Found', options?: ErrorOpti
         error: 'Not Found',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };
 
@@ -98,7 +115,7 @@ export const InternalServerError = (message: string = 'Internal Server Error', o
         error: 'Internal Server Error',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };
 
@@ -108,6 +125,6 @@ export const NotSupportedMethodError = (message: string = 'Not Supported Method'
         error: 'Not Supported Method',
         message: message,
         errorCode: options?.errorCode || null,
-        remarks: options?.remarks,
+        options: options,
     });
 };

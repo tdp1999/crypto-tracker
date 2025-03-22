@@ -14,4 +14,7 @@ export default registerAs('general', () => ({
 
     transportHost: process.env.TRANSPORT_HOST,
     transportPort: process.env.TRANSPORT_PORT,
+
+    coingeckoProviderKey: process.env.COINGECKO_API_KEY,
+    coingeckoProviderUrl: process.env.COINGECKO_API_URL,
 }));
