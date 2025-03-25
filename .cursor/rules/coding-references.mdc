@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Follow folder structure defined in [folder-structure.md](mdc:docs/folder-structure.md).
+- Follow repository function naming in [repository-naming.md](mdc:docs/repository-naming.md).
+

@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use guard clauses instead of nested conditionals.
+- Use descriptive variable names like isUserLoggedIn, userPermissions, and fetchData() to communicate intent clearly.
+- Replace hard-coded values with named constants.
+- Don't over-comment the code—only add comments if the code is complex, has non-obvious side effects, or is long.
+- Don't suggest whitespace changes.
