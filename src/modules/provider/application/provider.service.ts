@@ -1,8 +1,10 @@
+import { BadRequestError } from '@core/errors/domain.error';
+import { formatZodError } from '@core/errors/formatter.error';
 import { Inject, Injectable } from '@nestjs/common';
+import { IProviderAsset, IProviderPrice } from '../domain/provider-asset.entity';
 import { IProviderService } from './provider-service.in';
+import { ProviderPriceQuery, ProviderQuery, ProviderQuerySchema } from './provider.dto';
 import { PROVIDER_ADAPTER_TOKEN } from './provider.token';
-import { ProviderQuery } from './provider.dto';
-import { IProviderAsset } from '../domain/provider-asset.entity';
 
 @Injectable()
 export class ProviderService implements IProviderService {
@@ -13,6 +15,12 @@ export class ProviderService implements IProviderService {
     }
 
     async search(query: ProviderQuery): Promise<IProviderAsset[]> {
-        return this.adapter.search(query);
+        const { success, error, data } = ProviderQuerySchema.safeParse(query);
+        if (!success) throw BadRequestError(formatZodError(error), { layer: 'application' });
+        return this.adapter.search(data);
+    }
+
+    async getPrice(query: ProviderPriceQuery): Promise<IProviderPrice[]> {
+        return this.adapter.getPrice(query);
     }
 }

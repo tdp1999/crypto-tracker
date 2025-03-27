@@ -6,7 +6,7 @@ interface DomainErrorContructPayload {
     statusCode: number;
     errorCode?: string | null;
     error: string;
-    message: string;
+    message: any;
     remarks?: string;
 }
 
@@ -14,7 +14,7 @@ export interface DomainErrorPayload {
     statusCode: number;
     errorCode?: string | null;
     error: string;
-    message: string;
+    message: any;
     options?: ErrorOptions;
 }
 
@@ -30,7 +30,7 @@ export class DomainError extends Error {
     statusCode: number;
     errorCode?: string | null;
     error: string;
-    message: string;
+    message: any;
     remarks?: string;
 
     /* Factory method - https://refactoring.guru/design-patterns/factory-method */
@@ -47,7 +47,7 @@ export class DomainError extends Error {
             statusCode: this.statusCode,
             errorCode: this.errorCode,
             error: this.error,
-            message: this.message,
+            message: this.message as unknown,
             remarks: this.remarks,
         };
     }
@@ -58,72 +58,72 @@ export class DomainError extends Error {
             statusCode: json.statusCode,
             errorCode: json.errorCode,
             error: json.error,
-            message: json.message,
+            message: json.message as unknown,
             remarks: constructRemarks(json.options),
         });
     }
 }
 
 // 400
-export const BadRequestError = (message: string = 'Data is invalid', options?: ErrorOptions) => {
+export const BadRequestError = (message: any = 'Data is invalid', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Bad Request',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });
 };
 
 // 401
-export const UnauthorizedError = (message: string = 'Unauthorized', options?: ErrorOptions) => {
+export const UnauthorizedError = (message: any = 'Unauthorized', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.UNAUTHORIZED,
         error: 'Unauthorized',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });
 };
 
 // 403
-export const ForbiddenError = (message: string = 'Forbidden', options?: ErrorOptions) => {
+export const ForbiddenError = (message: any = 'Forbidden', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.FORBIDDEN,
         error: 'Forbidden',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });
 };
 
 // 404
-export const NotFoundError = (message: string = 'Not Found', options?: ErrorOptions) => {
+export const NotFoundError = (message: any = 'Not Found', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not Found',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });
 };
 
 // 500
-export const InternalServerError = (message: string = 'Internal Server Error', options?: ErrorOptions) => {
+export const InternalServerError = (message: any = 'Internal Server Error', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         error: 'Internal Server Error',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });
 };
 
-export const NotSupportedMethodError = (message: string = 'Not Supported Method', options?: ErrorOptions) => {
+export const NotSupportedMethodError = (message: any = 'Not Supported Method', options?: ErrorOptions) => {
     return DomainError.fromJSON({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         error: 'Not Supported Method',
-        message: message,
+        message: message as unknown,
         errorCode: options?.errorCode || null,
         options: options,
     });

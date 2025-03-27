@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { IProviderService } from '../application/provider-service.in';
-import { ProviderQuery } from '../application/provider.dto';
+import { ProviderPriceQuery, ProviderQuery } from '../application/provider.dto';
 import { PROVIDER_SERVICE_TOKEN } from '../application/provider.token';
 
 @Controller('provider')
@@ -15,5 +15,10 @@ export class ProviderController {
     @Get('search')
     async search(@Query() query: ProviderQuery) {
         return this.service.search(query);
+    }
+
+    @Get('price')
+    async price(@Query() query: ProviderPriceQuery) {
+        return this.service.getPrice(query);
     }
 }

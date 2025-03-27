@@ -4,10 +4,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { axiosObservableToPromise } from '@shared/utils/axios.util';
 import { IProviderAdapter } from '../../application/provider-service.in';
-import { ProviderQuery } from '../../application/provider.dto';
-import { IProviderAsset } from '../../domain/provider-asset.entity';
+import { ProviderPriceQuery, ProviderQuery } from '../../application/provider.dto';
+import { IProviderAsset, IProviderPrice } from '../../domain/provider-asset.entity';
 import { COINGECKO_PROVIDER_URL_PATH_DICTIONARY } from './coingecko.constant';
-import { ICoinGeckoAsset, ICoinGeckoSearchQuery } from './coingecko.interface';
+import { ICoinGeckoPriceRawResponse, ICoinGeckoSearchRawResponse } from './coingecko.interface';
+import { PriceTransformer } from './transformers/price.transformer';
+import { SearchTransformer } from './transformers/search.transformer';
 
 @Injectable()
 export class CoinGeckoAdapter implements IProviderAdapter {
@@ -35,19 +37,29 @@ export class CoinGeckoAdapter implements IProviderAdapter {
         this.url = `${url}/:PATH?x_cg_demo_api_key=${key}:QUERY_PARAMS`;
     }
 
-    ping() {
+    async ping(): Promise<any> {
         const url = this._resolveUrl(COINGECKO_PROVIDER_URL_PATH_DICTIONARY.ping);
         return axiosObservableToPromise(this.httpService.get(url));
     }
 
     async search(query: ProviderQuery): Promise<IProviderAsset[]> {
-        const transformedQuery: ICoinGeckoSearchQuery = {
-            vs_currency: 'usd',
+        const transformedQuery = {
+            query: query.key,
         };
 
         const url = this._resolveUrl(COINGECKO_PROVIDER_URL_PATH_DICTIONARY.search, transformedQuery);
-        const response = await axiosObservableToPromise<ICoinGeckoAsset[]>(this.httpService.get(url));
-        return this._transformData(response);
+        const rawResponse = await axiosObservableToPromise<ICoinGeckoSearchRawResponse>(this.httpService.get(url));
+        const transformer = new SearchTransformer();
+        return transformer.transform(rawResponse.coins);
+    }
+
+    async getPrice(query: ProviderPriceQuery): Promise<IProviderPrice[]> {
+        const transformedQuery = { ids: query.join(',') };
+
+        const url = this._resolveUrl(COINGECKO_PROVIDER_URL_PATH_DICTIONARY.price, transformedQuery);
+        const rawResponse = await axiosObservableToPromise<ICoinGeckoPriceRawResponse>(this.httpService.get(url));
+        const transformer = new PriceTransformer();
+        return transformer.transform(rawResponse);
     }
 
     private _resolveUrl(path: string, query: Record<string, any> = {}): string {
@@ -58,16 +70,5 @@ export class CoinGeckoAdapter implements IProviderAdapter {
         queryString = queryString ? `&${queryString}` : '';
 
         return this.url.replace(':PATH', path).replace(':QUERY_PARAMS', queryString);
-    }
-
-    private _transformData(data: ICoinGeckoAsset[]): IProviderAsset[] {
-        // return data.map((item: ICoinGeckoAsset) => ({
-        //     id: item.asset_id.toString(),
-        //     name: item.asset_name,
-        //     symbol: item.asset_symbol,
-        //     price: item.asset_price,
-        // }));
-
-        return data as unknown as IProviderAsset[];
     }
 }

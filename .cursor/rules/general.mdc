@@ -8,3 +8,4 @@ alwaysApply: true
 - Replace hard-coded values with named constants.
 - Don't over-comment the code—only add comments if the code is complex, has non-obvious side effects, or is long.
 - Don't suggest whitespace changes.
+- Don't use barrel files.

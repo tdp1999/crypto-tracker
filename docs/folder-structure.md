@@ -30,6 +30,7 @@ Ta có một một số rule về folder structure như sau:
 │   ├── models/
 │   ├── actions/
 │   ├── dtos/
+|   ├── errors/
 │   ├── builders/
 │   ├── filters/
 │   └── interceptors/
@@ -79,7 +80,6 @@ Ta có một một số rule về folder structure như sau:
     ├── cache/
     ├── constants/
     ├── types/
-    ├── errors/
     ├── decorators/
     ├── modules/
     ├── tokens/
