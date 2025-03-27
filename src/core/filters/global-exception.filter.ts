@@ -3,6 +3,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logge
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
 import { BooleanValue } from '@shared/vos/boolean.value';
+import { AxiosError } from 'axios';
 
 export interface FormattedResponse {
     statusCode: number;
@@ -22,11 +23,14 @@ interface HttpExceptionResponse {
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(GlobalExceptionFilter.name);
+    private readonly isDebugMode: boolean = false;
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpAdapterHost: HttpAdapterHost,
-    ) {}
+    ) {
+        this.isDebugMode = BooleanValue.toBoolean(this.configService.get('general.debug'));
+    }
 
     catch(exception: unknown, host: ArgumentsHost) {
         const { httpAdapter } = this.httpAdapterHost;
@@ -35,6 +39,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         if (exception instanceof DomainError) {
             const [status, responseContent] = this._domainExceptionContent(exception);
+            httpAdapter.reply(ctx.getResponse(), responseContent, status);
+            return;
+        }
+
+        if (exception instanceof AxiosError) {
+            const [status, responseContent] = this._axiosExceptionContent(exception);
             httpAdapter.reply(ctx.getResponse(), responseContent, status);
             return;
         }
@@ -52,9 +62,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     private _domainExceptionContent(exception: DomainError): [number, FormattedResponse] {
         const { statusCode, error, message, errorCode = null, remarks } = exception;
-        const isDebugMode = BooleanValue.toBoolean(this.configService.get('general.debug'));
 
-        if (isDebugMode) {
+        if (this.isDebugMode) {
+            return [statusCode, { statusCode, error, message, errorCode, remarks }];
+        }
+
+        return [statusCode, { statusCode, error, message, errorCode }];
+    }
+
+    private _axiosExceptionContent(exception: AxiosError): [number, FormattedResponse] {
+        const { status, data } = exception.response ?? {};
+        const statusCode = status ?? 500;
+        const errorCode = null;
+        const error = 'External API Error';
+        const message = (data as { error: string })?.error ?? 'An unknown error occurred. Please try again later.';
+        const remarks = '[Axios Exception]';
+
+        if (this.isDebugMode) {
             return [statusCode, { statusCode, error, message, errorCode, remarks }];
         }
 

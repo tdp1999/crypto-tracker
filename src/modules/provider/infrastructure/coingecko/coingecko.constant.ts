@@ -7,3 +7,11 @@ export const COINGECKO_PROVIDER_URL_PATH_DICTIONARY = {
     search: 'search',
     price: 'simple/price',
 } as const;
+
+export const COINGECKO_CURRENCY_DICTIONARY = {
+    USD: 'usd',
+} as const;
+
+export const COINGECKO_LOCALE_DICTIONARY = {
+    EN: 'en',
+} as const;

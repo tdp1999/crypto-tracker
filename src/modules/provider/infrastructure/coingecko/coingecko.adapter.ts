@@ -10,6 +10,7 @@ import { COINGECKO_PROVIDER_URL_PATH_DICTIONARY } from './coingecko.constant';
 import { ICoinGeckoPriceRawResponse, ICoinGeckoSearchRawResponse } from './coingecko.interface';
 import { PriceTransformer } from './transformers/price.transformer';
 import { SearchTransformer } from './transformers/search.transformer';
+import { COINGECKO_ERROR_MESSAGES } from './coingecko.error';
 
 @Injectable()
 export class CoinGeckoAdapter implements IProviderAdapter {
@@ -23,15 +24,11 @@ export class CoinGeckoAdapter implements IProviderAdapter {
         const key = this.configService.get<string>('general.coingeckoProviderKey');
 
         if (!url) {
-            throw InternalServerError('Coingecko provider URL is not defined', {
-                layer: 'infrastructure',
-            });
+            throw InternalServerError(COINGECKO_ERROR_MESSAGES.URL_NOT_FOUND, { layer: 'infrastructure' });
         }
 
         if (!key) {
-            throw InternalServerError('Coingecko provider key is not defined', {
-                layer: 'infrastructure',
-            });
+            throw InternalServerError(COINGECKO_ERROR_MESSAGES.KEY_NOT_FOUND, { layer: 'infrastructure' });
         }
 
         this.url = `${url}/:PATH?x_cg_demo_api_key=${key}:QUERY_PARAMS`;
@@ -43,22 +40,18 @@ export class CoinGeckoAdapter implements IProviderAdapter {
     }
 
     async search(query: ProviderQuery): Promise<IProviderAsset[]> {
-        const transformedQuery = {
-            query: query.key,
-        };
-
+        const transformer = new SearchTransformer();
+        const transformedQuery = transformer.transformQuery(query);
         const url = this._resolveUrl(COINGECKO_PROVIDER_URL_PATH_DICTIONARY.search, transformedQuery);
         const rawResponse = await axiosObservableToPromise<ICoinGeckoSearchRawResponse>(this.httpService.get(url));
-        const transformer = new SearchTransformer();
         return transformer.transform(rawResponse.coins);
     }
 
     async getPrice(query: ProviderPriceQuery): Promise<IProviderPrice[]> {
-        const transformedQuery = { ids: query.join(',') };
-
+        const transformer = new PriceTransformer();
+        const transformedQuery = transformer.transformQuery(query);
         const url = this._resolveUrl(COINGECKO_PROVIDER_URL_PATH_DICTIONARY.price, transformedQuery);
         const rawResponse = await axiosObservableToPromise<ICoinGeckoPriceRawResponse>(this.httpService.get(url));
-        const transformer = new PriceTransformer();
         return transformer.transform(rawResponse);
     }
 
