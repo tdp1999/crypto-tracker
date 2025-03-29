@@ -1,7 +1,19 @@
 import { QuerySchema } from '@core/dtos/query.dto';
 import { z } from 'zod';
 
-export const ProviderQuerySchema = QuerySchema.pick({ key: true }).required();
+export const ProviderQuerySchema = QuerySchema.pick({ key: true })
+    .required()
+    .refine(
+        (data) => {
+            if (!data.key) return false;
+            return data.key.trim() !== '';
+        },
+        {
+            message: 'Key must be a non-empty string',
+            path: ['key'],
+        },
+    );
+
 export const ProviderPriceQuerySchema = z.object({ ids: z.string() }).refine(
     (data) => {
         const ids = data.ids.split(',');

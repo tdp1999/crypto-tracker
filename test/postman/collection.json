@@ -1,0 +1,321 @@
+{
+  "info": {
+    "_postman_id": "e5f2c8b1-7a93-4e2c-9d8e-f1c6d5b4a3e2",
+    "name": "Crypto Tracker",
+    "description": "Complete collection for Crypto Tracker API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Provider",
+      "item": [
+        {
+          "name": "Ping",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/ping",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "ping"
+              ]
+            },
+            "description": "Health check for the provider service"
+          },
+          "response": []
+        },
+        {
+          "name": "Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json().data;",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Assets have correct structure\", function () {",
+                  "    var jsonData = pm.response.json().data;",
+                  "    ",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('id');",
+                  "        pm.expect(jsonData[0]).to.have.property('symbol');",
+                  "        pm.expect(jsonData[0]).to.have.property('name');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Search parameter is working\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var searchKey = pm.request.url.query.get(\"key\").toLowerCase();",
+                  "    ",
+                  "    if (jsonData.length > 0) {",
+                  "        // Check if at least one result contains the search term in name, symbol or id",
+                  "        var matchFound = jsonData.some(function(asset) {",
+                  "            return asset.name.toLowerCase().includes(searchKey) || ",
+                  "                   asset.symbol.toLowerCase().includes(searchKey) ||",
+                  "                   asset.id.toLowerCase().includes(searchKey);",
+                  "        });",
+                  "        ",
+                  "        pm.expect(matchFound).to.be.true;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "bitcoin",
+                  "description": "Search keyword"
+                }
+              ]
+            },
+            "description": "Search for crypto assets by keyword"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Search With Empty Keys",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 for empty key\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/search?key=",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "",
+                  "description": "Empty search keyword"
+                }
+              ]
+            },
+            "description": "Test validation for empty search key"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test(\"Data is an array\", function () {",
+                  "    var jsonData = pm.response.json().data;",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Prices have correct structure\", function () {",
+                  "    var jsonData = pm.response.json().data;",
+                  "    ",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('id');",
+                  "        pm.expect(jsonData[0]).to.have.property('price');",
+                  "        pm.expect(jsonData[0]).to.have.property('marketCap');",
+                  "        pm.expect(jsonData[0]).to.have.property('volumn24h');",
+                  "        pm.expect(jsonData[0]).to.have.property('percentChange24h');",
+                  "        pm.expect(jsonData[0]).to.have.property('lastUpdated');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Price data types are correct\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0].id).to.be.a('string');",
+                  "        pm.expect(jsonData[0].price).to.be.a('number');",
+                  "        pm.expect(jsonData[0].marketCap).to.be.a('number');",
+                  "        pm.expect(jsonData[0].volumn24h).to.be.a('number');",
+                  "        pm.expect(jsonData[0].percentChange24h).to.be.a('number');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"IDs parameter is working\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var idsParam = pm.request.url.query.get(\"ids\");",
+                  "    var requestedIds = idsParam.split(',').map(id => id.trim().toLowerCase());",
+                  "    ",
+                  "    if (jsonData.length > 0 && requestedIds.length > 0) {",
+                  "        // Check that we received at least one of the requested IDs",
+                  "        var matchFound = jsonData.some(function(price) {",
+                  "            return requestedIds.includes(price.id.toLowerCase());",
+                  "        });",
+                  "        ",
+                  "        pm.expect(matchFound).to.be.true;",
+                  "    }",
+                  "});",
+                  "",
+                  "// Reset any test flags",
+                  "pm.variables.set('skipArrayValidation', false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/price?ids=bitcoin,ethereum",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "price"
+              ],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": "bitcoin,ethereum",
+                  "description": "Comma-separated crypto asset IDs"
+                }
+              ]
+            },
+            "description": "Get price information for specified crypto assets"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Get Price With Invalid IDs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 for invalid ids\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/price?ids=,,,",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "price"
+              ],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": ",,,",
+                  "description": "Invalid comma-separated IDs"
+                }
+              ]
+            },
+            "description": "Test validation for invalid IDs format"
+          },
+          "response": []
+        }
+      ],
+      "description": "Tests for Crypto Provider API endpoints"
+    }
+  ]
+}

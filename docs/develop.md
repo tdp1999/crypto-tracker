@@ -4,3 +4,4 @@
 - 18/3: Try to serve data from CoinGecko api
     - 18/3: Think about how to write the coin api effectively.
     - 20/3: Doc ve adapter pattern
+- 29/3: Found a test flow for project

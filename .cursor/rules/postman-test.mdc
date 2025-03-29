@@ -1,0 +1,27 @@
+---
+description: 
+globs: *.postman.spec.json
+alwaysApply: false
+---
+### Request Naming and Organization Guidelines
+- **Naming File**: Name of the module + "postman.spec.json". For example: provider.postman.spec.json
+
+- **Naming Collection**: Name of the module. For example: Provider.
+
+- **Naming Main (Success Expected) Request**: Use the format "Verb + Condition (if any)". For example: "Ping", "Search".
+
+- **Naming Failed Request**: Use the format  "(Failed) Verb + Condition (if any)". For example: "(Failed) Search With Empty Keys".
+
+- **Group and order requests based on path.** If there are fail-assertion requests, place them immediately after their corresponding happy-case request and name them properly.
+
+For example, if we have 4 requests for 2 endpoints:
+  + `provider/search?key=bitcoin`
+  + `provider/search?key=`
+  + `provider/price?ids=bitcoin,ethereum`
+  + `provider/price?ids=,,,`
+
+The second and fourth are fail-assertion requests, so they should be placed after their respective main requests. 
+
+### Test Case Guidelines
+
+- Please take into account that the return format of a request is always wrapped by [global-exception.filter.ts](mdc:src/core/filters/global-exception.filter.ts) or [transform.interceptor.ts](mdc:src/core/interceptors/transform.interceptor.ts).

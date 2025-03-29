@@ -1,0 +1,238 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Crypto Checker API",
+        "description": "API for storing personal crypto portfolio, profit tracker, and so on.",
+        "contact": {
+            "name": "Phuong Tran",
+            "email": "tdp99.business@gmail.com",
+            "url": "thunderphong.com"
+        },
+        "license": {
+            "name": "Proprietary"
+        }
+    },
+    "tags": [
+        {
+            "name": "Crypto Tracker",
+            "description": "API for Crypto Tracker"
+        },
+        {
+            "name": "Provider",
+            "description": "API for Cryptocurrency Provider Data"
+        }
+    ],
+    "externalDocs": {
+        "url": "thunderphong.com",
+        "description": "My Portfolio"
+    },
+    "servers": [
+        {
+            "description": "Local Server",
+            "url": "http://localhost:3000/api"
+        },
+        {
+            "description": "Prod Server",
+            "url": "https://crypto.thunderphong.com/api"
+        }
+    ],
+    "paths": {
+        "/provider/ping": {
+            "get": {
+                "summary": "Check provider health",
+                "operationId": "ping",
+                "tags": ["Provider"],
+                "responses": {
+                    "200": {
+                        "description": "Success response from provider ping",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/provider/search": {
+            "get": {
+                "summary": "Search for crypto assets",
+                "operationId": "search",
+                "tags": ["Provider"],
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Search keyword for crypto assets"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of provider assets",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProviderAsset"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/provider/price": {
+            "get": {
+                "summary": "Get price information for crypto assets",
+                "operationId": "getPrice",
+                "tags": ["Provider"],
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Comma separated list of crypto asset IDs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Price information for requested crypto assets",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProviderPrice"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ProviderAsset": {
+                "type": "object",
+                "required": ["id", "symbol", "name"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the crypto asset"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "description": "Symbol of the crypto asset"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the crypto asset"
+                    },
+                    "logo": {
+                        "type": "string",
+                        "description": "URL to the logo image"
+                    },
+                    "image": {
+                        "type": "string",
+                        "description": "URL to the asset image"
+                    }
+                }
+            },
+            "ProviderPrice": {
+                "type": "object",
+                "required": ["id", "price", "marketCap", "volumn24h", "percentChange24h", "lastUpdated"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the crypto asset"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Current price of the crypto asset"
+                    },
+                    "marketCap": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Market capitalization"
+                    },
+                    "volumn24h": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Trading volume in the last 24 hours"
+                    },
+                    "percentChange24h": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Percentage price change in the last 24 hours"
+                    },
+                    "lastUpdated": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Timestamp of the last update"
+                    }
+                }
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "error": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "ApiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-KEY"
+            }
+        }
+    },
+    "security": [
+        {
+            "ApiKey": []
+        }
+    ]
+}
