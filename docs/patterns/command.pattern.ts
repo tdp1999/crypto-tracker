@@ -43,10 +43,185 @@ Command Pattern là nền tảng (foundation) của nhiều big pattern/architec
  * */
 
 /**
- * 1. (Command Interface) Trong domain layer, tạo một interface đơn nhất, dùng cho client
+ * 0. Prerequisite - Receiver. Co san 1 receiver, noi thuc hien logic thuc te
+ * */
+class Value {
+    private _value: number;
+
+    constructor(value: number) {
+        this._value = value;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    add(operand: number) {
+        this._value += operand;
+    }
+
+    subtract(operand: number) {
+        this._value -= operand;
+    }
+
+    multiply(operand: number) {
+        this._value *= operand;
+    }
+
+    divide(operand: number) {
+        if (operand === 0) {
+            throw new Error('Cannot divide by zero');
+        }
+        this._value /= operand;
+    }
+}
+
+/**
+ * 1. Command Interface. Thuc te ta co the thay the interface bang abstract class.
  * */
 
 interface ICommand {
     execute(): void;
     undo(): void;
 }
+
+/**
+ * 2. Command Implementation
+ * Cac implementation/Concrete Command. nhung class nay self-contained, khi trigger execute, khong nhan vao bat cu tham so nao.
+ * Thay vao do, cac thong tin can thiet se duoc declare nhu field, init trong constructor. => DAY LA DIEM COT YEU CUA COMMAND PATTERN
+ * execute() trigger Receiver.
+ * */
+
+class AddCommand implements ICommand {
+    constructor(
+        private value: Value,
+        private operand: number,
+    ) {}
+
+    execute() {
+        this.value.add(this.operand);
+    }
+
+    undo() {
+        this.value.subtract(this.operand);
+    }
+}
+
+class SubtractCommand implements ICommand {
+    constructor(
+        private value: Value,
+        private operand: number,
+    ) {}
+
+    execute() {
+        this.value.subtract(this.operand);
+    }
+
+    undo() {
+        this.value.add(this.operand);
+    }
+}
+
+class MultiplyCommand implements ICommand {
+    constructor(
+        private value: Value,
+        private operand: number,
+    ) {}
+
+    execute() {
+        this.value.multiply(this.operand);
+    }
+
+    undo() {
+        this.value.divide(this.operand);
+    }
+}
+
+class DivideCommand implements ICommand {
+    constructor(
+        private value: Value,
+        private operand: number,
+    ) {}
+
+    execute() {
+        this.value.divide(this.operand);
+    }
+
+    undo() {
+        this.value.multiply(this.operand);
+    }
+}
+
+/**
+ * 3. Invoker.
+ * Day la noi luu tru instance cua nhung concrete command. Day cung la noi quyet dinh xu ly nhung command nao, va thu tu xu ly nhung command do.
+ * Ta co the implement 1 stack  (queue, list, ...) o day
+ * */
+
+class Calculator {
+    private stack: ICommand[] = [];
+
+    executeCommand(command: ICommand) {
+        this.stack.push(command);
+        command.execute();
+    }
+
+    unexecuteCommand() {
+        const command = this.stack.pop();
+        if (command) {
+            command.undo();
+        }
+    }
+}
+
+/**
+ * 4. Client.
+ * */
+
+const value = new Value(10);
+const calculator = new Calculator();
+
+const addCommand = new AddCommand(value, 1);
+calculator.executeCommand(addCommand);
+console.log(value.value); // -> 11
+
+const subtractCommand = new SubtractCommand(value, 1);
+calculator.executeCommand(subtractCommand);
+console.log(value.value); // -> 10
+
+calculator.unexecuteCommand();
+console.log(value.value); // -> 11
+
+calculator.unexecuteCommand();
+console.log(value.value); // -> 10
+
+/*
+ * Gia su o 1 noi nao do can su dung cac operation command tren, ta co the su dung nhu sau:
+ */
+
+class Operation {
+    constructor(private calculator: Calculator) {}
+
+    executeCommand(command: ICommand) {
+        this.calculator.executeCommand(command);
+    }
+}
+
+const operation = new Operation(calculator);
+operation.executeCommand(addCommand);
+operation.executeCommand(subtractCommand);
+
+/*
+ * Trong thuc te, command pattern khong han la decoupling command va client,
+ * No decoupling command va receiver.
+ *
+ * Client van phai biet chon command nao de execute (Tuong tu Strategy Pattern).
+ *
+ * Dieu quan trong o day la:
+ * - Ta bao goi command (thuong la mot loi goi ham), tro thanh 1 object -> Store no trong stack, queue, ...
+ * - Co the reuse logic cua command khi co nhieu client. ???
+ */
+
+/*
+ * End
+ */

@@ -5,6 +5,6 @@
     - 18/3: Think about how to write the coin api effectively.
     - 20/3: Doc ve adapter pattern
 - 29/3: Found a test flow for project. Todo:
-    - Split database into 2 environement: dev, prod -> find a way to backup database
+    - Split database into 2 environement: dev, prod -> find a way to backup database -> done, using psql tools
     - Add seeding mechanism
     - Create user module
