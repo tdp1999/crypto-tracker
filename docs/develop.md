@@ -6,5 +6,5 @@
     - 20/3: Doc ve adapter pattern
 - 29/3: Found a test flow for project. Todo:
     - Split database into 2 environement: dev, prod -> find a way to backup database -> done, using psql tools
-    - Add seeding mechanism
+    - Add seeding mechanism -> done
     - Create user module
