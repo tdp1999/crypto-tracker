@@ -1,6 +1,9 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('general', () => ({
+    port: process.env.PORT,
+    globalPrefix: process.env.GLOBAL_PREFIX,
+
     debug: process.env.DEBUG,
     environment: process.env.ENVIRONMENT,
     defaultPassword: process.env.DEFAULT_PASSWORD,
