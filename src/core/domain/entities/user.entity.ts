@@ -67,13 +67,12 @@ export class User extends BaseModel implements IUser {
         Object.assign(this, props);
     }
 
-    static async create(raw: Partial<IUser>, createdById: Id | null): Promise<User> {
+    static async create(raw: Partial<IUser>, createdById: Id): Promise<User> {
         const { success, data, error } = UserCreateSchema.safeParse(raw);
         if (!success) throw BadRequestError(error, { layer: 'domain', remarks: 'User creation failed' });
 
         const now = TemporalValue.now;
         const password = data.hashedPassword ?? (await hashByBcrypt(data.rawPassword!));
-        const creatorId: Id = createdById ?? IdentifierValue.v7();
 
         return new User({
             ...data,
@@ -81,9 +80,9 @@ export class User extends BaseModel implements IUser {
             salt: '',
             id: IdentifierValue.v7(),
             createdAt: now,
-            createdById: creatorId,
+            createdById,
             updatedAt: now,
-            updatedById: creatorId,
+            updatedById: createdById,
         });
     }
 

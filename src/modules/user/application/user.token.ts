@@ -12,4 +12,8 @@ export const USER_TOKENS = {
             DELETE: Symbol('USER.COMMAND.DELETE'),
         },
     },
+
+    ADAPTERS: {
+        CONFIG: Symbol('USER.ADAPTER.CONFIG'),
+    },
 };
