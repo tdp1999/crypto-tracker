@@ -4,13 +4,14 @@ import { DatabaseError } from '@core/errors/infrastructure.error';
 import { GlobalExceptionFilter } from '@core/filters/global-exception.filter';
 import { TransformInterceptor } from '@core/interceptors/transform.interceptor';
 import { ProviderModule } from '@modules/provider/provider.module';
+import { UserModule } from '@modules/user/user.module';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 
-const featuredModules = [ProviderModule] as unknown as DynamicModule[];
+const featuredModules = [ProviderModule, UserModule] as unknown as DynamicModule[];
 
 @Module({
     imports: [

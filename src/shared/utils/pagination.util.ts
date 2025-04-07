@@ -14,8 +14,5 @@ export function paginate<T>(items: T[], totalItems: number, page: number, limit:
         hasPreviousPage,
     };
 
-    return {
-        data: items,
-        meta,
-    };
+    return { items, meta };
 }

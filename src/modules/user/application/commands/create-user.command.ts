@@ -19,7 +19,8 @@ export class CreateUserCommand implements ICommandHandler<UserCreateCommand, str
         const { success, data, error } = UserCreateSchema.safeParse(command.dto);
         if (!success) throw BadRequestError(error, { layer: 'application', remarks: 'User creation failed' });
 
-        const isEmailExists = await this.userRepository.findOne({ where: { email: data.email } });
+        const isEmailExists = await this.userRepository.findOne({ email: data.email });
+
         if (isEmailExists)
             throw BadRequestError('Email already exists', { layer: 'application', remarks: 'User creation failed' });
 
@@ -27,6 +28,8 @@ export class CreateUserCommand implements ICommandHandler<UserCreateCommand, str
         const creatorId = command.createdById ?? systemId;
 
         if (!creatorId) throw InternalServerError('System ID is not defined', { layer: 'application' });
+
+        console.log('data', data, creatorId, systemId);
 
         const user = await User.create(data, creatorId);
         return this.userRepository.add(user);

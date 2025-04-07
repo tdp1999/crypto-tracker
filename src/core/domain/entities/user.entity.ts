@@ -30,7 +30,6 @@ export const UserSchema = z.object({
 
 export const UserCreateSchema = UserSchema.pick({
     email: true,
-    salt: true,
     isSystem: true,
     status: true,
 })

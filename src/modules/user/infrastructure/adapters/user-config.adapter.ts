@@ -1,7 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { Id } from '@core/types/common.type';
 import { IUserConfig } from '../../application/ports/user-config.out.port';
-
+import { Injectable } from '@nestjs/common';
+@Injectable()
 export class UserConfigAdapter implements IUserConfig {
     constructor(private configService: ConfigService) {}
 

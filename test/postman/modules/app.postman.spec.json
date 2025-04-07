@@ -1,0 +1,82 @@
+{
+    "info": {
+        "_postman_id": "d5b9a4c6-8e1d-4fc7-b53a-1e5f7a3c9d8e",
+        "name": "App",
+        "description": "Tests for App API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Site Health Check",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response is 'OK'\", function () {",
+                            "    pm.expect(pm.response.text()).to.equal('OK');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/site-health",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["site-health"]
+                },
+                "description": "Health check endpoint to verify API is running"
+            },
+            "response": []
+        },
+        {
+            "name": "Random Number",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains a number\", function () {",
+                            "    const responseText = pm.response.text();",
+                            "    pm.expect(responseText).to.not.be.empty;",
+                            "    ",
+                            "    const parsedNumber = parseFloat(responseText);",
+                            "    pm.expect(parsedNumber).to.be.a('number');",
+                            "    pm.expect(isNaN(parsedNumber)).to.be.false;",
+                            "});",
+                            "",
+                            "pm.test(\"Random number is between 0 and 1\", function () {",
+                            "    const parsedNumber = parseFloat(pm.response.text());",
+                            "    pm.expect(parsedNumber).to.be.within(0, 1);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/random-number",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["random-number"]
+                },
+                "description": "Get a random number between 0 and 1"
+            },
+            "response": []
+        }
+    ]
+}

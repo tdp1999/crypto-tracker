@@ -1,0 +1,465 @@
+{
+    "info": {
+        "_postman_id": "e2c7a5f9-6a3d-4ba9-9d8c-7e3b1a2f4e5d",
+        "name": "User",
+        "description": "Tests for User API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains ID of created user\", function () {",
+                            "    var jsonData = pm.response.json().data;",
+                            "    pm.expect(jsonData).to.be.a('string');",
+                            "    ",
+                            "    // Store user ID for later tests",
+                            "    pm.collectionVariables.set('created_user_id', jsonData);",
+                            "});",
+                            "",
+                            "pm.test(\"Created user ID is in UUID format\", function () {",
+                            "    var userId = pm.response.json().data;",
+                            "    pm.expect(userId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate unique test email to avoid conflicts",
+                            "const testEmail = `test.user.${Date.now()}@example.com`;",
+                            "pm.collectionVariables.set('test_email', testEmail);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{test_email}}\",\n    \"rawPassword\": \"Password123!\",\n    \"status\": \"active\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users"]
+                },
+                "description": "Create a new user"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Create User with Invalid Data",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 400 for invalid user data\", function () {",
+                            "    pm.response.to.have.status(400);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(400);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"invalid-email\",\n    \"status\": \"invalid-status\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users"]
+                },
+                "description": "Test validation for invalid user data"
+            },
+            "response": []
+        },
+        {
+            "name": "Get User by ID",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"User has correct structure\", function () {",
+                            "    var userData = pm.response.json().data;",
+                            "    pm.expect(userData).to.have.property('id');",
+                            "    pm.expect(userData).to.have.property('email');",
+                            "    pm.expect(userData).to.have.property('status');",
+                            "    pm.expect(userData).to.have.property('createdAt');",
+                            "    pm.expect(userData).to.have.property('updatedAt');",
+                            "});",
+                            "",
+                            "pm.test(\"User ID matches request\", function () {",
+                            "    var userData = pm.response.json().data;",
+                            "    var requestId = pm.request.url.path[pm.request.url.path.length - 1];",
+                            "    pm.expect(userData.id).to.eql(requestId);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{created_user_id}}"]
+                },
+                "description": "Get a single user by ID"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Get User with Invalid ID",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate a valid UUID for testing",
+                            "function generateUUID() {",
+                            "    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                            "        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                            "        return v.toString(16);",
+                            "    });",
+                            "}",
+                            "",
+                            "// Create an invalid ID by adding suffix to a valid UUID",
+                            "const invalidId = generateUUID();",
+                            "pm.collectionVariables.set('invalid_user_id', invalidId);",
+                            "console.log('Created invalid ID for testing:', invalidId);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 404 for non-existent user\", function () {",
+                            "    pm.response.to.have.status(404);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(404);",
+                            "});",
+                            "",
+                            "// Clean up the test variable",
+                            "pm.collectionVariables.unset('invalid_user_id');"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{invalid_user_id}}",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{invalid_user_id}}"]
+                },
+                "description": "Test error handling for invalid user ID"
+            },
+            "response": []
+        },
+        {
+            "name": "List Users",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Response has pagination structure\", function () {",
+                            "    var jsonData = pm.response.json().data;",
+                            "    pm.expect(jsonData).to.have.property('items');",
+                            "    pm.expect(jsonData).to.have.property('meta');",
+                            "    pm.expect(jsonData.meta).to.have.property('page');",
+                            "    pm.expect(jsonData.meta).to.have.property('limit');",
+                            "    pm.expect(jsonData.meta).to.have.property('totalItems');",
+                            "    pm.expect(jsonData.meta).to.have.property('totalPages');",
+                            "    pm.expect(jsonData.meta).to.have.property('hasNextPage');",
+                            "    pm.expect(jsonData.meta).to.have.property('hasPreviousPage');",
+                            "});",
+                            "",
+                            "pm.test(\"Items is an array\", function () {",
+                            "    var jsonData = pm.response.json().data;",
+                            "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+                            "});",
+                            "",
+                            "pm.test(\"Users have correct structure\", function () {",
+                            "    var jsonData = pm.response.json().data;",
+                            "    ",
+                            "    if (jsonData.items.length > 0) {",
+                            "        pm.expect(jsonData.items[0]).to.have.property('id');",
+                            "        pm.expect(jsonData.items[0]).to.have.property('email');",
+                            "        pm.expect(jsonData.items[0]).to.have.property('status');",
+                            "        pm.expect(jsonData.items[0]).to.have.property('createdAt');",
+                            "        pm.expect(jsonData.items[0]).to.have.property('updatedAt');",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users?page=1&limit=10",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users"],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "1",
+                            "description": "Page number"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "10",
+                            "description": "Items per page"
+                        }
+                    ]
+                },
+                "description": "Get a list of all users with pagination"
+            },
+            "response": []
+        },
+        {
+            "name": "Update User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Update operation returned success\", function () {",
+                            "    var success = pm.response.json().data;",
+                            "    pm.expect(success).to.be.true;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"status\": \"inactive\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{created_user_id}}"]
+                },
+                "description": "Update a user's information"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Update User with Invalid Data",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 400 for invalid update data\", function () {",
+                            "    pm.response.to.have.status(400);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(400);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"status\": \"invalid-status\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{created_user_id}}"]
+                },
+                "description": "Test validation for invalid update data"
+            },
+            "response": []
+        },
+        {
+            "name": "Delete User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Delete operation returned success\", function () {",
+                            "    var success = pm.response.json().data;",
+                            "    pm.expect(success).to.be.true;",
+                            "});",
+                            "",
+                            "// Clean up test data by removing collection variables",
+                            "pm.test(\"Cleanup test data\", function () {",
+                            "    pm.collectionVariables.unset('created_user_id');",
+                            "    pm.collectionVariables.unset('test_email');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{created_user_id}}"]
+                },
+                "description": "Delete a user by ID"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Delete Non-existent User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 404 for non-existent user\", function () {",
+                            "    pm.response.to.have.status(404);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(404);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/00000000-0000-0000-0000-000000000000",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "users", "00000000-0000-0000-0000-000000000000"]
+                },
+                "description": "Test error handling for deleting a non-existent user"
+            },
+            "response": []
+        }
+    ]
+}
