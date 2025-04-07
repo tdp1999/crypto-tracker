@@ -1,4 +1,4 @@
-import { QuerySchema } from '@core/dtos/query.dto';
+import { QuerySchema } from '@core/schema/query.schema';
 import { z } from 'zod';
 
 export const ProviderQuerySchema = QuerySchema.pick({ key: true })

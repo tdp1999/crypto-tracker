@@ -1,5 +1,5 @@
 export abstract class TemporalValue {
-    static getNow(): bigint {
+    static get now(): bigint {
         return BigInt(Date.now());
     }
 

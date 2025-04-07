@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Prefer importing with alias instead fo absolute/relative paths.

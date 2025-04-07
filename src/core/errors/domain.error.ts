@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { ErrorOptions } from './types/error-options.type.error';
-
+import { ZodError } from 'zod';
+import { formatZodError } from './formatter.error';
 // Only for internal use
 interface DomainErrorContructPayload {
     statusCode: number;
@@ -66,11 +67,16 @@ export class DomainError extends Error {
 
 // 400
 export const BadRequestError = (message: any = 'Data is invalid', options?: ErrorOptions) => {
+    let messageContent: unknown = message;
+
+    if (messageContent instanceof ZodError) {
+        messageContent = formatZodError(messageContent);
+    }
+
     return DomainError.fromJSON({
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Bad Request',
-        message: message as unknown,
-        errorCode: options?.errorCode || null,
+        message: messageContent,
         options: options,
     });
 };
