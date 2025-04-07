@@ -31,15 +31,15 @@ Other otions
 
 **Schema**: $f="dumps/"+(Get-Date -Format "yyyy-MM-dd");`
     New-Item -ItemType Directory -Path $f -Force;`
-    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --schema-only --schema=public -f "$f/schema-backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:KsgRjWfBfS5vbmVx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --schema-only --schema=public -f "$f/schema-backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:yourpasshere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
 
 **Data**: $f="dumps/"+(Get-Date -Format "yyyy-MM-dd");`
     New-Item -ItemType Directory -Path $f -Force;`
-    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --data-only --schema=public -f "$f/data-backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:KsgRjWfBfS5vbmVx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --data-only --schema=public -f "$f/data-backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:yourpasshere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
 
 **Both**: $f="dumps/"+(Get-Date -Format "yyyy-MM-dd");`
     New-Item -ItemType Directory -Path $f -Force;`
-    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --schema=public -f "$f/backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:KsgRjWfBfS5vbmVx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+    pg_dump -Fc --clean --if-exists --quote-all-identifiers --no-owner --no-privileges --schema=public -f "$f/backup.dump" -d postgresql://postgres.mvycblxlpnyuggkubezj:yourpasshere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
 
 **Other Solution**: $f="dumps/"+(Get-Date -Format "yyyy-MM-dd");`
     New-Item -ItemType Directory -Path $f -Force;`
@@ -49,11 +49,11 @@ Other otions
 
 pg_restore --no-owner --no-privileges --schema=public --disable-triggers -d postgresql://your_connection_string dumps/YYYY-MM-DD/backup.dump
 
-Example: pg_restore --no-owner --no-privileges --disable-triggers -d postgresql://postgres.mvycblxlpnyuggkubezj:KsgRjWfBfS5vbmVx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres dumps/2025-03-30/backup.dump
+Example: pg_restore --no-owner --no-privileges --disable-triggers -d postgresql://postgres.mvycblxlpnyuggkubezj:yourpasshere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres dumps/2025-03-30/backup.dump
 
 ## Troubleshooting
 
 - Check Network / Firewall Restrictions: Test-NetConnection aws-0-ap-southeast-1.pooler.supabase.com -Port 6543
 - From .dump to .sql: pg_restore -f dumps/presentation/full_backup.sql dumps/yyyy-MM-dd/backup.dump
-- Access to database CLI: psql -d postgresql://postgres.mvycblxlpnyuggkubezj:KsgRjWfBfS5vbmVx@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+- Access to database CLI: psql -d postgresql://postgres.mvycblxlpnyuggkubezj:yourpasshere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
 - Select inside CLI: SELECT \* FROM public."Test";
