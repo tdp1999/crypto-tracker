@@ -7,6 +7,7 @@ import { hashByBcrypt } from '@shared/utils/hash.util';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
 import { z } from 'zod';
+import { ErrorLayer } from '../../errors/types/error-layer.type.error';
 
 export enum USER_STATUS {
     ACTIVE = 'active',
@@ -68,7 +69,7 @@ export class User extends BaseModel implements IUser {
 
     static async create(raw: Partial<IUser>, createdById: Id): Promise<User> {
         const { success, data, error } = UserCreateSchema.safeParse(raw);
-        if (!success) throw BadRequestError(error, { layer: 'domain', remarks: 'User creation failed' });
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'User creation failed' });
 
         const now = TemporalValue.now;
         const password = data.hashedPassword ?? (await hashByBcrypt(data.rawPassword!));
@@ -88,7 +89,7 @@ export class User extends BaseModel implements IUser {
     static update(raw: IUser, updatedById: Id): User {
         const newData = { ...this, ...raw, updatedAt: TemporalValue.now, updatedById };
         const { success, error } = UserUpdateSchema.safeParse(newData);
-        if (!success) throw BadRequestError(error, { layer: 'domain', remarks: 'User update failed' });
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'User update failed' });
 
         return new User(newData);
     }

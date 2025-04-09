@@ -11,7 +11,7 @@ import { ICoinGeckoPriceRawResponse, ICoinGeckoSearchRawResponse } from './coing
 import { PriceTransformer } from './transformers/price.transformer';
 import { SearchTransformer } from './transformers/search.transformer';
 import { COINGECKO_ERROR_MESSAGES } from './coingecko.error';
-
+import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 @Injectable()
 export class CoinGeckoAdapter implements IProviderAdapter {
     private readonly url: string;
@@ -24,11 +24,11 @@ export class CoinGeckoAdapter implements IProviderAdapter {
         const key = this.configService.get<string>('general.coingeckoProviderKey');
 
         if (!url) {
-            throw InternalServerError(COINGECKO_ERROR_MESSAGES.URL_NOT_FOUND, { layer: 'infrastructure' });
+            throw InternalServerError(COINGECKO_ERROR_MESSAGES.URL_NOT_FOUND, { layer: ErrorLayer.INFRASTRUCTURE });
         }
 
         if (!key) {
-            throw InternalServerError(COINGECKO_ERROR_MESSAGES.KEY_NOT_FOUND, { layer: 'infrastructure' });
+            throw InternalServerError(COINGECKO_ERROR_MESSAGES.KEY_NOT_FOUND, { layer: ErrorLayer.INFRASTRUCTURE });
         }
 
         this.url = `${url}/:PATH?x_cg_demo_api_key=${key}:QUERY_PARAMS`;

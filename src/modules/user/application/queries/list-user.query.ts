@@ -1,5 +1,6 @@
 import { User } from '@core/domain/entities/user.entity';
 import { BadRequestError } from '@core/errors/domain.error';
+import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler } from '@shared/types/cqrs.type';
 import { PaginatedResponse } from '@shared/types/pagination.type';
@@ -16,7 +17,7 @@ export class ListUserQuery implements IQueryHandler<UserListQuery, PaginatedResp
 
     async execute(query: UserListQuery): Promise<PaginatedResponse<User>> {
         const { success, error, data: validatedDto } = UserQuerySchema.safeParse(query.dto);
-        if (!success) throw BadRequestError(error, { layer: 'application' });
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
 
         return this.userRepository.paginatedList(validatedDto);
     }

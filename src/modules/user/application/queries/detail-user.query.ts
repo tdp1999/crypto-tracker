@@ -6,6 +6,7 @@ import { IQueryHandler } from '@shared/types/cqrs.type';
 import { IUserRepository } from '../ports/user-repository.out.port';
 import { UserDetailQuery } from '../user.dto';
 import { USER_TOKENS } from '../user.token';
+import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 
 @Injectable()
 export class DetailUserQuery implements IQueryHandler<UserDetailQuery, User> {
@@ -16,11 +17,11 @@ export class DetailUserQuery implements IQueryHandler<UserDetailQuery, User> {
 
     async execute(query: UserDetailQuery): Promise<User> {
         const { success, error, data } = DetailQuerySchema.safeParse(query);
-        if (!success) throw BadRequestError(error, { layer: 'application' });
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
 
         const { id } = data;
         const user = await this.userRepository.findById(id);
-        if (!user) throw NotFoundError(`User with id ${id} not found.`, { layer: 'application' });
+        if (!user) throw NotFoundError(`User with id ${id} not found.`, { layer: ErrorLayer.APPLICATION });
 
         return user;
     }
