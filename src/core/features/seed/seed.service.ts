@@ -5,16 +5,17 @@ import { BooleanValue } from '@shared/vos/boolean.value';
 import { Repository } from 'typeorm';
 import { ISeed } from './seed.interface';
 import { SeedEntity } from './seed.persistence';
-
+import { UserSeeder } from './seeders/user.seeder';
 @Injectable()
 export class SeedService {
     private readonly logger = new Logger(SeedService.name);
 
     constructor(
-        // private userSeeder: UserSeeder,
-        // private permissionSeeder: PermissionSeeder,
         @Inject(ConfigService) private configService: ConfigService,
         @InjectRepository(SeedEntity) private seedRepository: Repository<SeedEntity>,
+
+        // Seeders
+        private userSeeder: UserSeeder,
     ) {}
 
     async runSeeds() {
@@ -23,10 +24,7 @@ export class SeedService {
             return;
         }
 
-        const seeders: { name: string; seeder: ISeed }[] = [
-            // { name: 'Default User', seeder: this.userSeeder },
-            // { name: 'Permissions', seeder: this.permissionSeeder },
-        ];
+        const seeders: { name: string; seeder: ISeed }[] = [{ name: 'Default User', seeder: this.userSeeder }];
 
         for (const seederInfo of seeders) {
             await this.processSingleSeeder(seederInfo);

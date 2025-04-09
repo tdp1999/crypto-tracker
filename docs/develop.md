@@ -9,6 +9,7 @@
     - Add seeding mechanism -> done
 - 4/1: Plan for app
     - Add TCP transporter -> done
-    - Create user module, no need to create role or permission. Only serve single user with all features
-    - Add seed for user
+    - Create user module, no need to create role or permission. Only serve single user with all features -> done
+    - Add seed for user -> done
+    - Add Auth
     - CRUD for watchlist
