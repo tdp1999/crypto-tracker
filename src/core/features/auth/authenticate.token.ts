@@ -1,0 +1,2 @@
+export const METADATA_PUBLIC = Symbol('METADATA_PUBLIC');
+export const METADATA_REQUIRE_NO_AUTH = Symbol('METADATA_REQUIRE_NO_AUTH');

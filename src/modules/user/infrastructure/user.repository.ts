@@ -1,6 +1,6 @@
 import { withDefaultOrder } from '@core/builders/order.builder';
 import { WhereBuilder } from '@core/builders/where.builder';
-import { IUser, User } from '@core/domain/entities/user.entity';
+import { IUser, User } from '@core/features/user/user.entity';
 import { applySelectClause } from '@core/factories/select.factory';
 import { Id } from '@core/types/common.type';
 import { FindByIdsResult } from '@core/types/query.type';

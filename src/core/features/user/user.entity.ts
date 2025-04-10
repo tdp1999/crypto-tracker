@@ -1,5 +1,7 @@
 import { BaseModel } from '@core/abstractions/model.base';
 import { BadRequestError } from '@core/errors/domain.error';
+import { ERR_COMMON_EMPTY_PAYLOAD } from '@core/errors/messages/common.error';
+import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { AuditableSchema } from '@core/schema/auditable.schema';
 import { EmailSchema, IdSchema, PasswordSchema } from '@core/schema/common.schema';
 import { Email, Id, Password } from '@core/types/common.type';
@@ -7,15 +9,8 @@ import { hashByBcrypt } from '@shared/utils/hash.util';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
 import { z } from 'zod';
-import { ErrorLayer } from '../../errors/types/error-layer.type.error';
-
-export enum USER_STATUS {
-    ACTIVE = 'active',
-    PENDING = 'pending',
-    INACTIVE = 'inactive',
-    BANNED = 'banned',
-    DELETED = 'deleted',
-}
+import { ERR_USER_PASSWORD_NOT_PROVIDED } from './user.error';
+import { USER_STATUS } from './user.type';
 
 export const UserSchema = z.object({
     id: IdSchema,
@@ -36,7 +31,7 @@ export const UserCreateSchema = UserSchema.pick({
 })
     .extend({ rawPassword: PasswordSchema.optional(), hashedPassword: z.string().optional() })
     .refine((data) => data.rawPassword !== undefined || data.hashedPassword !== undefined, {
-        message: 'Either rawPassword or hashedPassword must be provided',
+        message: ERR_USER_PASSWORD_NOT_PROVIDED,
         path: ['rawPassword', 'hashedPassword'], // Indicate which fields are involved
     });
 
@@ -48,7 +43,7 @@ export const UserUpdateSchema = UserSchema.omit({ id: true })
             return Object.keys(data).length > 0;
         },
         {
-            message: 'Payload must not be empty',
+            message: ERR_COMMON_EMPTY_PAYLOAD,
             path: ['$'],
         },
     );

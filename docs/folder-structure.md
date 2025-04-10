@@ -15,12 +15,10 @@ Ta có một một số rule về folder structure như sau:
 ```text
 .
 ├── core/
-│   ├── domain/
-│   │   ├── entities
-│   │   └── value-objects
-│   ├── features/
+│   ├── features/ (replaced the domain)
 │   │   ├── authenticate/
 │   │   ├── authorize/
+│   │   ├── user/
 │   │   ├── permission/
 │   │   └── seed/
 │   ├── configs/

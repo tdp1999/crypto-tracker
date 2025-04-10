@@ -1,4 +1,4 @@
-import { UserCreateSchema, UserSchema, UserUpdateSchema } from '@core/domain/entities/user.entity';
+import { IUser, UserCreateSchema, UserSchema, UserUpdateSchema } from '@core/features/user/user.entity';
 import { createEntityQuerySchema } from '@core/factories/query.factory';
 import { DetailQuerySchema } from '@core/schema/query.schema';
 import { Id } from '@core/types/common.type';
@@ -43,4 +43,8 @@ export type UserDetailQuery = DetailQueryDto;
 
 export type UserListQuery = {
     dto: UserQueryDto;
+};
+
+export type UserValidityQuery = {
+    user: IUser;
 };

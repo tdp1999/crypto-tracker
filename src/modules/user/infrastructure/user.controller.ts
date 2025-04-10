@@ -1,4 +1,5 @@
-import { User } from '@core/domain/entities/user.entity';
+import { Requester } from '@core/decorators/requester.decorator';
+import { IUser, User } from '@core/features/user/user.entity';
 import { Id } from '@core/types/common.type';
 import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
 import { ICommandHandler, IQueryHandler } from '@shared/types/cqrs.type';
@@ -37,18 +38,18 @@ export class UserController {
     ) {}
 
     @Post()
-    async add(@Body() body: UserCreateDto) {
-        return this.userCreateCommandHandler.execute({ dto: body, createdById: null });
+    async add(@Body() body: UserCreateDto, @Requester() user: IUser) {
+        return this.userCreateCommandHandler.execute({ dto: body, createdById: user.id });
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() body: UserUpdateDto) {
-        return this.userUpdateCommandHandler.execute({ id, dto: body, updatedById: null });
+    async update(@Param('id') id: string, @Body() body: UserUpdateDto, @Requester() user: IUser) {
+        return this.userUpdateCommandHandler.execute({ id, dto: body, updatedById: user.id });
     }
 
     @Delete(':id')
-    async remove(@Param('id') id: string) {
-        return this.userDeleteCommandHandler.execute({ id, deletedById: null });
+    async remove(@Param('id') id: string, @Requester() user: IUser) {
+        return this.userDeleteCommandHandler.execute({ id, deletedById: user.id });
     }
 
     @Get()

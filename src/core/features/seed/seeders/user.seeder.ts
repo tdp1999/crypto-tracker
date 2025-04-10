@@ -1,4 +1,4 @@
-import { USER_STATUS } from '@core/domain/entities/user.entity';
+import { USER_STATUS } from '@core/features/user/user.type';
 import { UserEntity } from '@modules/user/infrastructure/user.persistence';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

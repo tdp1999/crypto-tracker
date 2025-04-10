@@ -1,4 +1,4 @@
-import { User } from '@core/domain/entities/user.entity';
+import { User } from '@core/features/user/user.entity';
 import { BadRequestError, NotFoundError } from '@core/errors/domain.error';
 import { DetailQuerySchema } from '@core/schema/query.schema';
 import { Inject, Injectable } from '@nestjs/common';

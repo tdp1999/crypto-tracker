@@ -1,4 +1,4 @@
-import { UserUpdateSchema } from '@core/domain/entities/user.entity';
+import { UserUpdateSchema } from '@core/features/user/user.entity';
 import { BadRequestError, NotFoundError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';

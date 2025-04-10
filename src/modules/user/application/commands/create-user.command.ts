@@ -1,4 +1,4 @@
-import { User, UserCreateSchema } from '@core/domain/entities/user.entity';
+import { User, UserCreateSchema } from '@core/features/user/user.entity';
 import { BadRequestError, InternalServerError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject } from '@nestjs/common';
@@ -7,6 +7,7 @@ import { IUserConfig } from '../ports/user-config.out.port';
 import { IUserRepository } from '../ports/user-repository.out.port';
 import { UserCreateCommand } from '../user.dto';
 import { USER_TOKENS } from '../user.token';
+
 export class CreateUserCommand implements ICommandHandler<UserCreateCommand, string> {
     constructor(
         @Inject(USER_TOKENS.REPOSITORIES)
