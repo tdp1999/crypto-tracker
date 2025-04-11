@@ -1,0 +1,293 @@
+{
+    "info": {
+        "_postman_id": "a7c63b21-5d8f-4e9a-8f2d-e4f97b8c2a12",
+        "name": "Auth",
+        "description": "Tests for Authentication API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Registration successful\", function () {",
+                            "    var success = pm.response.json().data;",
+                            "    pm.expect(success).to.be.true;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate unique test email to avoid conflicts",
+                            "const testEmail = `test.auth.${Date.now()}@example.com`;",
+                            "const testPassword = \"Password123!\";",
+                            "",
+                            "pm.collectionVariables.set('auth_test_email', testEmail);",
+                            "pm.collectionVariables.set('auth_test_password', testPassword);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "register"]
+                },
+                "description": "Register a new user account"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Register with Invalid Data",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 400 for invalid registration data\", function () {",
+                            "    pm.response.to.have.status(400);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(400);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"short\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "register"]
+                },
+                "description": "Test validation for invalid registration data"
+            },
+            "response": []
+        },
+        {
+            "name": "Login User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"Login response contains access token\", function () {",
+                            "    var jsonData = pm.response.json().data;",
+                            "    pm.expect(jsonData).to.have.property('accessToken');",
+                            "    pm.expect(jsonData.accessToken).to.be.a('string');",
+                            "    ",
+                            "    // Store the token for subsequent requests",
+                            "    pm.collectionVariables.set('auth_access_token', jsonData.accessToken);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "login"]
+                },
+                "description": "Login with email and password to get access token"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Login with Invalid Credentials",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 400 for invalid login\", function () {",
+                            "    pm.response.to.have.status(400);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('error');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(400);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"WrongPassword123!\"\n}"
+                },
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "login"]
+                },
+                "description": "Test validation for invalid login credentials"
+            },
+            "response": []
+        },
+        {
+            "name": "Get User Profile",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has data property\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});",
+                            "",
+                            "pm.test(\"User profile has correct structure\", function () {",
+                            "    var userData = pm.response.json().data;",
+                            "    pm.expect(userData).to.have.property('id');",
+                            "    pm.expect(userData).to.have.property('email');",
+                            "    pm.expect(userData.email).to.eql(pm.collectionVariables.get('auth_test_email'));",
+                            "});",
+                            "",
+                            "// Clean up the test variables after all tests are done",
+                            "pm.test(\"Cleanup test data\", function () {",
+                            "    pm.collectionVariables.unset('auth_test_email');",
+                            "    pm.collectionVariables.unset('auth_test_password');",
+                            "    pm.collectionVariables.unset('auth_access_token');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/me",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "me"]
+                },
+                "description": "Get the current user's profile using JWT authentication"
+            },
+            "response": []
+        },
+        {
+            "name": "(Failed) Access Profile Without Token",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 401 for unauthorized access\", function () {",
+                            "    pm.response.to.have.status(401);",
+                            "});",
+                            "",
+                            "pm.test(\"Error response has correct structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('statusCode');",
+                            "    pm.expect(jsonData).to.have.property('message');",
+                            "    pm.expect(jsonData.statusCode).to.eql(401);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/me",
+                    "host": ["{{DOMAIN}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "me"]
+                },
+                "description": "Test unauthorized access to protected endpoint"
+            },
+            "response": []
+        }
+    ]
+}

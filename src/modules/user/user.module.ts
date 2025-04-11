@@ -14,10 +14,16 @@ import { UserController } from './infrastructure/user.controller';
 import { UserEntity } from './infrastructure/user.persistence';
 import { UserRepository } from './infrastructure/user.repository';
 import { UserRpcController } from './infrastructure/user.rpc';
+import { CredentialValidityQueryHandler } from './application/queries/credential-validity.query';
 
 const CommandHandlers = [CreateUserCommandHandler, UpdateUserCommandHandler, DeleteUserCommandHandler];
 
-const QueryHandlers = [ListUserQueryHandler, DetailUserQueryHandler, DetailUserByConditionQueryHandler];
+const QueryHandlers = [
+    ListUserQueryHandler,
+    DetailUserQueryHandler,
+    DetailUserByConditionQueryHandler,
+    CredentialValidityQueryHandler,
+];
 
 @Module({
     controllers: [UserController, UserRpcController],

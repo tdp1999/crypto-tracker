@@ -1,6 +1,5 @@
 import { BasePersistence } from '@core/abstractions/persistence.base';
-import { IUser } from '@core/features/user/user.entity';
-import { USER_STATUS } from '@core/features/user/user.type';
+import { IUser, USER_STATUS } from '@core/features/user/user.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity('users')

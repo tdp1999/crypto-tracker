@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { USER_STATUS, UserValidityResult } from '@core/features/user/user.type';
+import { USER_STATUS } from '@core/features/user/user.entity';
+import { UserValidityResult } from '@core/features/user/user.type';
 import { ForbiddenError, UnauthorizedError } from '@core/errors/domain.error';
 import {
     ERR_AUTHORIZE_FORBIDDEN_ACCOUNT,

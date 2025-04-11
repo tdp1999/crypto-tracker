@@ -10,6 +10,116 @@
       "name": "Provider",
       "item": [
         {
+          "name": "Register and Get Auth Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('provider_test_email', pm.collectionVariables.get('auth_test_email'));",
+                  "pm.collectionVariables.set('provider_test_password', pm.collectionVariables.get('auth_test_password'));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate unique test email to avoid conflicts",
+                  "const testEmail = `test.provider.${Date.now()}@example.com`;",
+                  "const testPassword = \"Password123!\";",
+                  "",
+                  "pm.collectionVariables.set('auth_test_email', testEmail);",
+                  "pm.collectionVariables.set('auth_test_password', testPassword);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user to get auth token for protected endpoints"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has access token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('accessToken');",
+                  "    ",
+                  "    // Store token for subsequent requests",
+                  "    pm.collectionVariables.set('provider_access_token', jsonData.data.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get an authentication token"
+          },
+          "response": []
+        },
+        {
           "name": "Ping",
           "event": [
             {
@@ -34,7 +144,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/ping",
               "host": [
@@ -103,7 +218,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/search?key=bitcoin",
               "host": [
@@ -150,7 +270,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/search?key=",
               "host": [
@@ -243,7 +368,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/price?ids=bitcoin,ethereum",
               "host": [
@@ -291,7 +421,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/price?ids=,,,",
               "host": [
@@ -313,6 +448,90 @@
             "description": "Test validation for invalid IDs format"
           },
           "response": []
+        },
+        {
+          "name": "(Failed) Ping Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 for unauthorized access\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/ping",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "ping"
+              ]
+            },
+            "description": "Test unauthorized access to protected endpoint"
+          },
+          "response": []
+        },
+        {
+          "name": "Cleanup Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Clean up test data by removing collection variables",
+                  "pm.test(\"Cleanup test data\", function () {",
+                  "    pm.collectionVariables.unset('auth_test_email');",
+                  "    pm.collectionVariables.unset('auth_test_password');",
+                  "    pm.collectionVariables.unset('provider_test_email');",
+                  "    pm.collectionVariables.unset('provider_test_password');",
+                  "    pm.collectionVariables.unset('provider_access_token');",
+                  "    pm.expect(true).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{provider_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/provider/ping",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "provider",
+                "ping"
+              ]
+            },
+            "description": "Cleanup test variables"
+          },
+          "response": []
         }
       ],
       "description": "Tests for Crypto Provider API endpoints"
@@ -320,6 +539,116 @@
     {
       "name": "User",
       "item": [
+        {
+          "name": "Register and Get Auth Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('user_test_email', pm.collectionVariables.get('auth_test_email'));",
+                  "pm.collectionVariables.set('user_test_password', pm.collectionVariables.get('auth_test_password'));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate unique test email to avoid conflicts",
+                  "const testEmail = `test.user.admin.${Date.now()}@example.com`;",
+                  "const testPassword = \"Password123!\";",
+                  "",
+                  "pm.collectionVariables.set('auth_test_email', testEmail);",
+                  "pm.collectionVariables.set('auth_test_password', testPassword);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an admin user to get auth token for protected endpoints"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has access token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('accessToken');",
+                  "    ",
+                  "    // Store token for subsequent requests",
+                  "    pm.collectionVariables.set('user_access_token', jsonData.data.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get an authentication token"
+          },
+          "response": []
+        },
         {
           "name": "Create User",
           "event": [
@@ -370,6 +699,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
               }
             ],
             "body": {
@@ -419,6 +752,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
               }
             ],
             "body": {
@@ -476,7 +813,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
               "host": [
@@ -540,7 +882,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{invalid_user_id}}",
               "host": [
@@ -607,7 +954,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/users?page=1&limit=10",
               "host": [
@@ -665,6 +1017,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
               }
             ],
             "body": {
@@ -715,6 +1071,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
               }
             ],
             "body": {
@@ -761,6 +1121,12 @@
                   "pm.test(\"Cleanup test data\", function () {",
                   "    pm.collectionVariables.unset('created_user_id');",
                   "    pm.collectionVariables.unset('test_email');",
+                  "    pm.collectionVariables.unset('auth_test_email');",
+                  "    pm.collectionVariables.unset('auth_test_password');",
+                  "    pm.collectionVariables.unset('user_test_email');",
+                  "    pm.collectionVariables.unset('user_test_password');",
+                  "    pm.collectionVariables.unset('user_access_token');",
+                  "    pm.expect(true).to.be.true;",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -769,7 +1135,12 @@
           ],
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/{{created_user_id}}",
               "host": [
@@ -810,7 +1181,12 @@
           ],
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{DOMAIN}}/{{API_PREFIX}}/users/00000000-0000-0000-0000-000000000000",
               "host": [
@@ -823,6 +1199,100 @@
               ]
             },
             "description": "Test error handling for deleting a non-existent user"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) List Users Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 for unauthorized access\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/users?page=1&limit=10",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Test unauthorized access to protected endpoint"
+          },
+          "response": []
+        },
+        {
+          "name": "Cleanup Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Clean up test data by removing collection variables",
+                  "pm.test(\"Cleanup test data\", function () {",
+                  "    pm.collectionVariables.unset('created_user_id');",
+                  "    pm.collectionVariables.unset('test_email');",
+                  "    pm.collectionVariables.unset('auth_test_email');",
+                  "    pm.collectionVariables.unset('auth_test_password');",
+                  "    pm.collectionVariables.unset('user_test_email');",
+                  "    pm.collectionVariables.unset('user_test_password');",
+                  "    pm.collectionVariables.unset('user_access_token');",
+                  "    pm.expect(true).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/users",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "users"
+              ]
+            },
+            "description": "Cleanup test variables"
           },
           "response": []
         }
@@ -863,7 +1333,117 @@
                 "site-health"
               ]
             },
-            "description": "Health check endpoint to verify API is running"
+            "description": "Health check endpoint to verify API is running (public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Register and Get Auth Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('app_test_email', pm.collectionVariables.get('auth_test_email'));",
+                  "pm.collectionVariables.set('app_test_password', pm.collectionVariables.get('auth_test_password'));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate unique test email to avoid conflicts",
+                  "const testEmail = `test.app.${Date.now()}@example.com`;",
+                  "const testPassword = \"Password123!\";",
+                  "",
+                  "pm.collectionVariables.set('auth_test_email', testEmail);",
+                  "pm.collectionVariables.set('auth_test_password', testPassword);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user to get auth token for protected endpoints"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has access token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('accessToken');",
+                  "    ",
+                  "    // Store token for subsequent requests",
+                  "    pm.collectionVariables.set('app_access_token', jsonData.data.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get an authentication token"
           },
           "response": []
         },
@@ -890,6 +1470,58 @@
                   "pm.test(\"Random number is between 0 and 1\", function () {",
                   "    const parsedNumber = parseFloat(pm.response.text());",
                   "    pm.expect(parsedNumber).to.be.within(0, 1);",
+                  "});",
+                  "",
+                  "// Clean up variables",
+                  "pm.test(\"Cleanup test data\", function () {",
+                  "    pm.collectionVariables.unset('auth_test_email');",
+                  "    pm.collectionVariables.unset('auth_test_password');",
+                  "    pm.collectionVariables.unset('app_test_email');",
+                  "    pm.collectionVariables.unset('app_test_password');",
+                  "    pm.collectionVariables.unset('app_access_token');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{app_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/random-number",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "random-number"
+              ]
+            },
+            "description": "Get a random number between 0 and 1 (protected endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Random Number Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 for unauthorized access\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(401);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -908,12 +1540,337 @@
                 "random-number"
               ]
             },
-            "description": "Get a random number between 0 and 1"
+            "description": "Test unauthorized access to protected endpoint"
           },
           "response": []
         }
       ],
       "description": "Tests for App API endpoints"
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test(\"Registration successful\", function () {",
+                  "    var success = pm.response.json().data;",
+                  "    pm.expect(success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate unique test email to avoid conflicts",
+                  "const testEmail = `test.auth.${Date.now()}@example.com`;",
+                  "const testPassword = \"Password123!\";",
+                  "",
+                  "pm.collectionVariables.set('auth_test_email', testEmail);",
+                  "pm.collectionVariables.set('auth_test_password', testPassword);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Register with Invalid Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 for invalid registration data\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"short\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/register",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Test validation for invalid registration data"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test(\"Login response contains access token\", function () {",
+                  "    var jsonData = pm.response.json().data;",
+                  "    pm.expect(jsonData).to.have.property('accessToken');",
+                  "    pm.expect(jsonData.accessToken).to.be.a('string');",
+                  "    ",
+                  "    // Store the token for subsequent requests",
+                  "    pm.collectionVariables.set('auth_access_token', jsonData.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with email and password to get access token"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Login with Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 for invalid login\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/login",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Test validation for invalid login credentials"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test(\"User profile has correct structure\", function () {",
+                  "    var userData = pm.response.json().data;",
+                  "    pm.expect(userData).to.have.property('id');",
+                  "    pm.expect(userData).to.have.property('email');",
+                  "    pm.expect(userData.email).to.eql(pm.collectionVariables.get('auth_test_email'));",
+                  "});",
+                  "",
+                  "// Clean up the test variables after all tests are done",
+                  "pm.test(\"Cleanup test data\", function () {",
+                  "    pm.collectionVariables.unset('auth_test_email');",
+                  "    pm.collectionVariables.unset('auth_test_password');",
+                  "    pm.collectionVariables.unset('auth_access_token');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/me",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Get the current user's profile using JWT authentication"
+          },
+          "response": []
+        },
+        {
+          "name": "(Failed) Access Profile Without Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 for unauthorized access\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('statusCode');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.statusCode).to.eql(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/auth/me",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "{{API_PREFIX}}",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Test unauthorized access to protected endpoint"
+          },
+          "response": []
+        }
+      ],
+      "description": "Tests for Authentication API endpoints"
     }
   ]
 }

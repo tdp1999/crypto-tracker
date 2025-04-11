@@ -24,6 +24,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
     ) {}
 
     async execute(command: CreateUserCommand) {
+        console.log('command', command);
         const { dto, createdById } = command.payload;
         const { success, data, error } = UserCreateSchema.safeParse(dto);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });

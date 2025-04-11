@@ -1,28 +1,38 @@
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';
-import { ICommandHandler } from '@shared/types/cqrs.type';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AuthLoginDto, AuthLoginSchema } from '../auth.dto';
 import { AUTH_TOKEN } from '../auth.token';
-import { IAuthUserRepository } from '../ports/auth-repository.port';
+import { IJwtService } from '../ports/auth-jwt.port';
+import { IAuthLoginResponse } from '../ports/auth-login.in.port';
+import { IAuthRepository } from '../ports/auth-repository.port';
+
+export class LoginCommand {
+    constructor(public readonly payload: { dto: AuthLoginDto }) {}
+}
 
 @Injectable()
-export class LoginCommandHandler implements ICommandHandler<AuthLoginDto, string> {
+@CommandHandler(LoginCommand)
+export class LoginCommandHandler implements ICommandHandler<LoginCommand, IAuthLoginResponse> {
     constructor(
-        @Inject(AUTH_TOKEN.USER_REPOSITORY)
-        private readonly userRepository: IAuthUserRepository,
+        @Inject(AUTH_TOKEN.REPOSITORY)
+        private readonly repository: IAuthRepository,
+
+        @Inject(AUTH_TOKEN.JWT_SERVICE)
+        private readonly jwtService: IJwtService,
     ) {}
 
-    async execute(command: AuthLoginDto) {
-        const { success, data, error } = AuthLoginSchema.safeParse(command);
+    async execute(command: LoginCommand) {
+        const { success, data, error } = AuthLoginSchema.safeParse(command.payload.dto);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });
 
-        // const user = await this.userRepository.getByEmail(data.email);
-        // if (!user) throw BadRequestError('User not found', { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });
+        const result = await this.repository.validateCredential(data.email, data.password);
 
-        // const isPasswordValid = await this.userRepository.getPassword(user.id);
-        // if (!isPasswordValid) throw BadRequestError('Invalid password', { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });
+        if (!result.isValid) throw BadRequestError(result.invalidMessage, { layer: ErrorLayer.APPLICATION });
 
-        return 'success';
+        const tokenPayload = this.jwtService.generatePayload('Crypto-Tracker', result.user.id, result.user.email);
+
+        return { accessToken: await this.jwtService.sign(tokenPayload) };
     }
 }

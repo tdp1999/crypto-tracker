@@ -7,9 +7,9 @@
 - 29/3: Found a test flow for project. Todo:
     - Split database into 2 environement: dev, prod -> find a way to backup database -> done, using psql tools
     - Add seeding mechanism -> done
-- 4/1: Plan for app
+- 1/4: Plan for app
     - Add TCP transporter -> done
     - Create user module, no need to create role or permission. Only serve single user with all features -> done
     - Add seed for user -> done
-    - Add Auth
+    - Add Auth -> done (11/4)
     - CRUD for watchlist

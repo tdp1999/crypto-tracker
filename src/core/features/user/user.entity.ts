@@ -10,7 +10,14 @@ import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
 import { z } from 'zod';
 import { ERR_USER_PASSWORD_NOT_PROVIDED } from './user.error';
-import { USER_STATUS } from './user.type';
+
+export enum USER_STATUS {
+    ACTIVE = 'active',
+    PENDING = 'pending',
+    INACTIVE = 'inactive',
+    BANNED = 'banned',
+    DELETED = 'deleted',
+}
 
 export const UserSchema = z.object({
     id: IdSchema,

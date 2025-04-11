@@ -1,10 +1,4 @@
-export enum USER_STATUS {
-    ACTIVE = 'active',
-    PENDING = 'pending',
-    INACTIVE = 'inactive',
-    BANNED = 'banned',
-    DELETED = 'deleted',
-}
+import { IUser, USER_STATUS } from './user.entity';
 
 export type UserValidityResult =
     | { isValid: true; status: USER_STATUS.ACTIVE }
@@ -13,3 +7,5 @@ export type UserValidityResult =
           status: USER_STATUS.INACTIVE | USER_STATUS.DELETED | USER_STATUS.BANNED | USER_STATUS.PENDING;
           invalidMessage?: string;
       };
+
+export type UserCredentialValidityResult = { isValid: true; user: IUser } | { isValid: false; invalidMessage: string };

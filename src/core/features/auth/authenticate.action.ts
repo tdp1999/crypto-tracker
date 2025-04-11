@@ -5,6 +5,7 @@ export enum AuthenticateAction {
 export enum AuthenticateUserAction {
     // Guard
     VALIDATE = 'auth_user.validate',
+    VALIDATE_CREDENTIAL = 'auth_user.validate_credential',
     GET = 'auth_user.get',
 
     // Auth

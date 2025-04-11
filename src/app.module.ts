@@ -10,13 +10,16 @@ import { UserModule } from '@modules/user/user.module';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
 
-const featuredModules = [ProviderModule, UserModule] as unknown as DynamicModule[];
+const featuredModules = [ProviderModule, UserModule, AuthModule] as unknown as DynamicModule[];
 
 @Module({
     imports: [
+        CqrsModule.forRoot(),
         ClientModule.registerAsync(),
         ConfigModule.forRoot({
             isGlobal: true,

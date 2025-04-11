@@ -1,9 +1,8 @@
-import { IUser } from '@core/features/user/user.entity';
-import { USER_STATUS, UserValidityResult } from '@core/features/user/user.type';
+import { IUser, USER_STATUS } from '@core/features/user/user.entity';
+import { UserValidityResult } from '@core/features/user/user.type';
 import { Injectable } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 
-// Query class
 export class UserValidityQuery {
     constructor(public readonly payload: { user: IUser }) {}
 }

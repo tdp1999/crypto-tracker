@@ -1,6 +1,6 @@
 export const AUTH_TOKEN = {
     JWT_SERVICE: Symbol('AUTH.JWT_SERVICE'),
-    USER_REPOSITORY: Symbol('AUTH.USER_REPOSITORY'),
+    REPOSITORY: Symbol('AUTH.REPOSITORY'),
     HANDLERS: {
         QUERY: {
             ME: Symbol('AUTH.QUERY.ME'),
