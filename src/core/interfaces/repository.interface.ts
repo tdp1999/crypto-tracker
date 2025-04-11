@@ -1,5 +1,5 @@
 import { PaginatedResponse } from '@shared/types/pagination.type';
-import { Id } from '../types/common.type';
+import { Conditions, Id } from '../types/common.type';
 import { FindByIdsResult } from '../types/query.type';
 
 export interface IRepositoryCommand<Add, Update> {
@@ -10,7 +10,7 @@ export interface IRepositoryCommand<Add, Update> {
     remove(id: Id): Promise<boolean>;
 }
 
-export interface IRepositoryQuery<T, Search, Conditions = Record<string, any>> {
+export interface IRepositoryQuery<T, Search> {
     list(query?: Search): Promise<T[]>;
 
     paginatedList(query?: Search): Promise<PaginatedResponse<T>>;
@@ -24,6 +24,6 @@ export interface IRepositoryQuery<T, Search, Conditions = Record<string, any>> {
     exists(id: Id): Promise<boolean>;
 }
 
-export interface IRepository<T, Search, Add, Update, Conditions = Record<string, any>>
+export interface IRepository<T, Search, Add, Update>
     extends IRepositoryCommand<Add, Update>,
-        IRepositoryQuery<T, Search, Conditions> {}
+        IRepositoryQuery<T, Search> {}

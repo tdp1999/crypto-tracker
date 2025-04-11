@@ -2,21 +2,28 @@ import { User } from '@core/features/user/user.entity';
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';
-import { IQueryHandler } from '@shared/types/cqrs.type';
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { PaginatedResponse } from '@shared/types/pagination.type';
 import { IUserRepository } from '../ports/user-repository.out.port';
-import { UserListQuery, UserQuerySchema } from '../user.dto';
+import { UserQueryDto, UserQuerySchema } from '../user.dto';
 import { USER_TOKENS } from '../user.token';
 
+// Query class
+export class UserListQuery {
+    constructor(public readonly payload: { dto: UserQueryDto }) {}
+}
+
 @Injectable()
-export class ListUserQuery implements IQueryHandler<UserListQuery, PaginatedResponse<User>> {
+@QueryHandler(UserListQuery)
+export class ListUserQueryHandler implements IQueryHandler<UserListQuery, PaginatedResponse<User>> {
     constructor(
         @Inject(USER_TOKENS.REPOSITORIES)
         private readonly userRepository: IUserRepository,
     ) {}
 
     async execute(query: UserListQuery): Promise<PaginatedResponse<User>> {
-        const { success, error, data: validatedDto } = UserQuerySchema.safeParse(query.dto);
+        const { dto } = query.payload;
+        const { success, error, data: validatedDto } = UserQuerySchema.safeParse(dto);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
 
         return this.userRepository.paginatedList(validatedDto);

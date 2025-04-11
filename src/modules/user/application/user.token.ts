@@ -5,6 +5,7 @@ export const USER_TOKENS = {
         QUERY: {
             LIST: Symbol('USER.QUERY.LIST'),
             DETAIL: Symbol('USER.QUERY.DETAIL'),
+            GET_BY_CONDITION: Symbol('USER.QUERY.GET_BY_CONDITION'),
         },
         COMMAND: {
             CREATE: Symbol('USER.COMMAND.CREATE'),

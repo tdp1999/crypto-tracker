@@ -8,3 +8,4 @@ export type Email = z.infer<typeof EmailSchema>;
 export type Password = z.infer<typeof PasswordSchema>;
 
 export type Timestamp = z.infer<typeof TimestampSchema>;
+export type Conditions = Record<string, any>;

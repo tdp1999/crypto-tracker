@@ -97,6 +97,11 @@ export class UserRepository implements IUserRepository {
         return count > 0;
     }
 
+    async getHashedPassword(id: Id): Promise<string | null> {
+        const entity = await this.userRepository.findOneBy({ id });
+        return entity?.password ?? null;
+    }
+
     // --- Private helper methods ---
     private _toDomain(entity: UserEntity): User {
         // Warning: Direct casting might be problematic if User has methods or complex logic.

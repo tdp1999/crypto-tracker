@@ -1,7 +1,7 @@
-import { IUser, UserCreateSchema, UserSchema, UserUpdateSchema } from '@core/features/user/user.entity';
 import { createEntityQuerySchema } from '@core/factories/query.factory';
+import { IUser, UserCreateSchema, UserSchema, UserUpdateSchema } from '@core/features/user/user.entity';
 import { DetailQuerySchema } from '@core/schema/query.schema';
-import { Id } from '@core/types/common.type';
+import { Conditions, Id } from '@core/types/common.type';
 import { DetailQueryDto } from '@core/types/query.type';
 import { z } from 'zod';
 
@@ -40,6 +40,7 @@ export type UserDeleteCommand = {
 
 /* Queries */
 export type UserDetailQuery = DetailQueryDto;
+export type GetPasswordQuery = DetailQueryDto;
 
 export type UserListQuery = {
     dto: UserQueryDto;
@@ -47,4 +48,8 @@ export type UserListQuery = {
 
 export type UserValidityQuery = {
     user: IUser;
+};
+
+export type GetUserByConditionQuery = {
+    condition: Conditions;
 };

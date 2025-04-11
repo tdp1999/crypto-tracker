@@ -1,13 +1,18 @@
+import { IUser } from '@core/features/user/user.entity';
 import { USER_STATUS, UserValidityResult } from '@core/features/user/user.type';
 import { Injectable } from '@nestjs/common';
-import { IQueryHandler } from '@shared/types/cqrs.type';
-import { UserValidityQuery } from '../user.dto';
-import { IUser } from '@core/features/user/user.entity';
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+
+// Query class
+export class UserValidityQuery {
+    constructor(public readonly payload: { user: IUser }) {}
+}
 
 @Injectable()
+@QueryHandler(UserValidityQuery)
 export class UserValidityQueryHandler implements IQueryHandler<UserValidityQuery, UserValidityResult> {
     async execute(query: UserValidityQuery): Promise<UserValidityResult> {
-        const { user } = query;
+        const { user } = query.payload;
         return Promise.resolve(this._validate(user));
     }
 
