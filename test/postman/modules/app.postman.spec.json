@@ -18,7 +18,8 @@
                             "});",
                             "",
                             "pm.test(\"Response is 'OK'\", function () {",
-                            "    pm.expect(pm.response.text()).to.equal('OK');",
+                            "    var jsonData = pm.response.json().data;",
+                            "    pm.expect(jsonData).to.equal('OK');",
                             "});"
                         ],
                         "type": "text/javascript"
@@ -29,9 +30,9 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                    "raw": "{{DOMAIN}}/site-health",
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/site-health",
                     "host": ["{{DOMAIN}}"],
-                    "path": ["site-health"]
+                    "path": ["{{API_PREFIX}}", "site-health"]
                 },
                 "description": "Health check endpoint to verify API is running (public endpoint)"
             },
@@ -182,9 +183,9 @@
                     }
                 ],
                 "url": {
-                    "raw": "{{DOMAIN}}/random-number",
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/random-number",
                     "host": ["{{DOMAIN}}"],
-                    "path": ["random-number"]
+                    "path": ["{{API_PREFIX}}", "random-number"]
                 },
                 "description": "Get a random number between 0 and 1 (protected endpoint)"
             },
@@ -216,9 +217,9 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                    "raw": "{{DOMAIN}}/random-number",
+                    "raw": "{{DOMAIN}}/{{API_PREFIX}}/random-number",
                     "host": ["{{DOMAIN}}"],
-                    "path": ["random-number"]
+                    "path": ["{{API_PREFIX}}", "random-number"]
                 },
                 "description": "Test unauthorized access to protected endpoint"
             },

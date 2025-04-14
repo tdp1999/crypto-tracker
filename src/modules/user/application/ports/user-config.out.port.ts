@@ -4,4 +4,6 @@ export interface IUserConfig {
     getDefaultPassword(): string | undefined;
 
     getSystemId(): Id | undefined;
+
+    getDefaultManualRegistrationId(): Id | undefined;
 }

@@ -21,7 +21,7 @@ export class UserController {
     @Post()
     async add(@Body() body: UserCreateDto, @Requester() user: IUser): Promise<Id> {
         return await this.commandBus.execute<CreateUserCommand, Id>(
-            new CreateUserCommand({ dto: body, createdById: user.id }),
+            new CreateUserCommand({ dto: body, createdBy: { id: user.id } }),
         );
     }
 

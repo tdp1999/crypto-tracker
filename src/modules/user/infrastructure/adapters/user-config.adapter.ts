@@ -13,4 +13,8 @@ export class UserConfigAdapter implements IUserConfig {
     getSystemId(): Id | undefined {
         return this.configService.get<Id>('general.defaultSystemId');
     }
+
+    getDefaultManualRegistrationId(): Id | undefined {
+        return this.configService.get<Id>('general.defaultManualRegistrationId');
+    }
 }

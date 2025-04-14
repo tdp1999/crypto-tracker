@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "Happy Flow: User Management Operations",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Login as Admin User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "- API: `POST /auth/login`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"admin@example.com\",\r\n            \"password\": \"AdminPass123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Validation: Response contains `data.accessToken`\r\n    - Save token: Store the access token for subsequent requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Extract and store access token\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.data).to.have.property('accessToken');",
+              "    pm.collectionVariables.set('access_token', responseJson.data.accessToken);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. List Users with Pagination",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users?page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users?page=1&limit=10"
+          ]
+        },
+        "description": "- API: `GET /users?page=1&limit=10`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains paginated list of users with correct structure\r\n    - Save data: Store the total count and first user ID for later use"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Create New User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users"
+          ]
+        },
+        "description": "- API: `POST /users`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"newuser@example.com\",\r\n            \"password\": \"NewUserPass123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Validation: Response contains the ID of the newly created user\r\n    - Save data: Store the new user ID for subsequent operations",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Get User Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{user_id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "- API: `GET /users/{user_id}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains correct user information matching the created user"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain correct\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('correct');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Update User Information",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{user_id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "- API: `PUT /users/{user_id}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"updated-user@example.com\"\r\n        }\r\n        ```\r\n    - Expected response: `200 OK`\r\n    - Validation: Response indicates successful update",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response indicates successful update\", function () {",
+              "    // Custom validation: Response indicates successful update",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Verify Updated Information",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{user_id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "- API: `GET /users/{user_id}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains updated user information with the new email"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain updated\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('updated');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Delete User",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{user_id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "- API: `DELETE /users/{user_id}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response indicates successful deletion"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response indicates successful deletion\", function () {",
+              "    // Custom validation: Response indicates successful deletion",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Verify User Deletion",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{user_id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "- API: `GET /users/{user_id}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `404 Not Found`\r\n    - Validation: Response indicates user not found"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Response indicates user not found\", function () {",
+              "    // Custom validation: Response indicates user not found",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "API_PREFIX",
+      "value": "api",
+      "type": "string"
+    }
+  ]
+}

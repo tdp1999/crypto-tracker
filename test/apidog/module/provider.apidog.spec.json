@@ -1,0 +1,451 @@
+{
+    "info": {
+        "name": "Provider",
+        "description": "Cryptocurrency provider API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Ping Provider",
+            "description": "Check if the cryptocurrency data provider is available.",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response indicates provider is online\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/ping",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "provider", "ping"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/ping",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "ping"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"message\": \"pong\",\n        \"timestamp\": \"2023-01-01T00:00:00.000Z\"\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Provider Unavailable",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/ping",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "ping"]
+                        }
+                    },
+                    "status": "Service Unavailable",
+                    "code": 503,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 503,\n    \"message\": \"Cryptocurrency provider service unavailable\",\n    \"error\": \"Service Unavailable\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/ping",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "ping"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Search Cryptocurrencies",
+            "description": "Search for cryptocurrencies by keyword",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains search results\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.be.an('array');",
+                            "    ",
+                            "    // If we got results, store the first result's ID for price check",
+                            "    if (jsonData.data && jsonData.data.length > 0) {",
+                            "        pm.collectionVariables.set('crypto_id', jsonData.data[0].id);",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "provider", "search"],
+                    "query": [
+                        {
+                            "key": "key",
+                            "value": "bitcoin"
+                        }
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "search"],
+                            "query": [
+                                {
+                                    "key": "key",
+                                    "value": "bitcoin"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": [\n        {\n            \"id\": \"bitcoin\",\n            \"name\": \"Bitcoin\",\n            \"symbol\": \"BTC\",\n            \"market_cap_rank\": 1,\n            \"thumb\": \"https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png\",\n            \"large\": \"https://assets.coingecko.com/coins/images/1/large/bitcoin.png\"\n        },\n        {\n            \"id\": \"wrapped-bitcoin\",\n            \"name\": \"Wrapped Bitcoin\",\n            \"symbol\": \"WBTC\",\n            \"market_cap_rank\": 20,\n            \"thumb\": \"https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png\",\n            \"large\": \"https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png\"\n        }\n    ],\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "No Results",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=nonexistentcoin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "search"],
+                            "query": [
+                                {
+                                    "key": "key",
+                                    "value": "nonexistentcoin"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": [],\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Invalid Key Parameter",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "search"],
+                            "query": [
+                                {
+                                    "key": "key",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Key must be a non-empty string\",\n    \"error\": \"Bad Request\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "search"],
+                            "query": [
+                                {
+                                    "key": "key",
+                                    "value": "bitcoin"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Get Cryptocurrency Prices",
+            "description": "Get current prices for specified cryptocurrencies",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains price data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.be.an('object');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids={{crypto_id}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "provider", "price"],
+                    "query": [
+                        {
+                            "key": "ids",
+                            "value": "{{crypto_id}}"
+                        }
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success (Single Crypto)",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=bitcoin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "price"],
+                            "query": [
+                                {
+                                    "key": "ids",
+                                    "value": "bitcoin"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"bitcoin\": {\n            \"usd\": 50000.12,\n            \"eur\": 45123.45,\n            \"last_updated_at\": 1640995200\n        }\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Success (Multiple Cryptos)",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=bitcoin,ethereum",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "price"],
+                            "query": [
+                                {
+                                    "key": "ids",
+                                    "value": "bitcoin,ethereum"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"bitcoin\": {\n            \"usd\": 50000.12,\n            \"eur\": 45123.45,\n            \"last_updated_at\": 1640995200\n        },\n        \"ethereum\": {\n            \"usd\": 3000.78,\n            \"eur\": 2700.12,\n            \"last_updated_at\": 1640995180\n        }\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Invalid IDs Format",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=,,,",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "price"],
+                            "query": [
+                                {
+                                    "key": "ids",
+                                    "value": ",,,"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"IDs must be comma-separated values with no empty items\",\n    \"error\": \"Bad Request\"\n}"
+                },
+                {
+                    "name": "Missing IDs Parameter",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "price"]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Missing required parameter: ids\",\n    \"error\": \"Bad Request\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=bitcoin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "provider", "price"],
+                            "query": [
+                                {
+                                    "key": "ids",
+                                    "value": "bitcoin"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        }
+    ]
+}

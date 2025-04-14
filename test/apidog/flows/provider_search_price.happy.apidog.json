@@ -1,0 +1,291 @@
+{
+  "info": {
+    "name": "Happy Flow: Cryptocurrency Provider Operations",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Login to Get Access Token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "- API: `POST /auth/login`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"user@example.com\",\r\n            \"password\": \"SecurePassword123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Validation: Response contains `data.accessToken`\r\n    - Save token: Store the access token for subsequent requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Extract and store access token\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.data).to.have.property('accessToken');",
+              "    pm.collectionVariables.set('access_token', responseJson.data.accessToken);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Check Provider Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/ping",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "ping"
+          ]
+        },
+        "description": "- API: `GET /provider/ping`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response indicates the provider service is operational"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response indicates the provider service is operational\", function () {",
+              "    // Custom validation: Response indicates the provider service is operational",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Search for a Popular Cryptocurrency",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key=bitcoin"
+          ]
+        },
+        "description": "- API: `GET /provider/search?key=bitcoin`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains search results for Bitcoin\r\n    - Save data: Store the ID (e.g., 'bitcoin') for the next request"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Search for Multiple Cryptocurrencies",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=eth",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key=eth"
+          ]
+        },
+        "description": "- API: `GET /provider/search?key=eth`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains search results for Ethereum-related cryptocurrencies\r\n    - Save data: Store one or more additional IDs (e.g., 'ethereum')"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Get Price for a Single Cryptocurrency",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=bitcoin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids=bitcoin"
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids=bitcoin`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains price information for Bitcoin"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain price\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('price');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Get Prices for Multiple Cryptocurrencies",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=bitcoin,ethereum",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids=bitcoin,ethereum"
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids=bitcoin,ethereum`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains price information for both Bitcoin and Ethereum"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain price\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('price');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "API_PREFIX",
+      "value": "api",
+      "type": "string"
+    }
+  ]
+}

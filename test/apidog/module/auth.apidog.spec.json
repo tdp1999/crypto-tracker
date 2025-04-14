@@ -1,0 +1,386 @@
+{
+    "info": {
+        "name": "Auth",
+        "description": "Authentication and user identity endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register",
+            "description": "Register a new user to get access to the system",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate unique test email to avoid conflicts",
+                            "const testEmail = `test.auth.${Date.now()}@example.com`;",
+                            "const testPassword = \"Password123!\";",
+                            "",
+                            "pm.collectionVariables.set('auth_test_email', testEmail);",
+                            "pm.collectionVariables.set('auth_test_password', testPassword);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "register"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"test.auth.123456@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "register"]
+                        }
+                    },
+                    "status": "Created",
+                    "code": 201,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": true,\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Email Already Exists",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "register"]
+                        }
+                    },
+                    "status": "Conflict",
+                    "code": 409,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 409,\n    \"message\": \"Email already exists\",\n    \"error\": \"Conflict\"\n}"
+                },
+                {
+                    "name": "Invalid Email Format",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "register"]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Invalid email format\",\n    \"error\": \"Bad Request\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Login",
+            "description": "Login with email and password to get access token",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate unique test email to avoid conflicts",
+                            "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+                            "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+                            "",
+                            "pm.collectionVariables.set('auth_test_email', testEmail);",
+                            "pm.collectionVariables.set('auth_test_password', testPassword);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has access token\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.have.property('accessToken');",
+                            "    ",
+                            "    // Store token for subsequent requests",
+                            "    pm.collectionVariables.set('access_token', jsonData.data.accessToken);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "login"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "login"]
+                        }
+                    },
+                    "status": "Created",
+                    "code": 201,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4OTAiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.12345678901234567890\"\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Invalid Credentials",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"WrongPassword\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "login"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Invalid credentials\",\n    \"error\": \"Unauthorized\"\n}"
+                },
+                {
+                    "name": "Invalid Email Format",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "login"]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Invalid email format\",\n    \"error\": \"Bad Request\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Get Current User",
+            "description": "Get information about the currently logged in user",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.have.property('id');",
+                            "    pm.expect(jsonData.data).to.have.property('email');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/me",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "auth", "me"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "me"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"id\": \"1234567890\",\n        \"email\": \"user@example.com\",\n        \"createdAt\": \"2023-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2023-01-01T00:00:00.000Z\"\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "me"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                },
+                {
+                    "name": "Invalid Token",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer invalid.token.here"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "auth", "me"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Invalid token\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        }
+    ]
+}

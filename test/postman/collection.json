@@ -1314,7 +1314,8 @@
                   "});",
                   "",
                   "pm.test(\"Response is 'OK'\", function () {",
-                  "    pm.expect(pm.response.text()).to.equal('OK');",
+                  "    var jsonData = pm.response.json().data;",
+                  "    pm.expect(jsonData).to.equal('OK');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1325,11 +1326,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{DOMAIN}}/site-health",
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/site-health",
               "host": [
                 "{{DOMAIN}}"
               ],
               "path": [
+                "{{API_PREFIX}}",
                 "site-health"
               ]
             },
@@ -1494,11 +1496,12 @@
               }
             ],
             "url": {
-              "raw": "{{DOMAIN}}/random-number",
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/random-number",
               "host": [
                 "{{DOMAIN}}"
               ],
               "path": [
+                "{{API_PREFIX}}",
                 "random-number"
               ]
             },
@@ -1532,11 +1535,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{DOMAIN}}/random-number",
+              "raw": "{{DOMAIN}}/{{API_PREFIX}}/random-number",
               "host": [
                 "{{DOMAIN}}"
               ],
               "path": [
+                "{{API_PREFIX}}",
                 "random-number"
               ]
             },

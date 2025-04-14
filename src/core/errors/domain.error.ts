@@ -17,14 +17,15 @@ export interface DomainErrorPayload {
     error: string;
     message: any;
     options?: ErrorOptions;
+    remarks?: string;
 }
 
 export function constructRemarks(options?: ErrorOptions): string | undefined {
-    if (!options || (!options.remarks && !options.remarks)) return undefined;
+    if (!options || (!options.layer && !options.remarks)) return undefined;
 
     const prefix = options.layer ? `[${options.layer.toUpperCase()}]` : '';
 
-    return `${prefix} ${options.remarks}`.trim();
+    return `${prefix} ${options.remarks ?? 'No remarks provided.'}`.trim();
 }
 
 export class DomainError extends Error {
@@ -60,7 +61,7 @@ export class DomainError extends Error {
             errorCode: json.errorCode,
             error: json.error,
             message: json.message as unknown,
-            remarks: constructRemarks(json.options),
+            remarks: json.remarks || constructRemarks(json.options),
         });
     }
 }
@@ -114,6 +115,17 @@ export const NotFoundError = (message: any = 'Not Found', options?: ErrorOptions
     });
 };
 
+// 405
+export const NotSupportedMethodError = (message: any = 'Not Supported Method', options?: ErrorOptions) => {
+    return DomainError.fromJSON({
+        statusCode: HttpStatus.METHOD_NOT_ALLOWED,
+        error: 'Not Supported Method',
+        message: message as unknown,
+        errorCode: options?.errorCode || null,
+        options: options,
+    });
+};
+
 // 500
 export const InternalServerError = (message: any = 'Internal Server Error', options?: ErrorOptions) => {
     return DomainError.fromJSON({
@@ -121,16 +133,6 @@ export const InternalServerError = (message: any = 'Internal Server Error', opti
         error: 'Internal Server Error',
         message: message as unknown,
         errorCode: options?.errorCode || null,
-        options: options,
-    });
-};
-
-export const NotSupportedMethodError = (message: any = 'Not Supported Method', options?: ErrorOptions) => {
-    return DomainError.fromJSON({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Not Supported Method',
-        message: message as unknown,
-        errorCode: options?.errorCode || null,
-        options: options,
+        options,
     });
 };

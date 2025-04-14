@@ -1,0 +1,684 @@
+{
+    "info": {
+        "name": "User",
+        "description": "User management endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "List Users",
+            "description": "Get a paginated list of users.",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has pagination structure\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData).to.have.property('meta');",
+                            "    pm.expect(jsonData.meta).to.have.property('total');",
+                            "    pm.expect(jsonData.meta).to.have.property('page');",
+                            "    pm.expect(jsonData.meta).to.have.property('limit');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/users?page=1&limit=10",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "users"],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "10"
+                        }
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users?page=1&limit=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": [\n        {\n            \"id\": \"1234567890\",\n            \"email\": \"user1@example.com\",\n            \"createdAt\": \"2023-01-01T00:00:00.000Z\",\n            \"updatedAt\": \"2023-01-01T00:00:00.000Z\"\n        },\n        {\n            \"id\": \"0987654321\",\n            \"email\": \"user2@example.com\",\n            \"createdAt\": \"2023-01-02T00:00:00.000Z\",\n            \"updatedAt\": \"2023-02-15T00:00:00.000Z\"\n        }\n    ],\n    \"meta\": {\n        \"total\": 2,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    }\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users?page=1&limit=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Get User by ID",
+            "description": "Get details for a specific user by ID",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.have.property('id');",
+                            "    pm.expect(jsonData.data).to.have.property('email');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{{user_id}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{user_id}}"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": {\n        \"id\": \"1234567890\",\n        \"email\": \"user1@example.com\",\n        \"createdAt\": \"2023-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2023-01-01T00:00:00.000Z\"\n    },\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "User Not Found",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/non-existent-id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "non-existent-id"]
+                        }
+                    },
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 404,\n    \"message\": \"User not found\",\n    \"error\": \"Not Found\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Create User",
+            "description": "Create a new user",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user ID\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    ",
+                            "    // Store ID for subsequent requests",
+                            "    if (jsonData.data) {",
+                            "        pm.collectionVariables.set('user_id', jsonData.data);",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "// Generate unique test email to avoid conflicts",
+                            "const testEmail = `test.user.${Date.now()}@example.com`;",
+                            "const testPassword = \"Password123!\";",
+                            "",
+                            "pm.collectionVariables.set('user_test_email', testEmail);",
+                            "pm.collectionVariables.set('user_test_password', testPassword);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{user_test_email}}\",\n    \"password\": \"{{user_test_password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "users"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"]
+                        }
+                    },
+                    "status": "Created",
+                    "code": 201,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": \"1234567890\",\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "Email Already Exists",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"]
+                        }
+                    },
+                    "status": "Conflict",
+                    "code": 409,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 409,\n    \"message\": \"Email already exists\",\n    \"error\": \"Conflict\"\n}"
+                },
+                {
+                    "name": "Invalid Data",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"short\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Validation failed\",\n    \"error\": \"Bad Request\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Update User",
+            "description": "Update an existing user's information",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response indicates success\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.equal(true);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{{user_id}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{user_id}}"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": true,\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "User Not Found",
+                    "originalRequest": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/non-existent-id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "non-existent-id"]
+                        }
+                    },
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 404,\n    \"message\": \"User not found\",\n    \"error\": \"Not Found\"\n}"
+                },
+                {
+                    "name": "Invalid Data",
+                    "originalRequest": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"invalid-email\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 400,\n    \"message\": \"Validation failed\",\n    \"error\": \"Bad Request\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        },
+        {
+            "name": "Delete User",
+            "description": "Delete an existing user",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response indicates success\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('data');",
+                            "    pm.expect(jsonData.data).to.equal(true);",
+                            "    ",
+                            "    // Clear user ID as it's no longer valid",
+                            "    pm.collectionVariables.unset('user_id');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{{user_id}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["{{API_PREFIX}}", "users", "{{user_id}}"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "originalRequest": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"data\": true,\n    \"meta\": {}\n}"
+                },
+                {
+                    "name": "User Not Found",
+                    "originalRequest": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/non-existent-id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "non-existent-id"]
+                        }
+                    },
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 404,\n    \"message\": \"User not found\",\n    \"error\": \"Not Found\"\n}"
+                },
+                {
+                    "name": "Unauthorized",
+                    "originalRequest": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["{{API_PREFIX}}", "users", "1234567890"]
+                        }
+                    },
+                    "status": "Unauthorized",
+                    "code": 401,
+                    "_postman_previewlanguage": "json",
+                    "header": [],
+                    "cookie": [],
+                    "body": "{\n    \"statusCode\": 401,\n    \"message\": \"Unauthorized\",\n    \"error\": \"Unauthorized\"\n}"
+                }
+            ]
+        }
+    ]
+}

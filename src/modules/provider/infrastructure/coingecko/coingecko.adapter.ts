@@ -2,7 +2,7 @@ import { InternalServerError } from '@core/errors/domain.error';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { axiosObservableToPromise } from '@shared/utils/axios.util';
+import { axiosObservableToPromise } from '@shared/utils/observable.util';
 import { IProviderAdapter } from '../../application/provider-service.in';
 import { ProviderPriceQuery, ProviderQuery } from '../../application/provider.dto';
 import { IProviderAsset, IProviderPrice } from '../../domain/provider-asset.entity';

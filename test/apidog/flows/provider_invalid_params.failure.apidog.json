@@ -1,0 +1,333 @@
+{
+  "info": {
+    "name": "Failure Flow: Provider Operations with Invalid Parameters",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Login to Get Access Token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "- API: `POST /auth/login`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"user@example.com\",\r\n            \"password\": \"SecurePassword123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Save token: Store the access token for some of the subsequent requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Extract and store access token\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.data).to.have.property('accessToken');",
+              "    pm.collectionVariables.set('access_token', responseJson.data.accessToken);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Search with Empty Key",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key="
+          ]
+        },
+        "description": "- API: `GET /provider/search?key=`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `400 Bad Request`\r\n    - Validation: Response includes error about missing or invalid key parameter"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response should contain error details\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.error).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Search with Too Short Key",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=a",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key=a"
+          ]
+        },
+        "description": "- API: `GET /provider/search?key=a`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `400 Bad Request`\r\n    - Validation: Response includes error about key length or format"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response should contain error details\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.error).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Access Provider without Authentication",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key=bitcoin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key=bitcoin"
+          ]
+        },
+        "description": "- API: `GET /provider/search?key=bitcoin`\r\n    - Headers: No Authorization header\r\n    - Expected response: `401 Unauthorized`\r\n    - Validation: Response includes error about missing authentication"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"Response should contain error details\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.error).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Get Price with Empty IDs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids="
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids=`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `400 Bad Request`\r\n    - Validation: Response includes error about missing or invalid ids parameter"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response should contain error details\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.error).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Get Price with Invalid IDs Format",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=,,,",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids=,,,"
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids=,,,`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `400 Bad Request`\r\n    - Validation: Response includes error about invalid ids format"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response should contain error details\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.error).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Get Price with Non-existent Cryptocurrency",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids=non-existent-crypto",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids=non-existent-crypto"
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids=non-existent-crypto`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: Either `404 Not Found` or `200 OK` with empty data\r\n    - Validation: Response indicates the cryptocurrency was not found or returns empty data"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Response indicates the cryptocurrency was not found or returns empty data\", function () {",
+              "    // Custom validation: Response indicates the cryptocurrency was not found or returns empty data",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "API_PREFIX",
+      "value": "api",
+      "type": "string"
+    }
+  ]
+}

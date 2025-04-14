@@ -6,7 +6,7 @@ import { Email, Id } from '@core/types/common.type';
 import { Controller, UseFilters } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { MessagePattern } from '@nestjs/microservices';
-import { CreateUserCommand } from '../application/commands/create-user.command';
+import { CreateUserCommand, UserCreatedBy } from '../application/commands/create-user.command';
 import { CredentialValidityQuery } from '../application/queries/credential-validity.query';
 import { UserDetailQuery } from '../application/queries/detail-user.query';
 import { UserCreateDto } from '../application/user.dto';
@@ -20,7 +20,7 @@ export class UserRpcController {
     ) {}
 
     @MessagePattern(AuthenticateUserAction.CREATE)
-    async createUser(payload: { dto: UserCreateDto; createdById?: string }): Promise<Id> {
+    async createUser(payload: { dto: UserCreateDto; createdBy?: UserCreatedBy }): Promise<Id> {
         return await this.commandBus.execute<CreateUserCommand, Id>(new CreateUserCommand(payload));
     }
 

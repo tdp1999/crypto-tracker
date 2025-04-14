@@ -23,7 +23,10 @@ export class RegisterCommandHandler implements ICommandHandler<RegisterCommand, 
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });
 
         const hashedPassword = await hashByBcrypt(data.password);
-        const userId = await this.repository.create({ ...data, password: hashedPassword });
+        const userId = await this.repository.create({
+            dto: { email: data.email, hashedPassword },
+            createdBy: { self: true },
+        });
 
         return !!userId;
     }

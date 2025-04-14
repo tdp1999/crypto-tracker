@@ -15,6 +15,9 @@ export class UserEntity extends BasePersistence implements IUser {
     salt: string;
 
     @Column({ default: false })
+    isManualRegistration: boolean;
+
+    @Column({ default: false })
     isSystem: boolean;
 
     @Column({ type: 'enum', enum: USER_STATUS, default: USER_STATUS.ACTIVE })

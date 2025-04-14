@@ -26,6 +26,7 @@ export const UserSchema = z.object({
     salt: z.string(),
 
     isSystem: z.boolean().optional().default(false),
+    isManualRegistration: z.boolean().optional().default(false),
     status: z.nativeEnum(USER_STATUS).default(USER_STATUS.ACTIVE),
 
     ...AuditableSchema.shape,
@@ -34,12 +35,12 @@ export const UserSchema = z.object({
 export const UserCreateSchema = UserSchema.pick({
     email: true,
     isSystem: true,
+    isManualRegistration: true,
     status: true,
 })
     .extend({ rawPassword: PasswordSchema.optional(), hashedPassword: z.string().optional() })
     .refine((data) => data.rawPassword !== undefined || data.hashedPassword !== undefined, {
         message: ERR_USER_PASSWORD_NOT_PROVIDED,
-        path: ['rawPassword', 'hashedPassword'], // Indicate which fields are involved
     });
 
 export const UserUpdateSchema = UserSchema.omit({ id: true })
@@ -61,8 +62,13 @@ export class User extends BaseModel implements IUser {
     readonly email: Email;
     readonly password: Password;
     readonly salt: string;
-    readonly isSystem: boolean;
     readonly status: USER_STATUS;
+
+    /* Created by system */
+    readonly isSystem: boolean;
+
+    /* Created by manual registration */
+    readonly isManualRegistration: boolean;
 
     private constructor(props: IUser) {
         super(props);

@@ -12,4 +12,4 @@
     - Create user module, no need to create role or permission. Only serve single user with all features -> done
     - Add seed for user -> done
     - Add Auth -> done (11/4)
-    - CRUD for watchlist
+- 14/4: Testing Auth flow

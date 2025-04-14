@@ -1,0 +1,284 @@
+{
+  "info": {
+    "name": "Happy Flow: Register User, Login, and Search for Crypto",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Register New User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "register"
+          ]
+        },
+        "description": "- API: `POST /auth/register`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"user@example.com\",\r\n            \"password\": \"SecurePassword123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Save result: User is registered",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Login with Credentials",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "- API: `POST /auth/login`\r\n    - Request body:\r\n        ```json\r\n        {\r\n            \"email\": \"user@example.com\",\r\n            \"password\": \"SecurePassword123!\"\r\n        }\r\n        ```\r\n    - Expected response: `201 Created`\r\n    - Validation: Response contains `data.accessToken`\r\n    - Save token: Store the access token for subsequent requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Extract and store access token\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.data).to.have.property('accessToken');",
+              "    pm.collectionVariables.set('access_token', responseJson.data.accessToken);",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Get User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "auth",
+            "me"
+          ]
+        },
+        "description": "- API: `GET /auth/me`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains user information matching the registered email"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
+              "",
+              "pm.variables.set(\"test_email\", testEmail);",
+              "pm.variables.set(\"test_password\", testPassword);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain user\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('user');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Search for Cryptocurrency",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/search?key={search_term}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "search?key={search_term}"
+          ]
+        },
+        "description": "- API: `GET /provider/search?key={search_term}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Example: `GET /provider/search?key=bitcoin`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains cryptocurrency results matching the search term"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain cryptocurrency\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('cryptocurrency');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Get Cryptocurrency Price",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {access_token}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/{{API_PREFIX}}/provider/price?ids={crypto_ids}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "{{API_PREFIX}}",
+            "provider",
+            "price?ids={crypto_ids}"
+          ]
+        },
+        "description": "- API: `GET /provider/price?ids={crypto_ids}`\r\n    - Headers: `Authorization: Bearer {access_token}`\r\n    - Example: `GET /provider/price?ids=bitcoin,ethereum`\r\n    - Expected response: `200 OK`\r\n    - Validation: Response contains price information for the requested cryptocurrencies"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response should contain price\", function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.nested.property('price');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "API_PREFIX",
+      "value": "api",
+      "type": "string"
+    }
+  ]
+}

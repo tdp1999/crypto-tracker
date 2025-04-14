@@ -6,8 +6,7 @@ import { UserCredentialValidityResult, UserValidityResult } from '@core/features
 import { Email, Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { axiosObservableToPromise } from '@shared/utils/axios.util';
-import { AuthUserCreateDto } from '../application/auth.dto';
+import { observableToPromise } from '@shared/utils/observable.util';
 import { IAuthRepository } from '../application/ports/auth-repository.port';
 
 @Injectable()
@@ -15,22 +14,20 @@ import { IAuthRepository } from '../application/ports/auth-repository.port';
 export class AuthRepository implements IAuthRepository {
     constructor(@Inject(CLIENT_PROXY) private readonly client: ClientProxy) {}
 
-    async create(payload: AuthUserCreateDto): Promise<Id> {
-        return await axiosObservableToPromise(this.client.send(AuthenticateUserAction.CREATE, payload));
+    async create(payload: unknown): Promise<Id> {
+        return await observableToPromise(this.client.send(AuthenticateUserAction.CREATE, payload));
     }
 
     async get(userId: Id): Promise<IUser | null> {
-        return await axiosObservableToPromise(
-            this.client.send(AuthenticateUserAction.GET, { userId, visibleColumns: [] }),
-        );
+        return await observableToPromise(this.client.send(AuthenticateUserAction.GET, { userId, visibleColumns: [] }));
     }
 
     async getUserValidity(user: IUser): Promise<UserValidityResult> {
-        return await axiosObservableToPromise(this.client.send(AuthenticateUserAction.VALIDATE, user));
+        return await observableToPromise(this.client.send(AuthenticateUserAction.VALIDATE, user));
     }
 
     async validateCredential(email: Email, password: string): Promise<UserCredentialValidityResult> {
-        return await axiosObservableToPromise(
+        return await observableToPromise(
             this.client.send(AuthenticateUserAction.VALIDATE_CREDENTIAL, { email, password }),
         );
     }
