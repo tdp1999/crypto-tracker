@@ -1,6 +1,6 @@
 import { AuthenticateUserAction } from '@core/features/auth/authenticate.action';
 import { User } from '@core/features/user/user.entity';
-import { UserCredentialValidityResult } from '@core/features/user/user.type';
+import { UserCredentialValidityResult, UserValidityResult } from '@core/features/user/user.type';
 import { RpcExceptionFilter } from '@core/filters/rpc-exception.filter';
 import { Email, Id } from '@core/types/common.type';
 import { Controller, UseFilters } from '@nestjs/common';
@@ -9,6 +9,7 @@ import { MessagePattern } from '@nestjs/microservices';
 import { CreateUserCommand, UserCreatedBy } from '../application/commands/create-user.command';
 import { CredentialValidityQuery } from '../application/queries/credential-validity.query';
 import { UserDetailQuery } from '../application/queries/detail-user.query';
+import { UserValidityQuery } from '../application/queries/user-validity.query';
 import { UserCreateDto } from '../application/user.dto';
 
 @Controller()
@@ -30,8 +31,8 @@ export class UserRpcController {
     }
 
     @MessagePattern(AuthenticateUserAction.VALIDATE)
-    async validateUser(user: User): Promise<User> {
-        return await this.queryBus.execute<UserDetailQuery, User>(new UserDetailQuery({ id: user.id }));
+    async validateUser(user: User): Promise<UserValidityResult> {
+        return await this.queryBus.execute<UserValidityQuery, UserValidityResult>(new UserValidityQuery({ user }));
     }
 
     @MessagePattern(AuthenticateUserAction.VALIDATE_CREDENTIAL)

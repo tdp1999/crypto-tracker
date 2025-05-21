@@ -52,6 +52,63 @@ function generateContentHash(content) {
     return crypto.createHash('md5').update(content).digest('hex');
 }
 
+function processItemRecursively(item) {
+    // Process request body if present
+    if (item.request && item.request.body && item.request.body.mode === 'raw') {
+        try {
+            const bodyContent = item.request.body.raw.trim();
+            if (bodyContent.startsWith('{') && bodyContent.endsWith('}')) {
+                // Keep as raw but ensure options are set correctly
+                item.request.body = {
+                    mode: 'raw',
+                    raw: bodyContent,
+                    options: {
+                        raw: {
+                            language: 'json',
+                        },
+                    },
+                };
+            }
+        } catch (error) {
+            console.error(`Error processing body for item "${item.name}":`, error);
+        }
+    }
+
+    // Process response bodies
+    if (item.response && Array.isArray(item.response)) {
+        item.response.forEach((response) => {
+            if (
+                response.originalRequest &&
+                response.originalRequest.body &&
+                response.originalRequest.body.mode === 'raw'
+            ) {
+                try {
+                    const bodyContent = response.originalRequest.body.raw.trim();
+                    if (bodyContent.startsWith('{') && bodyContent.endsWith('}')) {
+                        // Keep as raw but ensure options are set correctly
+                        response.originalRequest.body = {
+                            mode: 'raw',
+                            raw: bodyContent,
+                            options: {
+                                raw: {
+                                    language: 'json',
+                                },
+                            },
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error processing response body for item "${item.name}":`, error);
+                }
+            }
+        });
+    }
+
+    // Process nested items recursively
+    if (item.item && Array.isArray(item.item)) {
+        item.item.forEach((nestedItem) => processItemRecursively(nestedItem));
+    }
+}
+
 /**
  * Extract the module core content (without metadata)
  * @param {Object} moduleSpec - Module specification
@@ -76,6 +133,10 @@ function extractModuleCore(moduleSpec) {
                     delete cleanItem[key];
                 }
             });
+
+            // Process the item recursively
+            processItemRecursively(cleanItem);
+
             return cleanItem;
         });
     }
@@ -83,8 +144,60 @@ function extractModuleCore(moduleSpec) {
     return core;
 }
 
+// Update the section in the script where modules are added to the collection
+function convertJsonModeToRaw(collection) {
+    // Handle request bodies at the collection level
+    if (collection.request && collection.request.body && collection.request.body.mode === 'json') {
+        const jsonBody = collection.request.body.json;
+        collection.request.body = {
+            mode: 'raw',
+            raw: JSON.stringify(jsonBody, null, 2),
+            options: {
+                raw: {
+                    language: 'json',
+                },
+            },
+        };
+    }
+
+    // Handle request bodies in item array
+    if (collection.item && Array.isArray(collection.item)) {
+        collection.item.forEach((item) => convertJsonModeToRaw(item));
+    }
+
+    // Handle response bodies
+    if (collection.response && Array.isArray(collection.response)) {
+        collection.response.forEach((response) => {
+            if (
+                response.originalRequest &&
+                response.originalRequest.body &&
+                response.originalRequest.body.mode === 'json'
+            ) {
+                const jsonBody = response.originalRequest.body.json;
+                response.originalRequest.body = {
+                    mode: 'raw',
+                    raw: JSON.stringify(jsonBody, null, 2),
+                    options: {
+                        raw: {
+                            language: 'json',
+                        },
+                    },
+                };
+            }
+        });
+    }
+
+    return collection;
+}
+
 // Main execution
 console.log('Starting Apidog spec compilation...');
+
+// Check for force flag
+const forceUpdate = process.argv.includes('--force');
+if (forceUpdate) {
+    console.log('Force update flag detected. Will update collection regardless of content changes.');
+}
 
 try {
     // Find all spec files in the source directory
@@ -100,7 +213,7 @@ try {
     // Initialize collection - either from existing file or template
     let collection;
     let existingModules = {};
-    let hasChanges = false;
+    let hasChanges = forceUpdate; // If force flag is set, we'll always update
 
     // Check if output file already exists
     if (fs.existsSync(OUTPUT_FILE)) {
@@ -158,7 +271,7 @@ try {
             const contentHash = generateContentHash(JSON.stringify(coreContent));
 
             // Check if this module exists and has the same hash
-            if (existingModules[moduleName] && existingModules[moduleName].hash === contentHash) {
+            if (!forceUpdate && existingModules[moduleName] && existingModules[moduleName].hash === contentHash) {
                 console.log(`Module "${moduleName}" has not changed. Skipping.`);
                 return; // Skip this module as it hasn't changed
             }
@@ -184,6 +297,9 @@ try {
                 collection.item.push(moduleItem);
                 addedModules.push(moduleName);
             }
+
+            // Convert all json mode items to raw
+            convertJsonModeToRaw(moduleItem);
         } catch (err) {
             console.error(`Error processing ${file}:`, err.message);
         }

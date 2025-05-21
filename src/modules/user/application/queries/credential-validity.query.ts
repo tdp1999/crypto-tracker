@@ -24,7 +24,6 @@ export class CredentialValidityQueryHandler
     constructor(
         @Inject(USER_TOKENS.REPOSITORIES)
         private readonly userRepository: IUserRepository,
-
         private readonly queryBus: QueryBus,
     ) {}
 

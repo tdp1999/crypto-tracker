@@ -3,10 +3,14 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Use guard clauses instead of nested conditionals.
-- Use descriptive variable names like isUserLoggedIn, userPermissions, and fetchData() to communicate intent clearly.
-- Replace hard-coded values with named constants.
-- Don't over-comment the code—only add comments if the code is complex, has non-obvious side effects, or is long.
-- Don't suggest whitespace changes.
-- Don't use barrel files.
-- Always use pnpm in this project.
+-   Use guard clauses to simplify control flow and avoid deep nesting.
+-   Name variables and functions clearly and descriptively (e.g., isUserLoggedIn, userPermissions, fetchData).
+    -   Keep names concise—ideally fewer than 5 words.
+-   Define named constants instead of using hard-coded values, to make code easier to read and maintain.
+-   Add comments when they enhance clarity, such as when:
+    -   The logic is complex
+    -   There are non-obvious behaviors
+    -   A section of code is unusually long
+-   Maintain current formatting and whitespace—assume code is properly formatted unless stated otherwise.
+-   Import dependencies directly from their source paths, rather than using barrel files (index.ts).
+-   Use pnpm as the package manager for this project.

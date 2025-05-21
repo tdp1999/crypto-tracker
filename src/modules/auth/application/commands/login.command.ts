@@ -25,7 +25,7 @@ export class LoginCommandHandler implements ICommandHandler<LoginCommand, IAuthL
 
     async execute(command: LoginCommand) {
         const { success, data, error } = AuthLoginSchema.safeParse(command.payload.dto);
-        if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'User creation failed' });
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'Invalid credentials' });
 
         const result = await this.repository.validateCredential(data.email, data.password);
 

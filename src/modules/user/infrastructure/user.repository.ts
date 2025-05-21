@@ -98,7 +98,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async getHashedPassword(id: Id): Promise<string | null> {
-        const entity = await this.userRepository.findOneBy({ id });
+        const entity = await this.userRepository.findOne({ where: { id }, select: ['password'] });
         return entity?.password ?? null;
     }
 

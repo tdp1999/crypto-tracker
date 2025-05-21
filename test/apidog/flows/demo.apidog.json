@@ -42,9 +42,9 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "// Generate unique test email to avoid conflicts",
-              "const testEmail = `test.user.${Date.now()}@example.com`;",
-              "const testPassword = \"SecurePassword123!\";",
+              "// Use default admin credentials",
+              "const testEmail = pm.environment.get(\"DEFAULT_ADMIN_EMAIL\");",
+              "const testPassword = pm.environment.get(\"DEFAULT_ADMIN_PASSWORD\");",
               "",
               "pm.variables.set('test_email', testEmail);",
               "pm.variables.set('test_password', testPassword);"

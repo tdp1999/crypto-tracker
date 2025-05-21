@@ -15,6 +15,7 @@ export class AuthController {
     @RequireNoAuth()
     @Post('register')
     async register(@Body() data: AuthRegisterDto) {
+        console.log('data', data);
         return this.commandBus.execute<RegisterCommand, boolean>(new RegisterCommand({ dto: data }));
     }
 

@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: *.ts
+alwaysApply: false
 ---
-- Prefer importing with alias instead fo absolute/relative paths.
+- Prefer importing with alias instead fo absolute/relative paths. Alias can be found in [tsconfig.json](mdc:tsconfig.json)

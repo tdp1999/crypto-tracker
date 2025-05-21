@@ -154,9 +154,9 @@ function createDemoFlow() {
                         script: {
                             type: 'text/javascript',
                             exec: [
-                                '// Generate unique test email to avoid conflicts',
-                                'const testEmail = `test.user.${Date.now()}@example.com`;',
-                                'const testPassword = "SecurePassword123!";',
+                                '// Use default admin credentials',
+                                'const testEmail = pm.environment.get("DEFAULT_ADMIN_EMAIL");',
+                                'const testPassword = pm.environment.get("DEFAULT_ADMIN_PASSWORD");',
                                 '',
                                 "pm.variables.set('test_email', testEmail);",
                                 "pm.variables.set('test_password', testPassword);",
@@ -396,22 +396,34 @@ function convertStepToApidogItem(step, collectionName) {
             }
         }
 
-        // Add request body if needed
+        // Add request body if present
         if (step.requestBody) {
             try {
-                const parsedBody = JSON.parse(step.requestBody);
-                item.request.body = {
-                    mode: 'raw',
-                    raw: JSON.stringify(parsedBody, null, 2),
-                    options: {
-                        raw: {
-                            language: 'json',
+                const bodyContent = step.requestBody.trim();
+                if (bodyContent.startsWith('{') && bodyContent.endsWith('}')) {
+                    const jsonBody = JSON.parse(bodyContent); // Parse to validate it's valid JSON
+                    item.request.body = {
+                        mode: 'raw',
+                        raw: JSON.stringify(jsonBody, null, 2),
+                        options: {
+                            raw: {
+                                language: 'json',
+                            },
                         },
-                    },
-                };
+                    };
+                } else {
+                    item.request.body = {
+                        mode: 'raw',
+                        raw: bodyContent,
+                        options: {
+                            raw: {
+                                language: 'json',
+                            },
+                        },
+                    };
+                }
             } catch (error) {
-                console.log(`Error parsing request body: ${error.message}`);
-                // If parsing fails, add it as a string
+                console.error(`Error parsing request body for step "${step.name}":`, error);
                 item.request.body = {
                     mode: 'raw',
                     raw: step.requestBody,

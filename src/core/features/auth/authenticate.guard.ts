@@ -79,6 +79,7 @@ export class AuthenticateGuard implements CanActivate {
 
         // Check if user account is valid
         const result = await lastValueFrom(this.client.send<UserValidityResult>(AuthenticateUserAction.VALIDATE, user));
+        console.log('result', result);
         if (result.isValid) return true;
         if (result.status === USER_STATUS.DELETED)
             throw UnauthorizedError(ERR_AUTHORIZE_UNAUTHORIZED, { remarks: 'User deleted' });

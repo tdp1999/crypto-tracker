@@ -49,7 +49,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+              "raw": "{\n  \"email\": \"{{auth_test_email}}\",\n  \"password\": \"{{auth_test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
@@ -76,7 +81,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"test.auth.123456@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"test.auth.123456@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
@@ -109,7 +119,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
@@ -142,7 +157,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
@@ -214,7 +234,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+              "raw": "{\n  \"email\": \"{{auth_test_email}}\",\n  \"password\": \"{{auth_test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
@@ -241,7 +266,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
@@ -274,7 +304,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"WrongPassword\"\n}"
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"WrongPassword\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
@@ -307,7 +342,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
@@ -459,7 +499,7 @@
           ]
         }
       ],
-      "_contentHash": "36d123b3428e1e2ade438115c869c253"
+      "_contentHash": "79e9442b42be59263d5ad17390778c7e"
     },
     {
       "name": "Provider",
@@ -1314,7 +1354,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{user_test_email}}\",\n    \"password\": \"{{user_test_password}}\"\n}"
+              "raw": "{\n    \"email\": \"{{user_test_email}}\",\n    \"password\": \"{{user_test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
@@ -1344,7 +1389,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
@@ -1380,7 +1430,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"existing@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
@@ -1416,7 +1471,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"short\"\n}"
+                  "raw": "{\n    \"email\": \"invalid-email\",\n    \"password\": \"short\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
@@ -1448,7 +1508,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}"
+                  "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users",
@@ -1506,7 +1571,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+              "raw": "{\n    \"email\": \"updated-user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/{{API_PREFIX}}/users/{{user_id}}",
@@ -1537,7 +1607,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
@@ -1574,7 +1649,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users/non-existent-id",
@@ -1611,7 +1691,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"invalid-email\"\n}"
+                  "raw": "{\n    \"email\": \"invalid-email\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
@@ -1644,7 +1729,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}"
+                  "raw": "{\n    \"email\": \"updated-user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/{{API_PREFIX}}/users/1234567890",
@@ -1798,7 +1888,7 @@
           ]
         }
       ],
-      "_contentHash": "b728b40bd0ccf16a6b71848f92465b3c"
+      "_contentHash": "998d8048b6b711a375e561d04f1e7b05"
     }
   ],
   "variable": [

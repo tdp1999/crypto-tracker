@@ -44,8 +44,11 @@
                     }
                 ],
                 "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                    "mode": "json",
+                    "json": {
+                        "email": "{{auth_test_email}}",
+                        "password": "{{auth_test_password}}"
+                    }
                 },
                 "url": {
                     "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/register",
@@ -185,8 +188,11 @@
                     }
                 ],
                 "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"email\": \"{{auth_test_email}}\",\n    \"password\": \"{{auth_test_password}}\"\n}"
+                    "mode": "json",
+                    "json": {
+                        "email": "{{auth_test_email}}",
+                        "password": "{{auth_test_password}}"
+                    }
                 },
                 "url": {
                     "raw": "{{baseUrl}}/{{API_PREFIX}}/auth/login",
