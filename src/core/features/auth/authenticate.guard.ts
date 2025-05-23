@@ -61,6 +61,7 @@ export class AuthenticateGuard implements CanActivate {
         const tokenData = await lastValueFrom(
             this.client.send<IJwtData>(AuthenticateAction.VERIFY, accessToken).pipe(catchError(() => of(null))),
         );
+
         if (!tokenData)
             throw UnauthorizedError(ERR_AUTHORIZE_UNAUTHORIZED, {
                 remarks: 'Token not found or invalid',
@@ -79,7 +80,6 @@ export class AuthenticateGuard implements CanActivate {
 
         // Check if user account is valid
         const result = await lastValueFrom(this.client.send<UserValidityResult>(AuthenticateUserAction.VALIDATE, user));
-        console.log('result', result);
         if (result.isValid) return true;
         if (result.status === USER_STATUS.DELETED)
             throw UnauthorizedError(ERR_AUTHORIZE_UNAUTHORIZED, { remarks: 'User deleted' });

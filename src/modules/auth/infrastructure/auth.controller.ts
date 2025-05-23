@@ -25,11 +25,6 @@ export class AuthController {
         return this.commandBus.execute<LoginCommand, IAuthLoginResponse>(new LoginCommand({ dto: credentials }));
     }
 
-    // @Post('logout')
-    // async logout() {
-    //     return this.logoutHandler.execute();
-    // }
-
     @Get('me')
     me(@Requester() user: IUser) {
         return user;
