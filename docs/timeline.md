@@ -1,9 +1,9 @@
 # Crypto Tracker - Progress Tracker
 
-**Generated**: 23 May 2025  
-**Based on**: `docs/timeline.md`  
-**Current Phase**: Phase 2 (Token Management) - Portfolio Management Complete  
-**Overall Progress**: ~55% Complete
+**Generated**: 30 May 2025  
+**Based on**: `docs/timeline.md` and `docs/wf/transaction-plan.md`  
+**Current Phase**: Phase 2 (Asset Management) - Portfolio Management Complete  
+**Overall Progress**: ~50% Complete
 
 ---
 
@@ -91,21 +91,27 @@
     - **Files**: `src/modules/portfolio/infrastructure/portfolio.persistence.ts`, `src/modules/portfolio/infrastructure/migrations/1748319795904-CreatePortfolioTable.ts`
     - **Notes**: Each user can have multiple portfolios (e.g., "Main Portfolio", "Trading Portfolio")
 
-- [ ] Create database schema for assets (tokens)
+- [ ] Create database schema for tokens
 
-    - **Missing**: Asset entity/persistence layer
-    - **Required**: `src/modules/asset/infrastructure/asset.persistence.ts`
-    - **Notes**: Store token information and link to portfolios
+    - **Missing**: Token entity/persistence layer
+    - **Required**: `src/modules/asset/persistence/token.persistence.ts`
+    - **Notes**: Store master token information (symbol, name, refId, decimals, is_stablecoin)
 
-- [ ] Create database schema for watchlists
+- [ ] Create database schema for portfolio holdings
 
-    - **Missing**: Watchlist entity/persistence layer
-    - **Required**: `src/modules/asset/infrastructure/watchlist.persistence.ts`
-    - **Notes**: Assets in watchlist belong to specific portfolios
+    - **Missing**: Portfolio holdings entity/persistence layer
+    - **Required**: `src/modules/asset/persistence/portfolio-holding.persistence.ts`
+    - **Notes**: Current state of tokens held in each portfolio (quantity, cost basis, avg price)
+
+- [ ] Create database schema for current token prices
+
+    - **Missing**: Token price cache entity/persistence layer
+    - **Required**: `src/modules/asset/persistence/token-price.persistence.ts`
+    - **Notes**: Hot cache for current token prices (price_usd, market_cap, volume_24h, price_change_24h)
 
 - [ ] Cache frequently accessed token data
     - **Status**: No caching mechanism implemented yet
-    - **Notes**: Consider Redis or in-memory caching
+    - **Notes**: Consider Redis or in-memory caching for hot token data
 
 ### Portfolio Management
 
@@ -128,18 +134,44 @@
 - [x] `DELETE /portfolios/:id` - Delete a portfolio
     - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/commands/delete-portfolio.command.ts`
 
-### Asset Management (within Portfolios)
+### Token Holdings Management (within Portfolios)
 
-- [ ] `POST /portfolios/:portfolioId/assets` - Add asset to portfolio
-
-    - **Status**: Not implemented
-
-- [ ] `GET /portfolios/:portfolioId/assets` - Get portfolio assets
+- [ ] `POST /portfolios/:portfolioId/holdings` - Add/update portfolio token holding
 
     - **Status**: Not implemented
+    - **Notes**: Create or update token holding when user manually adds tokens
 
-- [ ] `DELETE /portfolios/:portfolioId/assets/:assetId` - Remove asset from portfolio
+- [ ] `GET /portfolios/:portfolioId/holdings` - Get portfolio token holdings
+
     - **Status**: Not implemented
+    - **Notes**: Return current token holdings with quantities, cost basis, current values
+
+- [ ] `PUT /portfolios/:portfolioId/holdings/:tokenId` - Update portfolio token holding
+
+    - **Status**: Not implemented
+    - **Notes**: Update quantity, cost basis for manual portfolio management
+
+- [ ] `DELETE /portfolios/:portfolioId/holdings/:tokenId` - Remove token holding from portfolio
+    - **Status**: Not implemented
+
+### Token Management
+
+- [x] `GET /tokens/search` - Search for tokens via external API
+
+    - **Status**: ✅ **COMPLETED** via ProviderModule
+    - **Files**: `src/modules/provider/infrastructure/provider.controller.ts`
+    - **Notes**: Direct usage of ProviderModule for external API token search
+
+- [ ] `POST /tokens` - Add token to local database
+
+    - **Status**: Not implemented
+    - **Notes**: Store frequently used tokens locally for better performance
+
+- [x] `GET /tokens/:id/price` - Get current token price
+
+    - **Status**: ✅ **COMPLETED** via ProviderModule
+    - **Files**: `src/modules/provider/infrastructure/provider.controller.ts`
+    - **Notes**: Direct usage of ProviderModule for fetching current token prices
 
 ### Modules
 
@@ -154,9 +186,21 @@
 ### Database Schema
 
 - [ ] Define database schema for transactions
+
     - **Missing**: Transaction entity/persistence layer
-    - **Required**: Transaction table with user_id, portfolio_id, asset_id, type, amount, price_per_unit, timestamp
-    - **Notes**: Each transaction belongs to a specific portfolio
+    - **Required**: Single-direction transaction records with portfolio_id, token_id, amount (+/-), price_per_token, transaction_type, cash_flow
+    - **Notes**: Each transaction is a single direction (add/remove tokens), supports TRADE, DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT
+
+- [ ] Define database schema for token swaps
+
+    - **Missing**: Token swap entity linking two transactions
+    - **Required**: Links sell and buy transactions for token-to-token swaps
+    - **Notes**: Enables tracking USDT → BTC type swaps with proper rates
+
+- [ ] Define database schema for cash flows
+    - **Missing**: Cash flow tracking for stablecoin movements
+    - **Required**: Track actual money in/out for true P&L calculation
+    - **Notes**: Links to transactions, tracks USD equivalent values
 
 ### Portfolio-based CRUD Operations
 
@@ -166,6 +210,12 @@
 - [ ] `PUT /portfolios/:portfolioId/transactions/:id` - Update a transaction
 - [ ] `DELETE /portfolios/:portfolioId/transactions/:id` - Delete a transaction
 
+### Token Swap Operations
+
+- [ ] `POST /portfolios/:portfolioId/transactions/swap` - Create token swap (USDT → BTC)
+- [ ] `GET /portfolios/:portfolioId/swaps` - Get swap history for portfolio
+- [ ] Transaction automatic holdings update logic
+
 ### Cross-Portfolio Operations
 
 - [ ] `GET /transactions` - Get all user transactions across portfolios
@@ -173,16 +223,19 @@
 
 ### Business Logic
 
+- [ ] Implement automatic portfolio holdings updates on transaction
+- [ ] Implement FIFO cost basis calculation for holdings
 - [ ] Develop transaction filtering and history retrieval per portfolio
 - [ ] Ensure data validation and business rules (valid buy/sell actions)
 - [ ] Store transaction details:
     - [ ] Portfolio ID (required)
-    - [ ] Asset ID (from asset management)
-    - [ ] Buy/Sell action
-    - [ ] Amount
-    - [ ] Price per unit
-    - [ ] Timestamp
+    - [ ] Token ID (from token management)
+    - [ ] Amount (positive = add, negative = remove)
+    - [ ] Price per token
+    - [ ] Transaction type (TRADE, DEPOSIT, WITHDRAWAL, etc.)
+    - [ ] Cash flow impact
     - [ ] Fees (optional)
+    - [ ] External transaction ID (for linking swaps)
     - [ ] Source (exchange, wallet, etc.)
     - [ ] Notes (optional)
 
@@ -192,49 +245,74 @@
 
 ---
 
-## Phase 4: Portfolio Tracking & Reporting ❌ **NOT STARTED**
+## Phase 4: Portfolio Tracking & Reporting (Snapshot-based) ❌ **NOT STARTED**
 
-### Portfolio-based Profit & Loss Calculation
+### Snapshot Strategy Database Schema
 
-- [ ] Implement profit & loss (P&L) calculation logic using FIFO per portfolio
-- [ ] Calculate current position of each asset based on portfolio transactions
-- [ ] Support multiple currencies for conversion (USD, VND, etc.)
+- [ ] Define database schema for portfolio snapshots
+
+    - **Missing**: Portfolio snapshot entity for historical tracking
+    - **Required**: Daily/transaction/manual snapshots with total_value, total_cost_basis, total_pnl, pnl_percentage
+    - **Notes**: Enables historical performance tracking without storing full price history
+
+- [ ] Define database schema for snapshot cleanup
+    - **Required**: Data retention policies and cleanup jobs
+    - **Notes**: Keep transaction snapshots forever, daily for 1 year, weekly for 2 years, monthly forever
+
+### Real-time Portfolio Performance
+
+- [ ] Implement current portfolio performance calculation
+- [ ] Calculate real-time portfolio value using current token prices
 - [ ] Calculate portfolio-specific metrics:
-    - [ ] Portfolio total value
-    - [ ] Portfolio total invested
+    - [ ] Portfolio total value (current)
+    - [ ] Portfolio total cost basis
     - [ ] Portfolio unrealized P&L
-    - [ ] Portfolio realized P&L
     - [ ] Portfolio ROI percentage
+    - [ ] Holdings breakdown with current values
 
-### Portfolio Summary & Reports
+### Snapshot-based Historical Tracking
 
-- [ ] Generate real-time portfolio-specific reports with:
-    - [ ] Current portfolio value
-    - [ ] Total invested amount per portfolio
-    - [ ] Unrealized P&L per asset in portfolio
-    - [ ] Realized P&L from sold assets in portfolio
-    - [ ] ROI (%) over different periods per portfolio
-    - [ ] Asset allocation breakdown per portfolio
+- [ ] Implement automated daily snapshots (background job)
+- [ ] Implement transaction-triggered snapshots
+- [ ] Implement manual snapshot creation
+- [ ] Calculate historical performance using snapshots
+- [ ] Support different time periods (7d, 30d, 90d, 1y)
+
+### True P&L Calculation with Cash Flow
+
+- [ ] Implement cash flow analysis for true P&L calculation
+- [ ] Calculate net cash invested vs current portfolio value
+- [ ] Distinguish between holding-based P&L vs cash flow-based P&L
+- [ ] Track stablecoin flows for accurate money in/out tracking
 
 ### Portfolio Reporting Endpoints
 
-- [ ] `GET /portfolios/:portfolioId/reports/profit-loss` - Get P&L report for specific portfolio
-- [ ] `GET /portfolios/:portfolioId/reports/summary` - Get portfolio summary
-- [ ] `GET /portfolios/:portfolioId/reports/performance` - Get portfolio performance metrics
+- [ ] `GET /portfolios/:portfolioId/performance` - Get current + historical performance
+- [ ] `GET /portfolios/:portfolioId/snapshots` - Get portfolio snapshots with filters
+- [ ] `POST /portfolios/:portfolioId/snapshots` - Create manual snapshot
+- [ ] `GET /portfolios/:portfolioId/pnl-analysis` - Get enhanced P&L with cash flow analysis
 - [ ] `GET /reports/consolidated` - Get consolidated report across all portfolios
 - [ ] `GET /reports/comparison` - Compare performance between portfolios
+
+### Background Jobs & Automation
+
+- [ ] Implement daily snapshot creation (cron job)
+- [ ] Implement weekly/monthly snapshot aggregation
+- [ ] Implement snapshot cleanup jobs
+- [ ] Add monitoring and alerting for snapshot failures
 
 ### Cross-Portfolio Analytics
 
 - [ ] Generate consolidated reports across all user portfolios
-- [ ] Portfolio performance comparison
+- [ ] Portfolio performance comparison using snapshots
 - [ ] Asset allocation across portfolios
-- [ ] Overall user investment summary
+- [ ] Overall user investment summary with true P&L
 
-### Database Optimization
+### Database Optimization for Snapshots
 
-- [ ] Optimize database queries for report generation
-- [ ] Consider materialized views or precomputed tables for optimization
+- [ ] Add indexes for snapshot queries (portfolio_id, snapshot_date, type)
+- [ ] Optimize snapshot creation performance
+- [ ] Implement efficient chart data queries
 
 ### Modules
 
@@ -289,6 +367,8 @@
 
 - [ ] Set up background jobs for periodic token price updates
 - [ ] Implement cron jobs for price synchronization
+- [ ] Implement daily portfolio snapshot creation
+- [ ] Implement snapshot cleanup jobs (data retention)
 - [ ] Add job scheduling and monitoring
 
 ### Documentation
@@ -321,12 +401,14 @@
     - [x] Implement CQRS pattern with commands and queries
     - [x] Add database migration for portfolios table
 
-- [ ] **Create Asset & Watchlist Management Module**
+- [ ] **Create Asset Management Module** (NEXT PRIORITY)
     - [ ] Create proper `src/modules/asset/` structure
-    - [ ] Implement Asset entity and repository
-    - [ ] Implement Watchlist entity and repository
-    - [ ] Create asset management endpoints (portfolio-scoped)
-    - [ ] Create watchlist endpoints (portfolio-scoped)
+    - [ ] Implement Token entity and repository (master token data)
+    - [ ] Implement Portfolio Holdings entity and repository (current token positions)
+    - [ ] Implement Token Price entity and repository (hot price cache)
+    - [ ] Create token management endpoints (via ProviderModule for search/price)
+    - [ ] Create portfolio token holdings management endpoints
+    - [ ] Add database migrations for all asset tables
 
 ### 🔸 Medium Priority
 
@@ -360,26 +442,29 @@
 
 ### ⚠️ Areas for Improvement
 
-- Missing core business logic modules (Portfolio-based Asset, Transaction, Reports)
-- No caching strategy implemented
+- Missing core business logic modules (Asset Management, Transaction, Snapshot-based Reports)
+- No caching strategy implemented for token prices
 - Limited test coverage
 - Missing refresh token functionality
-- No background jobs for price updates
+- No background jobs for price updates and snapshots
 - No rate limiting or advanced security features
+- No true P&L calculation with cash flow tracking
 
 ### 📁 Key File Locations
 
 - **Completed**: `src/modules/auth/`, `src/modules/user/`, `src/modules/provider/`, `src/modules/portfolio/`, `src/core/configs/`
-- **Empty/Missing**: `src/modules/asset/` (asset, watchlist), `src/modules/transaction/`, `src/modules/reports/`
+- **Empty/Missing**: `src/modules/asset/` (tokens, holdings, prices, watchlist), `src/modules/transaction/`, `src/modules/reports/`
 
 ### 🏗️ Portfolio Architecture Notes
 
-- **Portfolio-First Design**: All assets, watchlists, and transactions belong to specific portfolios
+- **Portfolio-First Design**: All holdings, watchlists, and transactions belong to specific portfolios
 - **Multi-Portfolio Support**: Users can have multiple portfolios (e.g., "Main", "Trading", "DCA")
-- **Consolidated Module**: Asset management, watchlists, and portfolios unified under single AssetModule
-- **Scalable Reporting**: Portfolio-specific and cross-portfolio analytics support
+- **Asset Management Module**: Tokens, portfolio holdings, price cache, and watchlists unified under AssetModule
+- **Snapshot-based Reporting**: Historical performance tracking without full price history storage
+- **True P&L Tracking**: Cash flow analysis for accurate profit/loss calculation
+- **Single-Direction Transactions**: Simplified transaction model with automatic holdings updates
 
 ---
 
-**Last Updated**: 27 May 2025  
-**Next Review**: Complete Asset & Watchlist modules (Phase 2)
+**Last Updated**: 30 May 2025  
+**Next Review**: Complete Asset Management module (Phase 2)

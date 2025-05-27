@@ -76,23 +76,6 @@ CREATE TABLE portfolio_snapshots (
     UNIQUE(portfolio_id, snapshot_date, snapshot_type)
 );
 
--- Holdings breakdown at snapshot time (OPTIONAL - only for detailed analysis)
--- You can skip this table initially and add it later if needed
--- It's useful for: portfolio composition over time, asset allocation analysis
--- But NOT required for basic P&L calculations
-CREATE TABLE portfolio_snapshot_holdings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    snapshot_id UUID REFERENCES portfolio_snapshots(id),
-    token_id UUID REFERENCES tokens(id),
-    token_symbol VARCHAR(20) NOT NULL, -- Denormalized for performance
-    quantity DECIMAL(20,8) NOT NULL,
-    price_at_snapshot DECIMAL(20,8) NOT NULL,
-    value_at_snapshot DECIMAL(20,8) NOT NULL,
-    cost_basis DECIMAL(20,8) NOT NULL,
-    pnl DECIMAL(20,8) NOT NULL,
-    weight_percentage DECIMAL(10,4) NOT NULL -- % of total portfolio
-);
-
 -- Single-direction transactions with cash flow tracking
 CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
