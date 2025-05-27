@@ -130,10 +130,6 @@
 
 ### Asset Management (within Portfolios)
 
-- [ ] `GET /portfolios/:portfolioId/assets/search?query=btc` - Search tokens for portfolio
-
-    - **Status**: Available via provider module, needs portfolio-specific endpoint
-
 - [ ] `POST /portfolios/:portfolioId/assets` - Add asset to portfolio
 
     - **Status**: Not implemented
@@ -145,23 +141,10 @@
 - [ ] `DELETE /portfolios/:portfolioId/assets/:assetId` - Remove asset from portfolio
     - **Status**: Not implemented
 
-### Watchlist Management (Portfolio-scoped)
-
-- [ ] `POST /portfolios/:portfolioId/watchlist` - Add token to portfolio watchlist
-
-    - **Status**: Not implemented
-
-- [ ] `DELETE /portfolios/:portfolioId/watchlist/:id` - Remove token from portfolio watchlist
-
-    - **Status**: Not implemented
-
-- [ ] `GET /portfolios/:portfolioId/watchlist` - Get portfolio's watchlist
-    - **Status**: Not implemented
-
 ### Modules
 
 - [x] **PortfolioModule** - `src/modules/portfolio/portfolio.module.ts`
-- [ ] **AssetModule** - Unified module for assets and watchlists (`src/modules/asset/`)
+- [ ] **AssetModule** - Unified module for assets (`src/modules/asset/`)
 - [x] **ExternalApiModule** - Implemented as ProviderModule
 
 ---
