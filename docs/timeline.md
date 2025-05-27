@@ -2,8 +2,8 @@
 
 **Generated**: 23 May 2025  
 **Based on**: `docs/timeline.md`  
-**Current Phase**: Phase 2 (Token Management) - Partially Complete  
-**Overall Progress**: ~45% Complete
+**Current Phase**: Phase 2 (Token Management) - Portfolio Management Complete  
+**Overall Progress**: ~55% Complete
 
 ---
 
@@ -86,10 +86,9 @@
 
 ### Database Schema & Core Entities
 
-- [ ] Create database schema for portfolios
+- [x] Create database schema for portfolios
 
-    - **Missing**: Portfolio entity/persistence layer
-    - **Required**: `src/modules/asset/infrastructure/portfolio.persistence.ts`
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.persistence.ts`, `src/modules/portfolio/infrastructure/migrations/1748319795904-CreatePortfolioTable.ts`
     - **Notes**: Each user can have multiple portfolios (e.g., "Main Portfolio", "Trading Portfolio")
 
 - [ ] Create database schema for assets (tokens)
@@ -110,24 +109,24 @@
 
 ### Portfolio Management
 
-- [ ] `POST /portfolios` - Create a new portfolio
+- [x] `POST /portfolios` - Create a new portfolio
 
-    - **Status**: Not implemented
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/commands/create-portfolio.command.ts`
 
-- [ ] `GET /portfolios` - Get user's portfolios
+- [x] `GET /portfolios` - Get user's portfolios
 
-    - **Status**: Not implemented
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/queries/list-portfolios.query.ts`
 
-- [ ] `GET /portfolios/:id` - Get specific portfolio details
+- [x] `GET /portfolios/:id` - Get specific portfolio details
 
-    - **Status**: Not implemented
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/queries/get-portfolio.query.ts`
 
-- [ ] `PUT /portfolios/:id` - Update portfolio details
+- [x] `PUT /portfolios/:id` - Update portfolio details
 
-    - **Status**: Not implemented
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/commands/update-portfolio.command.ts`
 
-- [ ] `DELETE /portfolios/:id` - Delete a portfolio
-    - **Status**: Not implemented
+- [x] `DELETE /portfolios/:id` - Delete a portfolio
+    - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/commands/delete-portfolio.command.ts`
 
 ### Asset Management (within Portfolios)
 
@@ -161,7 +160,8 @@
 
 ### Modules
 
-- [ ] **AssetModule** - Unified module for portfolios, assets, and watchlists (`src/modules/asset/`)
+- [x] **PortfolioModule** - `src/modules/portfolio/portfolio.module.ts`
+- [ ] **AssetModule** - Unified module for assets and watchlists (`src/modules/asset/`)
 - [x] **ExternalApiModule** - Implemented as ProviderModule
 
 ---
@@ -330,12 +330,18 @@
 
 ### 🚨 High Priority (Complete Phase 2)
 
-- [ ] **Create Portfolio & Asset Management Module**
-    - [ ] Create proper `src/modules/asset/` structure with portfolio support
-    - [ ] Implement Portfolio entity and repository
+- [x] **Create Portfolio Management Module** ✅ **COMPLETED**
+
+    - [x] Create proper `src/modules/portfolio/` structure
+    - [x] Implement Portfolio entity and repository
+    - [x] Create portfolio CRUD endpoints
+    - [x] Implement CQRS pattern with commands and queries
+    - [x] Add database migration for portfolios table
+
+- [ ] **Create Asset & Watchlist Management Module**
+    - [ ] Create proper `src/modules/asset/` structure
     - [ ] Implement Asset entity and repository
     - [ ] Implement Watchlist entity and repository
-    - [ ] Create portfolio CRUD endpoints
     - [ ] Create asset management endpoints (portfolio-scoped)
     - [ ] Create watchlist endpoints (portfolio-scoped)
 
@@ -380,8 +386,8 @@
 
 ### 📁 Key File Locations
 
-- **Completed**: `src/modules/auth/`, `src/modules/user/`, `src/modules/provider/`, `src/core/configs/`
-- **Empty/Missing**: `src/modules/asset/` (portfolio, asset, watchlist), `src/modules/transaction/`, `src/modules/reports/`
+- **Completed**: `src/modules/auth/`, `src/modules/user/`, `src/modules/provider/`, `src/modules/portfolio/`, `src/core/configs/`
+- **Empty/Missing**: `src/modules/asset/` (asset, watchlist), `src/modules/transaction/`, `src/modules/reports/`
 
 ### 🏗️ Portfolio Architecture Notes
 
@@ -392,5 +398,5 @@
 
 ---
 
-**Last Updated**: 23 May 2025  
-**Next Review**: Complete Phase 2 tasks
+**Last Updated**: 27 May 2025  
+**Next Review**: Complete Asset & Watchlist modules (Phase 2)

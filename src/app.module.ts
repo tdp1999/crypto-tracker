@@ -14,8 +14,9 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
+import { PortfolioModule } from './modules/portfolio/portfolio.module';
 
-const featuredModules = [ProviderModule, UserModule, AuthModule] as unknown as DynamicModule[];
+const featuredModules = [ProviderModule, UserModule, AuthModule, PortfolioModule] as unknown as DynamicModule[];
 
 @Module({
     imports: [

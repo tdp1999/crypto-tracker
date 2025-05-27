@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddNewField1744618839265 implements MigrationInterface {
-    name = 'AddNewField1744618839265'
+    name = 'AddNewField1744618839265';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -15,5 +15,4 @@ export class AddNewField1744618839265 implements MigrationInterface {
             ALTER TABLE "users" DROP COLUMN "isManualRegistration"
         `);
     }
-
 }

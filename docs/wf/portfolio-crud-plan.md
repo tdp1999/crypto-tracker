@@ -56,7 +56,7 @@ Portfolio is implemented as a **standalone module** that is decoupled from other
 
 ## 3. Folder Structure
 
-Following the established pattern from `user` and `auth` modules:
+Following the established pattern from `user` and `auth` modules with a slightly difference:
 
 ```
 src/modules/portfolio/
@@ -74,6 +74,10 @@ src/modules/portfolio/
 │   │   └── portfolio-repository.out.port.ts
 │   ├── portfolio.dto.ts
 │   └── portfolio.token.ts
+├── domain/
+│   ├── portfolio.entity.ts
+│   ├── portfolio.error.ts
+│   └── ....
 └── infrastructure/
     ├── portfolio.controller.ts
     ├── portfolio.repository.ts
@@ -84,9 +88,9 @@ src/modules/portfolio/
 
 ---
 
-## 4. Core Domain Entity
+## 4. Domain Entity
 
-### Location: `src/core/features/portfolio/portfolio.entity.ts`
+### Location: `src/module/portfolio/domain/portfolio.entity.ts`
 
 Following the `User` entity pattern:
 
@@ -425,7 +429,7 @@ CREATE INDEX idx_portfolios_is_default ON portfolios(user_id, is_default);
 
 ## 10. Error Handling
 
-### Portfolio-specific Errors (`src/core/features/portfolio/portfolio.error.ts`)
+### Portfolio-specific Errors (`src/module/portfolio/domain/portfolio.error.ts`)
 
 ```typescript
 export const ERR_PORTFOLIO_NAME_EXISTS = 'Portfolio name already exists';
@@ -485,7 +489,111 @@ src/modules/portfolio/
 
 ---
 
-## 13. Implementation Phases
+## 13. Implementation Chunks
+
+The portfolio CRUD implementation is divided into 4 logical chunks, each representing a cohesive development phase that can be implemented and validated independently.
+
+### Chunk 1: Domain Foundation ✅ COMPLETED
+
+**Purpose**: Establish the core domain model and business rules foundation
+
+**Tasks**:
+
+- [x] Create `src/modules/portfolio/domain/portfolio.entity.ts`
+    - Define `IPortfolio` interface
+    - Implement `PortfolioSchema`, `PortfolioCreateSchema`, `PortfolioUpdateSchema`
+    - Create `Portfolio` domain entity class extending `BaseModel`
+- [x] Create `src/modules/portfolio/domain/portfolio.error.ts`
+    - Define portfolio-specific error constants
+- [x] Add portfolio entity to TypeORM configuration (handled by autoLoadEntities)
+
+**Validation**: ✅ Domain schemas validate correctly, entity creation works in isolation
+
+---
+
+### Chunk 2: Application Logic ✅ COMPLETED
+
+**Purpose**: Implement business use cases following CQRS pattern
+
+**Tasks**:
+
+- [x] Create `src/modules/portfolio/application/portfolio.dto.ts`
+    - Define all DTO types and validation schemas
+    - Set up query schemas and visible columns
+- [x] Create `src/modules/portfolio/application/portfolio.token.ts`
+    - Define dependency injection tokens for handlers and repositories
+- [x] Create `src/modules/portfolio/application/ports/portfolio-repository.out.port.ts`
+    - Define repository interface with custom methods
+- [x] Implement command handlers:
+    - [x] `commands/create-portfolio.command.ts`
+    - [x] `commands/update-portfolio.command.ts`
+    - [x] `commands/delete-portfolio.command.ts`
+- [x] Implement query handlers:
+    - [x] `queries/list-portfolio.query.ts`
+    - [x] `queries/detail-portfolio.query.ts`
+    - [x] `queries/portfolio-ownership.query.ts`
+
+**Validation**: ✅ Commands and queries can be unit tested in isolation with mocked repositories
+
+---
+
+### Chunk 3: Infrastructure Implementation
+
+**Purpose**: Implement data persistence and HTTP API layer
+
+**Tasks**:
+
+- [ ] Create `src/modules/portfolio/infrastructure/portfolio.persistence.ts`
+    - TypeORM entity with proper columns and indices
+- [ ] Create `src/modules/portfolio/infrastructure/portfolio.repository.ts`
+    - Implement `IPortfolioRepository` with TypeORM
+    - Custom methods: `findByUserAndName`, `countByUserId`, `findDefaultByUserId`
+- [ ] Create `src/modules/portfolio/infrastructure/portfolio.controller.ts`
+    - REST endpoints following established patterns
+    - Proper authentication and validation decorators
+- [ ] Create database migration:
+    - [ ] `src/modules/portfolio/infrastructure/migrations/YYYYMMDD-CreatePortfolioTable.ts`
+
+**Validation**: Repository methods work with database, API endpoints respond correctly
+
+---
+
+### Chunk 4: Module Integration & Validation ✅ COMPLETED
+
+**Purpose**: Wire everything together and ensure complete functionality
+
+**Tasks**:
+
+- [x] Create `src/modules/portfolio/portfolio.module.ts`
+    - Configure dependency injection for all handlers
+    - Set up TypeORM feature imports
+    - Export services for other modules
+- [x] Register `PortfolioModule` in main `AppModule`
+- [x] Create comprehensive tests:
+    - [x] Unit tests for commands and queries (simple tests created)
+    - [x] Repository integration tests
+    - [x] Controller endpoint tests
+- [x] Fixed Jest configuration for path mapping
+- [ ] API validation (omitted as requested):
+    - [ ] Test all endpoints with Postman/API client
+    - [ ] Verify authentication and authorization
+    - [ ] Test error scenarios and edge cases
+
+**Validation**: ✅ Module integration complete, all tests passing, build successful
+
+---
+
+### Chunk Dependencies
+
+- **Chunk 1 → Chunk 2**: Domain entities must exist before application logic can reference them
+- **Chunk 2 → Chunk 3**: Application interfaces must be defined before infrastructure can implement them
+- **Chunk 3 → Chunk 4**: All components must exist before module can wire them together
+
+Each chunk can be developed, tested, and validated independently before proceeding to the next, ensuring steady progress and early problem detection.
+
+---
+
+## 14. Implementation Phases
 
 ### Phase 1: Core Setup ✅ (This Plan)
 
@@ -505,44 +613,6 @@ src/modules/portfolio/
 - [ ] Default portfolio auto-creation on user registration
 - [ ] Portfolio templates/presets
 - [ ] Portfolio sharing/collaboration (future)
-
----
-
-## 14. Checklist for Implementation
-
-### Domain Layer
-
-- [ ] Create `src/core/features/portfolio/portfolio.entity.ts`
-- [ ] Create `src/core/features/portfolio/portfolio.error.ts`
-- [ ] Add portfolio entity to TypeORM configuration
-
-### Application Layer
-
-- [ ] Create `portfolio.dto.ts` with all DTO types
-- [ ] Create `portfolio.token.ts` with dependency injection tokens
-- [ ] Implement all command handlers (create, update, delete)
-- [ ] Implement all query handlers (list, detail, ownership)
-- [ ] Create repository port interface
-
-### Infrastructure Layer
-
-- [ ] Create `portfolio.persistence.ts` with TypeORM entity
-- [ ] Implement `portfolio.repository.ts` with all methods
-- [ ] Create `portfolio.controller.ts` with REST endpoints
-- [ ] Create database migration file
-
-### Module Integration
-
-- [ ] Create `portfolio.module.ts` with proper DI configuration
-- [ ] Register PortfolioModule in main AppModule
-- [ ] Add portfolio routes to API documentation
-
-### Testing
-
-- [ ] Create unit tests for all handlers
-- [ ] Create repository tests
-- [ ] Create controller integration tests
-- [ ] Verify API endpoints with Postman/testing tools
 
 ---
 

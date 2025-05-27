@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddUserTable1744019198331 implements MigrationInterface {
-    name = 'AddUserTable1744019198331'
+    name = 'AddUserTable1744019198331';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -41,5 +41,4 @@ export class AddUserTable1744019198331 implements MigrationInterface {
             DROP TYPE "public"."users_status_enum"
         `);
     }
-
 }
