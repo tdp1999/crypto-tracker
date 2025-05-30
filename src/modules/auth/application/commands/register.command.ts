@@ -3,12 +3,12 @@ import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { hashByBcrypt } from '@shared/utils/hash.util';
-import { AuthRegisterDto, AuthRegisterSchema } from '../auth.dto';
+import { AuthRegisterSchema } from '../auth.dto';
 import { AUTH_TOKEN } from '../auth.token';
 import { IAuthRepository } from '../ports/auth-repository.port';
 
 export class RegisterCommand {
-    constructor(public readonly payload: { dto: AuthRegisterDto }) {}
+    constructor(public readonly payload: { dto: unknown }) {}
 }
 
 @CommandHandler(RegisterCommand)

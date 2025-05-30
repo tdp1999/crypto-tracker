@@ -1,21 +1,20 @@
 import { BadRequestError, NotFoundError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
-import { PortfolioUpdateSchema } from '../../domain/portfolio.entity';
+import { Id } from '@core/types/common.type';
+import { Inject, Injectable } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Portfolio, PortfolioUpdateSchema } from '../../domain/portfolio.entity';
 import {
     ERR_PORTFOLIO_ACCESS_DENIED,
     ERR_PORTFOLIO_CANNOT_UNSET_DEFAULT,
     ERR_PORTFOLIO_NAME_EXISTS,
     ERR_PORTFOLIO_NOT_FOUND,
 } from '../../domain/portfolio.error';
-import { Id } from '@core/types/common.type';
-import { Inject, Injectable } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
-import { PortfolioUpdateDto } from '../portfolio.dto';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
+import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
 
 export class UpdatePortfolioCommand {
-    constructor(public readonly payload: { id: Id; dto: PortfolioUpdateDto; userId: Id }) {}
+    constructor(public readonly payload: { id: Id; dto: unknown; userId: Id }) {}
 }
 
 @Injectable()
@@ -67,14 +66,10 @@ export class UpdatePortfolioCommandHandler implements ICommandHandler<UpdatePort
             }
         }
 
-        // Filter out null values and audit fields that shouldn't be updated directly
-        const updateData = Object.fromEntries(
-            Object.entries(data).filter(
-                ([key, value]) =>
-                    value !== null && !['createdAt', 'createdById', 'deletedAt', 'deletedById'].includes(key),
-            ),
-        ) as PortfolioUpdateDto;
+        // Use domain entity to apply updates with domain logic
+        const updatedPortfolio = Portfolio.update(existingPortfolio, data, userId);
 
-        return await this.portfolioRepository.update(id, updateData);
+        // Pass full entity directly to repository
+        return await this.portfolioRepository.update(id, updatedPortfolio);
     }
 }

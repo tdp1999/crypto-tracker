@@ -2,14 +2,14 @@ import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AuthLoginDto, AuthLoginSchema } from '../auth.dto';
+import { AuthLoginSchema } from '../auth.dto';
 import { AUTH_TOKEN } from '../auth.token';
 import { IJwtService } from '../ports/auth-jwt.port';
 import { IAuthLoginResponse } from '../ports/auth-login.in.port';
 import { IAuthRepository } from '../ports/auth-repository.port';
 
 export class LoginCommand {
-    constructor(public readonly payload: { dto: AuthLoginDto }) {}
+    constructor(public readonly payload: { dto: unknown }) {}
 }
 
 @Injectable()

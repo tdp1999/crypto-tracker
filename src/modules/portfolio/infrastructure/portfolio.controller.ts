@@ -4,10 +4,10 @@ import { Id } from '@core/types/common.type';
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PaginatedResponse } from '@shared/types/pagination.type';
-import { PortfolioCreateDto, PortfolioQueryDto, PortfolioUpdateDto } from '../application/portfolio.dto';
 import { CreatePortfolioCommand } from '../application/commands/create-portfolio.command';
 import { DeletePortfolioCommand } from '../application/commands/delete-portfolio.command';
 import { UpdatePortfolioCommand } from '../application/commands/update-portfolio.command';
+import { PortfolioQueryDto } from '../application/portfolio.dto';
 import { PortfolioDetailQuery } from '../application/queries/detail-portfolio.query';
 import { PortfolioListQuery } from '../application/queries/list-portfolio.query';
 import { Portfolio } from '../domain/portfolio.entity';
@@ -20,18 +20,14 @@ export class PortfolioController {
     ) {}
 
     @Post()
-    async create(@Body() body: PortfolioCreateDto, @Requester() user: IUser): Promise<Id> {
+    async create(@Body() body: unknown, @Requester() user: IUser): Promise<Id> {
         return await this.commandBus.execute<CreatePortfolioCommand, Id>(
             new CreatePortfolioCommand({ dto: body, userId: user.id }),
         );
     }
 
     @Put(':id')
-    async update(
-        @Param('id') id: string,
-        @Body() body: PortfolioUpdateDto,
-        @Requester() user: IUser,
-    ): Promise<boolean> {
+    async update(@Param('id') id: string, @Body() body: unknown, @Requester() user: IUser): Promise<boolean> {
         return await this.commandBus.execute<UpdatePortfolioCommand, boolean>(
             new UpdatePortfolioCommand({ id, dto: body, userId: user.id }),
         );

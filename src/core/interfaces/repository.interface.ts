@@ -2,10 +2,10 @@ import { PaginatedResponse } from '@shared/types/pagination.type';
 import { Conditions, Id } from '../types/common.type';
 import { FindByIdsResult } from '../types/query.type';
 
-export interface IRepositoryCommand<Add, Update> {
-    add(data: Add): Promise<Id>;
+export interface IRepositoryCommand<T> {
+    add(entity: T): Promise<Id>;
 
-    update(id: Id, data: Update): Promise<boolean>;
+    update(id: Id, entity: T): Promise<boolean>;
 
     remove(id: Id): Promise<boolean>;
 }
@@ -24,6 +24,4 @@ export interface IRepositoryQuery<T, Search> {
     exists(id: Id): Promise<boolean>;
 }
 
-export interface IRepository<T, Search, Add, Update>
-    extends IRepositoryCommand<Add, Update>,
-        IRepositoryQuery<T, Search> {}
+export interface IRepository<T, Search> extends IRepositoryCommand<T>, IRepositoryQuery<T, Search> {}

@@ -6,13 +6,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { IUserConfig } from '../ports/user-config.out.port';
 import { IUserRepository } from '../ports/user-repository.out.port';
-import { UserCreateDto } from '../user.dto';
 import { USER_TOKENS } from '../user.token';
 
 export type UserCreatedBy = undefined | { id: string } | { self: true };
 
 export class CreateUserCommand {
-    constructor(public readonly payload: { dto: UserCreateDto; createdBy?: UserCreatedBy }) {}
+    constructor(public readonly payload: { dto: unknown; createdBy?: UserCreatedBy }) {}
 }
 
 @Injectable()

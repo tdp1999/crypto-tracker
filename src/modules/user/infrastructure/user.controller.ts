@@ -4,7 +4,6 @@ import { Id } from '@core/types/common.type';
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PaginatedResponse } from '@shared/types/pagination.type';
-import { UserCreateDto, UserQueryDto, UserUpdateDto } from '../application/user.dto';
 import { CreateUserCommand } from '../application/commands/create-user.command';
 import { DeleteUserCommand } from '../application/commands/delete-user.command';
 import { UpdateUserCommand } from '../application/commands/update-user.command';
@@ -19,14 +18,14 @@ export class UserController {
     ) {}
 
     @Post()
-    async add(@Body() body: UserCreateDto, @Requester() user: IUser): Promise<Id> {
+    async add(@Body() body: unknown, @Requester() user: IUser): Promise<Id> {
         return await this.commandBus.execute<CreateUserCommand, Id>(
             new CreateUserCommand({ dto: body, createdBy: { id: user.id } }),
         );
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() body: UserUpdateDto, @Requester() user: IUser): Promise<boolean> {
+    async update(@Param('id') id: string, @Body() body: unknown, @Requester() user: IUser): Promise<boolean> {
         return await this.commandBus.execute<UpdateUserCommand, boolean>(
             new UpdateUserCommand({ id, dto: body, updatedById: user.id }),
         );
@@ -40,7 +39,7 @@ export class UserController {
     }
 
     @Get()
-    async list(@Query() query: UserQueryDto): Promise<PaginatedResponse<User>> {
+    async list(@Query() query: unknown): Promise<PaginatedResponse<User>> {
         return await this.queryBus.execute<UserListQuery, PaginatedResponse<User>>(new UserListQuery({ dto: query }));
     }
 

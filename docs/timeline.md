@@ -71,7 +71,7 @@
 
 ---
 
-## Phase 2: Asset Management (Token Tracking & Portfolios) 🔄 **IN PROGRESS**
+## Phase 2: Asset Management (Token Tracking) & Portfolio Holdings 🔄 **IN PROGRESS**
 
 ### External API Integration
 
@@ -91,23 +91,23 @@
     - **Files**: `src/modules/portfolio/infrastructure/portfolio.persistence.ts`, `src/modules/portfolio/infrastructure/migrations/1748319795904-CreatePortfolioTable.ts`
     - **Notes**: Each user can have multiple portfolios (e.g., "Main Portfolio", "Trading Portfolio")
 
-- [ ] Create database schema for tokens
+- [ ] Create database schema for tokens (Asset Module)
 
     - **Missing**: Token entity/persistence layer
-    - **Required**: `src/modules/asset/persistence/token.persistence.ts`
+    - **Required**: `src/modules/asset/infrastructure/persistence/token.persistence.ts`
     - **Notes**: Store master token information (symbol, name, refId, decimals, is_stablecoin)
 
-- [ ] Create database schema for portfolio holdings
-
-    - **Missing**: Portfolio holdings entity/persistence layer
-    - **Required**: `src/modules/asset/persistence/portfolio-holding.persistence.ts`
-    - **Notes**: Current state of tokens held in each portfolio (quantity, cost basis, avg price)
-
-- [ ] Create database schema for current token prices
+- [ ] Create database schema for current token prices (Asset Module)
 
     - **Missing**: Token price cache entity/persistence layer
-    - **Required**: `src/modules/asset/persistence/token-price.persistence.ts`
+    - **Required**: `src/modules/asset/infrastructure/persistence/token-price.persistence.ts`
     - **Notes**: Hot cache for current token prices (price_usd, market_cap, volume_24h, price_change_24h)
+
+- [ ] Create database schema for portfolio holdings (Portfolio Module)
+
+    - **Missing**: Portfolio holdings entity/persistence layer
+    - **Required**: `src/modules/portfolio/infrastructure/persistence/portfolio-holding.persistence.ts`
+    - **Notes**: Current state of tokens held in each portfolio (quantity, cost basis, avg price) - BELONGS TO PORTFOLIO MODULE
 
 - [ ] Cache frequently accessed token data
     - **Status**: No caching mechanism implemented yet
@@ -134,27 +134,27 @@
 - [x] `DELETE /portfolios/:id` - Delete a portfolio
     - **Files**: `src/modules/portfolio/infrastructure/portfolio.controller.ts`, `src/modules/portfolio/application/commands/delete-portfolio.command.ts`
 
-### Token Holdings Management (within Portfolios)
+### Portfolio Holdings Management (Portfolio Module - Future Checkpoint)
 
 - [ ] `POST /portfolios/:portfolioId/holdings` - Add/update portfolio token holding
 
-    - **Status**: Not implemented
+    - **Status**: Not implemented - BELONGS TO PORTFOLIO MODULE
     - **Notes**: Create or update token holding when user manually adds tokens
 
 - [ ] `GET /portfolios/:portfolioId/holdings` - Get portfolio token holdings
 
-    - **Status**: Not implemented
+    - **Status**: Not implemented - BELONGS TO PORTFOLIO MODULE
     - **Notes**: Return current token holdings with quantities, cost basis, current values
 
 - [ ] `PUT /portfolios/:portfolioId/holdings/:tokenId` - Update portfolio token holding
 
-    - **Status**: Not implemented
+    - **Status**: Not implemented - BELONGS TO PORTFOLIO MODULE
     - **Notes**: Update quantity, cost basis for manual portfolio management
 
 - [ ] `DELETE /portfolios/:portfolioId/holdings/:tokenId` - Remove token holding from portfolio
-    - **Status**: Not implemented
+    - **Status**: Not implemented - BELONGS TO PORTFOLIO MODULE
 
-### Token Management
+### Token Management (Asset Module - Current Focus)
 
 - [x] `GET /tokens/search` - Search for tokens via external API
 
@@ -162,9 +162,9 @@
     - **Files**: `src/modules/provider/infrastructure/provider.controller.ts`
     - **Notes**: Direct usage of ProviderModule for external API token search
 
-- [ ] `POST /tokens` - Add token to local database
+- [ ] `POST /assets/tokens` - Add token to local database
 
-    - **Status**: Not implemented
+    - **Status**: Not implemented - ASSET MODULE
     - **Notes**: Store frequently used tokens locally for better performance
 
 - [x] `GET /tokens/:id/price` - Get current token price
@@ -173,10 +173,15 @@
     - **Files**: `src/modules/provider/infrastructure/provider.controller.ts`
     - **Notes**: Direct usage of ProviderModule for fetching current token prices
 
+- [ ] `POST /assets/tokens/:id/price` - Update token price cache
+
+    - **Status**: Not implemented - ASSET MODULE
+    - **Notes**: Cache current token prices for performance
+
 ### Modules
 
 - [x] **PortfolioModule** - `src/modules/portfolio/portfolio.module.ts`
-- [ ] **AssetModule** - Unified module for assets (`src/modules/asset/`)
+- [ ] **AssetModule** - Token management only (`src/modules/asset/`)
 - [x] **ExternalApiModule** - Implemented as ProviderModule
 
 ---
@@ -401,14 +406,19 @@
     - [x] Implement CQRS pattern with commands and queries
     - [x] Add database migration for portfolios table
 
-- [ ] **Create Asset Management Module** (NEXT PRIORITY)
+- [ ] **Create Asset Management Module** (CURRENT PRIORITY - Token Management Only)
+
     - [ ] Create proper `src/modules/asset/` structure
     - [ ] Implement Token entity and repository (master token data)
-    - [ ] Implement Portfolio Holdings entity and repository (current token positions)
     - [ ] Implement Token Price entity and repository (hot price cache)
     - [ ] Create token management endpoints (via ProviderModule for search/price)
+    - [ ] Add database migrations for token and token price tables
+    - [ ] NOTE: Portfolio Holdings moved to Portfolio Module (separate checkpoint)
+
+- [ ] **Extend Portfolio Module with Holdings** (FUTURE CHECKPOINT)
+    - [ ] Implement Portfolio Holdings entity and repository (current token positions)
     - [ ] Create portfolio token holdings management endpoints
-    - [ ] Add database migrations for all asset tables
+    - [ ] Add database migration for portfolio holdings table
 
 ### 🔸 Medium Priority
 
@@ -442,7 +452,7 @@
 
 ### ⚠️ Areas for Improvement
 
-- Missing core business logic modules (Asset Management, Transaction, Snapshot-based Reports)
+- Missing core business logic modules (Asset Management focus on tokens only, Transaction, Snapshot-based Reports)
 - No caching strategy implemented for token prices
 - Limited test coverage
 - Missing refresh token functionality
@@ -453,13 +463,20 @@
 ### 📁 Key File Locations
 
 - **Completed**: `src/modules/auth/`, `src/modules/user/`, `src/modules/provider/`, `src/modules/portfolio/`, `src/core/configs/`
-- **Empty/Missing**: `src/modules/asset/` (tokens, holdings, prices, watchlist), `src/modules/transaction/`, `src/modules/reports/`
+- **Empty/Missing**: `src/modules/asset/` (tokens and prices only), `src/modules/transaction/`, `src/modules/reports/`
+
+### 🏗️ Module Responsibility Boundaries
+
+- **Asset Module**: Token management (master data) + Token price cache (hot cache)
+- **Portfolio Module**: Portfolio management + Portfolio holdings (current positions) + Portfolio performance
+- **Transaction Module**: Portfolio-scoped transactions + Holdings updates + Cost basis calculations
+- **Reports Module**: Snapshot-based historical tracking + Performance analytics
 
 ### 🏗️ Portfolio Architecture Notes
 
 - **Portfolio-First Design**: All holdings, watchlists, and transactions belong to specific portfolios
 - **Multi-Portfolio Support**: Users can have multiple portfolios (e.g., "Main", "Trading", "DCA")
-- **Asset Management Module**: Tokens, portfolio holdings, price cache, and watchlists unified under AssetModule
+- **Clear Module Boundaries**: Assets (tokens), Portfolios (holdings), Transactions (movements), Reports (analytics)
 - **Snapshot-based Reporting**: Historical performance tracking without full price history storage
 - **True P&L Tracking**: Cash flow analysis for accurate profit/loss calculation
 - **Single-Direction Transactions**: Simplified transaction model with automatic holdings updates
@@ -467,4 +484,4 @@
 ---
 
 **Last Updated**: 30 May 2025  
-**Next Review**: Complete Asset Management module (Phase 2)
+**Next Review**: Complete Asset Management module (Phase 2) - Tokens & Prices only

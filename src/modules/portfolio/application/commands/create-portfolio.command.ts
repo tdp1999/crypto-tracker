@@ -1,16 +1,15 @@
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
-import { Portfolio, PortfolioCreateSchema } from '../../domain/portfolio.entity';
-import { ERR_PORTFOLIO_NAME_EXISTS } from '../../domain/portfolio.error';
 import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
-import { PortfolioCreateDto } from '../portfolio.dto';
+import { Portfolio, PortfolioCreateSchema } from '../../domain/portfolio.entity';
+import { ERR_PORTFOLIO_NAME_EXISTS } from '../../domain/portfolio.error';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
+import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
 
 export class CreatePortfolioCommand {
-    constructor(public readonly payload: { dto: PortfolioCreateDto; userId: Id }) {}
+    constructor(public readonly payload: { dto: unknown; userId: Id }) {}
 }
 
 @Injectable()

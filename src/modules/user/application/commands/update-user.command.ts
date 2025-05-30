@@ -1,10 +1,9 @@
-import { UserUpdateSchema } from '@core/features/user/user.entity';
 import { BadRequestError, NotFoundError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
+import { User, UserUpdateSchema } from '@core/features/user/user.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { IUserRepository } from '../ports/user-repository.out.port';
-import { UserUpdateDto } from '../user.dto';
 import { USER_TOKENS } from '../user.token';
 
 // Command class
@@ -12,7 +11,7 @@ export class UpdateUserCommand {
     constructor(
         public readonly payload: {
             id: string;
-            dto: UserUpdateDto;
+            dto: unknown;
             updatedById: string;
         },
     ) {}
@@ -31,12 +30,15 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
         const { success, error, data: validatedDto } = UserUpdateSchema.safeParse(dto);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
 
-        const exists = await this.userRepository.exists(id);
-        if (!exists) throw NotFoundError(`User with id ${id} not found.`, { layer: ErrorLayer.APPLICATION });
+        // Get existing user
+        const existingUser = await this.userRepository.findById(id);
+        if (!existingUser) throw NotFoundError(`User with id ${id} not found.`, { layer: ErrorLayer.APPLICATION });
 
-        // Ensure the validated DTO includes who updated it
-        const updateData = { ...validatedDto, updatedById };
+        // Create updated user entity with domain logic
+        const updatedUserData = { ...existingUser, ...validatedDto };
+        const updatedUser = User.update(updatedUserData, updatedById);
 
-        return this.userRepository.update(id, updateData);
+        // Pass full entity directly to repository
+        return this.userRepository.update(id, updatedUser);
     }
 }

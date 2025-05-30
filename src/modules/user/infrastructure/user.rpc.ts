@@ -10,7 +10,6 @@ import { CreateUserCommand, UserCreatedBy } from '../application/commands/create
 import { CredentialValidityQuery } from '../application/queries/credential-validity.query';
 import { UserDetailQuery } from '../application/queries/detail-user.query';
 import { UserValidityQuery } from '../application/queries/user-validity.query';
-import { UserCreateDto } from '../application/user.dto';
 
 @Controller()
 @UseFilters(RpcExceptionFilter)
@@ -21,7 +20,7 @@ export class UserRpcController {
     ) {}
 
     @MessagePattern(AuthenticateUserAction.CREATE)
-    async createUser(payload: { dto: UserCreateDto; createdBy?: UserCreatedBy }): Promise<Id> {
+    async createUser(payload: { dto: unknown; createdBy?: UserCreatedBy }): Promise<Id> {
         return await this.commandBus.execute<CreateUserCommand, Id>(new CreateUserCommand(payload));
     }
 

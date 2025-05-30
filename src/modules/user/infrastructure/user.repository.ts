@@ -11,7 +11,7 @@ import { PaginatedResponse } from '@shared/types/pagination.type';
 import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { IUserRepository } from '../application/ports/user-repository.out.port';
-import { UserCreateDto, UserQueryDto, UserUpdateDto } from '../application/user.dto';
+import { UserQueryDto } from '../application/user.dto';
 import { UserEntity } from './user.persistence';
 
 @Injectable()
@@ -22,15 +22,22 @@ export class UserRepository implements IUserRepository {
     ) {}
 
     // --- Public methods (IRepository implementation) ---
-    async add(data: UserCreateDto): Promise<Id> {
-        const userEntity = this.userRepository.create(data);
-        const saved = await this.userRepository.save(userEntity);
-        return saved.id;
+    async add(entity: User): Promise<Id> {
+        const persistenceInstance = this.userRepository.create(entity);
+        const savedEntity = await this.userRepository.save(persistenceInstance);
+        return savedEntity.id;
     }
 
-    async update(id: Id, data: UserUpdateDto): Promise<boolean> {
-        const result = await this.userRepository.update(id, data);
-        return result.affected !== undefined && result.affected !== null && result.affected > 0;
+    async update(id: Id, entity: User): Promise<boolean> {
+        try {
+            const entityWithId = { ...entity, id };
+            const persistenceInstance = this.userRepository.create(entityWithId);
+            await this.userRepository.save(persistenceInstance);
+            return true;
+        } catch (error) {
+            console.error('User update failed:', error);
+            return false;
+        }
     }
 
     async remove(id: Id): Promise<boolean> {

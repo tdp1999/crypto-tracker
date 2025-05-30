@@ -10,7 +10,7 @@ import { PaginatedResponse } from '@shared/types/pagination.type';
 import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { IPortfolioRepository } from '../application/ports/portfolio-repository.out.port';
-import { PortfolioCreateDto, PortfolioQueryDto, PortfolioUpdateDto } from '../application/portfolio.dto';
+import { PortfolioQueryDto } from '../application/portfolio.dto';
 import { IPortfolio, Portfolio } from '../domain/portfolio.entity';
 import { PortfolioEntity } from './portfolio.persistence';
 
@@ -22,15 +22,22 @@ export class PortfolioRepository implements IPortfolioRepository {
     ) {}
 
     // --- Public methods (IRepository implementation) ---
-    async add(data: PortfolioCreateDto): Promise<Id> {
-        const portfolioEntity = this.portfolioRepository.create(data);
-        const saved = await this.portfolioRepository.save(portfolioEntity);
-        return saved.id;
+    async add(entity: Portfolio): Promise<Id> {
+        const persistenceInstance = this.portfolioRepository.create(entity);
+        const savedEntity = await this.portfolioRepository.save(persistenceInstance);
+        return savedEntity.id;
     }
 
-    async update(id: Id, data: PortfolioUpdateDto): Promise<boolean> {
-        const result = await this.portfolioRepository.update(id, data);
-        return result.affected !== undefined && result.affected !== null && result.affected > 0;
+    async update(id: Id, entity: Portfolio): Promise<boolean> {
+        try {
+            const entityWithId = { ...entity, id };
+            const persistenceInstance = this.portfolioRepository.create(entityWithId);
+            await this.portfolioRepository.save(persistenceInstance);
+            return true;
+        } catch (error) {
+            console.error('Portfolio update failed:', error);
+            return false;
+        }
     }
 
     async remove(id: Id): Promise<boolean> {
