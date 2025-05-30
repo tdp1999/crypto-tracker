@@ -3,11 +3,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { ITokenRepository } from '@modules/asset/application/ports/token-repository.out.port';
-import { SearchTokensDto, TokenSearchResponseDto, TokenSearchSchema } from '@modules/asset/application/asset.dto';
+import { TokenSearchResponseDto, TokenSearchSchema } from '@modules/asset/application/asset.dto';
 import { ASSET_TOKENS } from '@modules/asset/application/asset.token';
 
 export class SearchTokensQuery {
-    constructor(public readonly dto: SearchTokensDto) {}
+    constructor(public readonly dto: unknown) {}
 }
 
 @Injectable()
@@ -20,7 +20,6 @@ export class SearchTokensQueryHandler implements IQueryHandler<SearchTokensQuery
 
     async execute(query: SearchTokensQuery): Promise<TokenSearchResponseDto> {
         const { dto } = query;
-
         const { success, data, error } = TokenSearchSchema.safeParse(dto);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION, remarks: 'Token search failed' });
 
