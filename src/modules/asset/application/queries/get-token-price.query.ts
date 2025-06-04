@@ -12,6 +12,7 @@ export class GetTokenPriceQuery {
     constructor(public readonly tokenId: Id) {}
 }
 
+// TODO: Remove this, token price should be query along with token
 @Injectable()
 @QueryHandler(GetTokenPriceQuery)
 export class GetTokenPriceQueryHandler implements IQueryHandler<GetTokenPriceQuery> {

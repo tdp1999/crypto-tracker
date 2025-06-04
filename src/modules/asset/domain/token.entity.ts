@@ -11,13 +11,13 @@ import { z } from 'zod';
 
 export const TokenSchema = z.object({
     id: IdSchema,
-    symbol: z.string().min(1).max(20),
-    name: z.string().min(1).max(100),
-    refId: z.string().min(1).max(100), // required - external API reference
+    symbol: z.string().min(1).max(20), // E.g: BTC, ETH, SOL, etc.
+    name: z.string().min(1).max(100), // E.g: Bitcoin, Ethereum, Solana, etc.
+    refId: z.string().min(1).max(100), // required - external API reference. E.g: bitcoin, ethereum, solana, etc.
     decimals: z.number().int().min(0).max(18).default(18),
     isActive: z.boolean().default(true),
     isStablecoin: z.boolean().default(false),
-    stablecoinPeg: z.string().max(10).optional(),
+    stablecoinPeg: z.string().max(10).optional(), // Empty string means peg to USD
     logoUrl: z.string().url().optional(),
     ...AuditableSchema.shape,
 });
@@ -39,6 +39,14 @@ export const TokenUpdateSchema = TokenSchema.omit({ id: true })
     });
 
 export type IToken = z.infer<typeof TokenSchema>;
+
+export type ITokenProviderDetails = {
+    id: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+    image: string;
+};
 
 export class Token extends BaseModel implements IToken {
     readonly symbol: string;
@@ -85,5 +93,9 @@ export class Token extends BaseModel implements IToken {
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'Token update failed' });
 
         return new Token(newData);
+    }
+
+    static fromPersistence(raw: IToken): Token {
+        return new Token(raw);
     }
 }

@@ -12,13 +12,13 @@ import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { IUserRepository } from '../application/ports/user-repository.out.port';
 import { UserQueryDto } from '../application/user.dto';
-import { UserEntity } from './user.persistence';
+import { UserPersistence } from './user.persistence';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
     constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(UserPersistence)
+        private readonly userRepository: Repository<UserPersistence>,
     ) {}
 
     // --- Public methods (IRepository implementation) ---
@@ -94,7 +94,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findOne(conditions: Partial<IUser>): Promise<User | null> {
-        const findConditions: FindOptionsWhere<UserEntity> = conditions as FindOptionsWhere<UserEntity>;
+        const findConditions: FindOptionsWhere<UserPersistence> = conditions as FindOptionsWhere<UserPersistence>;
         const entity = await this.userRepository.findOneBy(findConditions);
         return entity ? this._toDomain(entity) : null;
     }
@@ -110,21 +110,21 @@ export class UserRepository implements IUserRepository {
     }
 
     // --- Private helper methods ---
-    private _toDomain(entity: UserEntity): User {
+    private _toDomain(entity: UserPersistence): User {
         // Warning: Direct casting might be problematic if User has methods or complex logic.
         // Consider a proper mapping function if needed.
         return entity as unknown as User; // Simplified mapping
     }
 
-    private _toDomainArray(entities: UserEntity[]): User[] {
+    private _toDomainArray(entities: UserPersistence[]): User[] {
         return entities.map((entity) => this._toDomain(entity));
     }
 
     private _buildWhereClause(
-        qb: SelectQueryBuilder<UserEntity>,
+        qb: SelectQueryBuilder<UserPersistence>,
         query: UserQueryDto,
         alias: string = 'user',
-    ): SelectQueryBuilder<UserEntity> {
+    ): SelectQueryBuilder<UserPersistence> {
         return WhereBuilder.create(qb, alias).like('email', query.email).equal('status', query.status).build();
     }
 }

@@ -1,5 +1,5 @@
 import { ProviderPriceQuery } from '../../../application/provider.dto';
-import { IProviderPrice } from '../../../domain/provider-asset.entity';
+import { DataSource, IProviderPrice } from '../../../domain/provider-asset.entity';
 import { COINGECKO_CURRENCY_DICTIONARY } from '../coingecko.constant';
 import { ICoinGeckoPriceRawResponse } from '../coingecko.interface';
 import { ITransformer } from './transformer.interface';
@@ -26,6 +26,7 @@ export class PriceTransformer
             volumn24h: value.usd_24h_vol,
             percentChange24h: value.usd_24h_change,
             lastUpdated: value.last_updated_at,
+            dataSource: DataSource.COINGECKO,
         }));
     }
 }

@@ -617,7 +617,7 @@ class TransactionService {
             }
 
             // Create swap record linking the two transactions
-            const swap = await this.db.createTokenSwap(
+            const swap = await this.db.AddTokenSwap(
                 {
                     portfolio_id,
                     from_transaction_id: sellTransaction.id,

@@ -28,5 +28,8 @@ export const ProviderPriceQuerySchema = z.object({ ids: z.string() }).refine(
     },
 );
 
+export const ProviderDetailsQuerySchema = z.object({ id: z.string() });
+
 export type ProviderQuery = z.infer<typeof ProviderQuerySchema>;
 export type ProviderPriceQuery = z.infer<typeof ProviderPriceQuerySchema>;
+export type ProviderDetailsQuery = z.infer<typeof ProviderDetailsQuerySchema>;

@@ -186,7 +186,7 @@ export type ITokenRepository = IRepository<IToken, SearchTokensDto> & {
     findBySymbol(symbol: string): Promise<IToken | null>;
     findByRefId(refId: string): Promise<IToken | null>;
     findActiveTokens(): Promise<IToken[]>;
-    searchByName(query: string, limit?: number): Promise<IToken[]>;
+    findByName(query: string, limit?: number): Promise<IToken[]>;
 };
 ```
 
@@ -305,7 +305,7 @@ const token = Token.create(data, userId);
 const tokenId = await this.tokenRepository.add(token); // ❌ Repository expects DTO but gets entity
 
 // Repository
-async add(data: CreateTokenDto): Promise<Id> {
+async add(data: AddTokenDto): Promise<Id> {
     const tokenEntity = this.tokenRepository.create(data); // ❌ Manual mapping
     const saved = await this.tokenRepository.save(tokenEntity);
     return saved.id;

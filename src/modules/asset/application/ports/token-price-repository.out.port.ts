@@ -1,8 +1,13 @@
 import { ITokenPrice } from '@modules/asset/domain/token-price.entity';
 
 export interface ITokenPriceRepository {
-    upsert(tokenId: string, priceData: Partial<ITokenPrice>): Promise<ITokenPrice>;
+    // Persistence
+    upsert(tokenId: string, priceData: ITokenPrice): Promise<boolean>;
     findByTokenId(tokenId: string): Promise<ITokenPrice | null>;
     findStale(olderThan: bigint): Promise<ITokenPrice[]>;
     findByDataSource(dataSource: string): Promise<ITokenPrice[]>;
+
+    // RPC
+    // This repository also act as an adapter
+    getLatestPrice(refId: string): Promise<Partial<ITokenPrice> | null>;
 }

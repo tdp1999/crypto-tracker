@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
 import { IProviderService } from '../application/provider-service.in';
 import { ProviderPriceQuery, ProviderQuery } from '../application/provider.dto';
 import { PROVIDER_SERVICE_TOKEN } from '../application/provider.token';
@@ -20,5 +20,10 @@ export class ProviderController {
     @Get('price')
     async price(@Query() query: ProviderPriceQuery) {
         return this.service.getPrice(query);
+    }
+
+    @Get('details/:id')
+    async details(@Param('id') id: string) {
+        return this.service.getDetails({ id });
     }
 }

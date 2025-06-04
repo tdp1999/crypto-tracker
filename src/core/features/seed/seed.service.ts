@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BooleanValue } from '@shared/vos/boolean.value';
 import { Repository } from 'typeorm';
 import { ISeed } from './seed.interface';
-import { SeedEntity } from './seed.persistence';
+import { SeedPersistence } from './seed.persistence';
 import { UserSeeder } from './seeders/user.seeder';
 @Injectable()
 export class SeedService {
@@ -12,7 +12,7 @@ export class SeedService {
 
     constructor(
         @Inject(ConfigService) private configService: ConfigService,
-        @InjectRepository(SeedEntity) private seedRepository: Repository<SeedEntity>,
+        @InjectRepository(SeedPersistence) private seedRepository: Repository<SeedPersistence>,
 
         // Seeders
         private userSeeder: UserSeeder,

@@ -1,6 +1,6 @@
 # Create a migration diff file
 
-`pnpm run migration:generate src/modules/user/adapters/migrations/UpdateConstrainInUserTables --dr`
+`pnpm run migration:generate src/modules/user/infrastructure/migrations/UpdateConstrainInUserTables --dr`
 
 # Run migration
 

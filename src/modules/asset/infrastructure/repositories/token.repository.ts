@@ -1,24 +1,31 @@
+import { ProviderAction } from '@core/actions/provider.action';
+import { observableToPromise } from '@shared/utils/observable.util';
 import { withDefaultOrder } from '@core/builders/order.builder';
 import { WhereBuilder } from '@core/builders/where.builder';
+import { RpcClient } from '@core/decorators/client.rpc.decorator';
 import { applySelectClause } from '@core/factories/select.factory';
+import { CLIENT_PROXY } from '@core/features/client/client.token';
 import { Id } from '@core/types/common.type';
 import { FindByIdsResult } from '@core/types/query.type';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@shared/constants/default.constant';
 import { PaginatedResponse } from '@shared/types/pagination.type';
 import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { ITokenRepository } from '../../application/ports/token-repository.out.port';
 import { SearchTokensDto } from '../../application/asset.dto';
+import { ITokenRepository } from '../../application/ports/token-repository.out.port';
 import { IToken, Token } from '../../domain/token.entity';
-import { TokenEntity } from '../persistence/token.persistence';
+import { TokenPersistence } from '../persistence/token.persistence';
 
 @Injectable()
 export class TokenRepository implements ITokenRepository {
     constructor(
-        @InjectRepository(TokenEntity)
-        private readonly tokenRepository: Repository<TokenEntity>,
+        @InjectRepository(TokenPersistence)
+        private readonly tokenRepository: Repository<TokenPersistence>,
+
+        @Inject(CLIENT_PROXY) private readonly client: ClientProxy,
     ) {}
 
     // --- Public methods (IRepository implementation) ---
@@ -94,7 +101,7 @@ export class TokenRepository implements ITokenRepository {
     }
 
     async findOne(conditions: Partial<IToken>): Promise<Token | null> {
-        const findConditions: FindOptionsWhere<TokenEntity> = conditions as FindOptionsWhere<TokenEntity>;
+        const findConditions: FindOptionsWhere<TokenPersistence> = conditions as FindOptionsWhere<TokenPersistence>;
         const entity = await this.tokenRepository.findOneBy(findConditions);
         return entity ? this._toDomain(entity) : null;
     }
@@ -109,6 +116,7 @@ export class TokenRepository implements ITokenRepository {
         const entity = await this.tokenRepository.findOne({
             where: {
                 symbol: symbol.toUpperCase(),
+                // TODO: fix this any
                 deletedAt: null as any,
             },
         });
@@ -135,7 +143,7 @@ export class TokenRepository implements ITokenRepository {
         return this._toDomainArray(entities);
     }
 
-    async searchByName(query: string, limit = 10): Promise<Token[]> {
+    async findByName(query: string, limit = 10): Promise<Token[]> {
         const entities = await this.tokenRepository
             .createQueryBuilder('token')
             .where('token.deletedAt IS NULL')
@@ -150,21 +158,26 @@ export class TokenRepository implements ITokenRepository {
         return this._toDomainArray(entities);
     }
 
-    // --- Private helper methods ---
-    private _toDomain(entity: TokenEntity): Token {
-        // Simplified mapping - consider proper mapping if Token has complex logic
-        return entity as unknown as Token;
+    // RPC
+    @RpcClient()
+    async getTokenDetails(refId: string): Promise<IToken> {
+        return await observableToPromise(this.client.send(ProviderAction.DETAILS, { refId }));
     }
 
-    private _toDomainArray(entities: TokenEntity[]): Token[] {
+    // --- Private helper methods ---
+    private _toDomain(entity: TokenPersistence): Token {
+        return Token.fromPersistence(entity);
+    }
+
+    private _toDomainArray(entities: TokenPersistence[]): Token[] {
         return entities.map((entity) => this._toDomain(entity));
     }
 
     private _buildWhereClause(
-        qb: SelectQueryBuilder<TokenEntity>,
+        qb: SelectQueryBuilder<TokenPersistence>,
         query: SearchTokensDto,
         alias: string = 'token',
-    ): SelectQueryBuilder<TokenEntity> {
+    ): SelectQueryBuilder<TokenPersistence> {
         return WhereBuilder.create(qb, alias)
             .like('name', query.name)
             .like('symbol', query.symbol)

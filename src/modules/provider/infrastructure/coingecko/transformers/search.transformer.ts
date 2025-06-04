@@ -1,5 +1,5 @@
 import { ProviderQuery } from '../../../application/provider.dto';
-import { IProviderAsset } from '../../../domain/provider-asset.entity';
+import { DataSource, IProviderAsset } from '../../../domain/provider-asset.entity';
 import { ICoinGeckoCoin } from '../coingecko.interface';
 import { ITransformer } from './transformer.interface';
 
@@ -15,6 +15,7 @@ export class SearchTransformer implements ITransformer<ICoinGeckoCoin[], IProvid
             symbol: item.symbol,
             logo: item.thumb,
             image: item.large,
+            dataSource: DataSource.COINGECKO,
         }));
     }
 }

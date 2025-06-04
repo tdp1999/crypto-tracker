@@ -3,8 +3,8 @@ import databaseConfig from '@core/configs/postgres-database.config';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { UserEntity } from '@modules/user/infrastructure/user.persistence';
-import { SeedEntity } from './seed.persistence';
+import { UserPersistence } from '@modules/user/infrastructure/user.persistence';
+import { SeedPersistence } from './seed.persistence';
 import { SeedService } from './seed.service';
 import { UserSeeder } from './seeders/user.seeder';
 
@@ -27,7 +27,7 @@ const seeder = [UserSeeder];
                 return { ...config, logging: environment === 'local' };
             },
         }),
-        TypeOrmModule.forFeature([SeedEntity, UserEntity]),
+        TypeOrmModule.forFeature([SeedPersistence, UserPersistence]),
     ],
 })
 export class SeedModule {}

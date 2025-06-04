@@ -3,7 +3,7 @@ import { IUser, USER_STATUS } from '@core/features/user/user.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity('users')
-export class UserEntity extends BasePersistence implements IUser {
+export class UserPersistence extends BasePersistence implements IUser {
     @Column({ unique: true })
     email: string;
 

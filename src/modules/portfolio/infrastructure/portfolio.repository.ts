@@ -12,13 +12,13 @@ import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { IPortfolioRepository } from '../application/ports/portfolio-repository.out.port';
 import { PortfolioQueryDto } from '../application/portfolio.dto';
 import { IPortfolio, Portfolio } from '../domain/portfolio.entity';
-import { PortfolioEntity } from './portfolio.persistence';
+import { PortfolioPersistence } from './portfolio.persistence';
 
 @Injectable()
 export class PortfolioRepository implements IPortfolioRepository {
     constructor(
-        @InjectRepository(PortfolioEntity)
-        private readonly portfolioRepository: Repository<PortfolioEntity>,
+        @InjectRepository(PortfolioPersistence)
+        private readonly portfolioRepository: Repository<PortfolioPersistence>,
     ) {}
 
     // --- Public methods (IRepository implementation) ---
@@ -94,7 +94,8 @@ export class PortfolioRepository implements IPortfolioRepository {
     }
 
     async findOne(conditions: Partial<IPortfolio>): Promise<Portfolio | null> {
-        const findConditions: FindOptionsWhere<PortfolioEntity> = conditions as FindOptionsWhere<PortfolioEntity>;
+        const findConditions: FindOptionsWhere<PortfolioPersistence> =
+            conditions as FindOptionsWhere<PortfolioPersistence>;
         const entity = await this.portfolioRepository.findOneBy(findConditions);
         return entity ? this._toDomain(entity) : null;
     }
@@ -120,20 +121,20 @@ export class PortfolioRepository implements IPortfolioRepository {
     }
 
     // --- Private helper methods ---
-    private _toDomain(entity: PortfolioEntity): Portfolio {
+    private _toDomain(entity: PortfolioPersistence): Portfolio {
         // Simplified mapping - consider proper mapping if Portfolio has complex logic
         return entity as unknown as Portfolio;
     }
 
-    private _toDomainArray(entities: PortfolioEntity[]): Portfolio[] {
+    private _toDomainArray(entities: PortfolioPersistence[]): Portfolio[] {
         return entities.map((entity) => this._toDomain(entity));
     }
 
     private _buildWhereClause(
-        qb: SelectQueryBuilder<PortfolioEntity>,
+        qb: SelectQueryBuilder<PortfolioPersistence>,
         query: PortfolioQueryDto,
         alias: string = 'portfolio',
-    ): SelectQueryBuilder<PortfolioEntity> {
+    ): SelectQueryBuilder<PortfolioPersistence> {
         return WhereBuilder.create(qb, alias)
             .like('name', query.name)
             .equal('userId', query.userId)

@@ -9,7 +9,7 @@ import { ListPortfolioQueryHandler } from './application/queries/list-portfolio.
 import { PortfolioOwnershipQueryHandler } from './application/queries/portfolio-ownership.query';
 import { PORTFOLIO_TOKENS } from './application/portfolio.token';
 import { PortfolioController } from './infrastructure/portfolio.controller';
-import { PortfolioEntity } from './infrastructure/portfolio.persistence';
+import { PortfolioPersistence } from './infrastructure/portfolio.persistence';
 import { PortfolioRepository } from './infrastructure/portfolio.repository';
 
 const CommandHandlers = [CreatePortfolioCommandHandler, UpdatePortfolioCommandHandler, DeletePortfolioCommandHandler];
@@ -18,7 +18,7 @@ const QueryHandlers = [ListPortfolioQueryHandler, DetailPortfolioQueryHandler, P
 
 @Module({
     controllers: [PortfolioController],
-    imports: [TypeOrmModule.forFeature([PortfolioEntity]), CqrsModule],
+    imports: [TypeOrmModule.forFeature([PortfolioPersistence]), CqrsModule],
     providers: [
         {
             provide: PORTFOLIO_TOKENS.REPOSITORIES,

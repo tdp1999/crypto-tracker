@@ -1,5 +1,5 @@
 import { USER_STATUS } from '@core/features/user/user.entity';
-import { UserEntity } from '@modules/user/infrastructure/user.persistence';
+import { UserPersistence } from '@modules/user/infrastructure/user.persistence';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ import { ISeed } from '../seed.interface';
 export class UserSeeder implements ISeed {
     constructor(
         @Inject(ConfigService) private readonly config: ConfigService,
-        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+        @InjectRepository(UserPersistence) private userRepository: Repository<UserPersistence>,
     ) {}
 
     async seed(): Promise<void> {

@@ -101,4 +101,8 @@ export class User extends BaseModel implements IUser {
 
         return new User(newData);
     }
+
+    static fromPersistence(raw: IUser): User {
+        return new User(raw);
+    }
 }

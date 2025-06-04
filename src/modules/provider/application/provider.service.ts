@@ -1,9 +1,16 @@
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Inject, Injectable } from '@nestjs/common';
-import { IProviderAsset, IProviderPrice } from '../domain/provider-asset.entity';
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '../domain/provider-asset.entity';
 import { IProviderService } from './provider-service.in';
-import { ProviderPriceQuery, ProviderPriceQuerySchema, ProviderQuery, ProviderQuerySchema } from './provider.dto';
+import {
+    ProviderDetailsQuery,
+    ProviderDetailsQuerySchema,
+    ProviderPriceQuery,
+    ProviderPriceQuerySchema,
+    ProviderQuery,
+    ProviderQuerySchema,
+} from './provider.dto';
 import { PROVIDER_ADAPTER_TOKEN } from './provider.token';
 
 @Injectable()
@@ -24,5 +31,11 @@ export class ProviderService implements IProviderService {
         const { success, error, data } = ProviderPriceQuerySchema.safeParse(query);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
         return this.adapter.getPrice(data);
+    }
+
+    async getDetails(query: ProviderDetailsQuery): Promise<IProviderDetails> {
+        const { success, error, data } = ProviderDetailsQuerySchema.safeParse(query);
+        if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
+        return await this.adapter.getDetails(data);
     }
 }

@@ -13,10 +13,17 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { AssetModule } from './modules/asset/asset.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 
-const featuredModules = [ProviderModule, UserModule, AuthModule, PortfolioModule] as unknown as DynamicModule[];
+const featuredModules = [
+    ProviderModule,
+    UserModule,
+    AuthModule,
+    PortfolioModule,
+    AssetModule,
+] as unknown as DynamicModule[];
 
 @Module({
     imports: [

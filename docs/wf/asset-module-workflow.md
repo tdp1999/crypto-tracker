@@ -61,10 +61,10 @@ Token (Master Data)
 
 ```typescript
 @Entity('tokens')
-@Index(['symbol'])
-@Index(['refId'])
-@Index(['isActive'])
-export class TokenEntity extends BasePersistence implements IToken {
+@Index('IDX_tokens_symbol', ['symbol'])
+@Index('IDX_tokens_ref_id', ['refId'])
+@Index('IDX_tokens_is_active', ['isActive'])
+export class TokenPersistence extends BasePersistence implements IToken {
     @Column({ length: 20, unique: true })
     symbol: string;
 
@@ -176,7 +176,7 @@ src/modules/asset/
 
 #### 1.5 Command & Query Handlers ✅
 
-- ✅ **CreateTokenCommand** & Handler - Full implementation
+- ✅ **AddTokenCommand** & Handler - Full implementation
 - ✅ **UpdateTokenCommand** & Handler - Full implementation
 - ✅ **UpdateTokenPriceCommand** & Handler - Full implementation
 - ✅ **GetTokenQuery** & Handler - Full implementation
@@ -215,9 +215,8 @@ import { Column, Entity, Index, PrimaryColumn, OneToOne, JoinColumn } from 'type
 import { TokenEntity } from './token.persistence';
 
 @Entity('token_prices_current')
-@Index(['lastUpdated'])
-@Index(['dataSource'])
-export class TokenPriceEntity implements ITokenPrice {
+@Index('IDX_token_prices_datasource', ['dataSource'])
+export class TokenPricePersistence implements ITokenPrice {
     @PrimaryColumn({ name: 'token_id' })
     tokenId: string;
 

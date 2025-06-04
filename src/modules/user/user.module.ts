@@ -13,7 +13,7 @@ import { UserValidityQueryHandler } from './application/queries/user-validity.qu
 import { USER_TOKENS } from './application/user.token';
 import { UserConfigAdapter } from './infrastructure/adapters/user-config.adapter';
 import { UserController } from './infrastructure/user.controller';
-import { UserEntity } from './infrastructure/user.persistence';
+import { UserPersistence } from './infrastructure/user.persistence';
 import { UserRepository } from './infrastructure/user.repository';
 import { UserRpcController } from './infrastructure/user.rpc';
 
@@ -29,7 +29,7 @@ const QueryHandlers = [
 
 @Module({
     controllers: [UserController, UserRpcController],
-    imports: [TypeOrmModule.forFeature([UserEntity]), ClientModule.registerAsync(), CqrsModule],
+    imports: [TypeOrmModule.forFeature([UserPersistence]), ClientModule.registerAsync(), CqrsModule],
     providers: [
         {
             provide: USER_TOKENS.ADAPTERS.CONFIG,

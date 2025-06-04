@@ -263,7 +263,7 @@ Following `user.persistence.ts` pattern:
 
 ```typescript
 @Entity('portfolios')
-export class PortfolioEntity extends BasePersistence implements IPortfolio {
+export class PortfolioPersistence extends BasePersistence implements IPortfolio {
     @Column()
     name: string;
 

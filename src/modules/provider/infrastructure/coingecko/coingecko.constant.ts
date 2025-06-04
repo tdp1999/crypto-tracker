@@ -6,6 +6,7 @@ export const COINGECKO_PROVIDER_URL_PATH_DICTIONARY = {
     ping: 'ping',
     search: 'search',
     price: 'simple/price',
+    details: 'coins/:id',
 } as const;
 
 export const COINGECKO_CURRENCY_DICTIONARY = {
