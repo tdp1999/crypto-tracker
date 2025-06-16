@@ -49,10 +49,10 @@ export class TokenPriceRepository implements ITokenPriceRepository {
         return entity ? this._toDomain(entity) : null;
     }
 
-    async findStale(olderThan: bigint): Promise<ITokenPrice[]> {
+    async findStale(olderThan: string): Promise<ITokenPrice[]> {
         const entities = await this.tokenPriceRepository
             .createQueryBuilder('tp')
-            .where('tp.lastUpdated < :threshold', { threshold: olderThan.toString() })
+            .where('tp.updated_at < :threshold', { threshold: olderThan })
             .getMany();
 
         return entities.map((entity) => this._toDomain(entity));

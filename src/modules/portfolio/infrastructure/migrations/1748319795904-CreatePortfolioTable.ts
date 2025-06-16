@@ -7,11 +7,11 @@ export class CreatePortfolioTable1748319795904 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "portfolios" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "created_at" bigint NOT NULL,
+                "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
                 "created_by_id" uuid NOT NULL,
-                "updated_at" bigint NOT NULL,
+                "updated_at" TIMESTAMP NOT NULL DEFAULT NOW(),
                 "updated_by_id" uuid NOT NULL,
-                "deleted_at" bigint,
+                "deleted_at" TIMESTAMP,
                 "deleted_by_id" uuid,
                 "name" character varying(255) NOT NULL,
                 "description" text,

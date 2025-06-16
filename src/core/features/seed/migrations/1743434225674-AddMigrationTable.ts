@@ -9,7 +9,7 @@ export class AddMigrationTable1743434225674 implements MigrationInterface {
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "name" character varying NOT NULL,
                 "isCompleted" boolean NOT NULL DEFAULT false,
-                "executed_at" bigint NOT NULL,
+                "executed_at" TIMESTAMP NOT NULL DEFAULT NOW(),
                 CONSTRAINT "UQ_9978f4e4f60d7f1fc1af7c7ff9c" UNIQUE ("name"),
                 CONSTRAINT "PK_3ac799e4ece18bc838823bb6a4b" PRIMARY KEY ("id")
             )

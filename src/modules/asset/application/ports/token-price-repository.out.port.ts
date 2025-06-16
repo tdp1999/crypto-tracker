@@ -4,7 +4,7 @@ export interface ITokenPriceRepository {
     // Persistence
     upsert(tokenId: string, priceData: ITokenPrice): Promise<boolean>;
     findByTokenId(tokenId: string): Promise<ITokenPrice | null>;
-    findStale(olderThan: bigint): Promise<ITokenPrice[]>;
+    findStale(olderThan: string): Promise<ITokenPrice[]>;
     findByDataSource(dataSource: string): Promise<ITokenPrice[]>;
 
     // RPC

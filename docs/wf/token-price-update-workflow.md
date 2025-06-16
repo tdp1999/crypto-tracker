@@ -80,12 +80,12 @@ export interface IPriceUpdateJob {
     tokensToUpdate: string[]; // Token IDs
     tokensUpdated: number;
     totalTokens: number;
-    startedAt?: bigint;
-    completedAt?: bigint;
+    startedAt?: string;
+    completedAt?: string;
     errorMessage?: string;
     triggeredBy?: string; // User ID for manual updates
-    createdAt: bigint;
-    updatedAt: bigint;
+    createdAt: string;
+    updatedAt: string;
 }
 ```
 
@@ -131,8 +131,6 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
     ) {}
 
     async execute(command: UpdateHeldTokenPricesCommand): Promise<IPriceUpdateJob> {
-        const now = TemporalValue.now;
-
         // Create job record
         const job = await this.priceUpdateJobRepository.create({
             jobType: command.jobType,
@@ -141,8 +139,6 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
             tokensUpdated: 0,
             totalTokens: 0,
             triggeredBy: command.triggeredBy,
-            createdAt: now,
-            updatedAt: now,
         });
 
         try {
@@ -154,8 +150,7 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
                     status: 'COMPLETED',
                     totalTokens: 0,
                     tokensUpdated: 0,
-                    completedAt: now,
-                    updatedAt: now,
+                    completedAt: new Date().toISOString(),
                 });
                 return job;
             }
@@ -165,8 +160,7 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
                 status: 'RUNNING',
                 tokensToUpdate: heldTokens.map((t) => t.id),
                 totalTokens: heldTokens.length,
-                startedAt: now,
-                updatedAt: now,
+                startedAt: new Date().toISOString(),
             });
 
             // Get price data from external provider
@@ -188,7 +182,7 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
                         marketCap: price.marketCap,
                         volume24h: price.volume24h,
                         priceChange24h: price.priceChange24h,
-                        lastUpdated: TemporalValue.now,
+                        lastUpdated: new Date().toISOString(),
                         dataSource: price.dataSource || 'coingecko',
                     });
                     updatedCount++;
@@ -201,8 +195,7 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
             await this.priceUpdateJobRepository.update(job.id, {
                 status: 'COMPLETED',
                 tokensUpdated: updatedCount,
-                completedAt: TemporalValue.now,
-                updatedAt: TemporalValue.now,
+                completedAt: new Date().toISOString(),
             });
 
             return await this.priceUpdateJobRepository.findById(job.id);
@@ -210,8 +203,7 @@ export class UpdateHeldTokenPricesHandler implements ICommandHandler<UpdateHeldT
             await this.priceUpdateJobRepository.update(job.id, {
                 status: 'FAILED',
                 errorMessage: error.message,
-                completedAt: TemporalValue.now,
-                updatedAt: TemporalValue.now,
+                completedAt: new Date().toISOString(),
             });
             throw error;
         }

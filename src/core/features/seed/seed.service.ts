@@ -51,7 +51,7 @@ export class SeedService {
         try {
             this.logger.log(`Running ${name} seeder...`);
             await seeder.seed();
-            await this.seedRepository.save({ name, isCompleted: true, executedAt: BigInt(Date.now()) });
+            await this.seedRepository.save({ name, isCompleted: true });
             this.logger.log(`${name} seeder completed successfully`);
         } catch (error) {
             this.logger.error(`Error running ${name} seeder`, error);
@@ -64,7 +64,7 @@ export class SeedService {
             try {
                 this.logger.log(`Re-running ${name} seeder...`);
                 await seeder.rerun();
-                await this.seedRepository.update(seedId, { executedAt: BigInt(Date.now()) });
+                await this.seedRepository.update(seedId, { isCompleted: true });
                 this.logger.log(`${name} seeder re-run completed successfully`);
             } catch (error) {
                 this.logger.error(`Error re-running ${name} seeder`, error);

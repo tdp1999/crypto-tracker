@@ -1,11 +1,11 @@
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { BaseModel } from '@core/abstractions/model.base';
 import { BadRequestError } from '@core/errors/domain.error';
+import { ERR_COMMON_EMPTY_PAYLOAD } from '@core/errors/messages/common.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { AuditableSchema } from '@core/schema/auditable.schema';
 import { IdSchema } from '@core/schema/common.schema';
 import { Id } from '@core/types/common.type';
-import { TemporalValue } from '@shared/vos/temporal.value';
 import { z } from 'zod';
 
 export const TokenPriceSchema = z.object({
@@ -33,7 +33,7 @@ export const TokenPriceCreateSchema = TokenPriceSchema.pick({
 export const TokenPriceUpdateSchema = TokenPriceSchema.omit({ tokenId: true, refId: true, createdAt: true })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
-        message: 'Update payload cannot be empty',
+        message: ERR_COMMON_EMPTY_PAYLOAD,
     });
 
 export type ITokenPrice = z.infer<typeof TokenPriceSchema>;
@@ -43,7 +43,7 @@ export type ITokenProviderPrice = {
     price: number;
     volumn24h: number;
     percentChange24h: number;
-    lastUpdated: bigint;
+    lastUpdated: string;
     dataSource: string;
 };
 
@@ -56,7 +56,7 @@ export class TokenPrice extends BaseModel implements ITokenPrice {
     readonly priceChange24h?: number;
     readonly dataSource?: string;
 
-    private constructor(props: ITokenPrice) {
+    private constructor(props: Partial<ITokenPrice>) {
         super(props);
         Object.assign(this, props);
     }
@@ -66,14 +66,10 @@ export class TokenPrice extends BaseModel implements ITokenPrice {
         if (!success)
             throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'Token price creation failed' });
 
-        const now = TemporalValue.now;
-
         return new TokenPrice({
             ...data,
             id: IdentifierValue.v7(),
-            createdAt: now,
             createdById,
-            updatedAt: now,
             updatedById: createdById,
         });
     }
@@ -82,7 +78,6 @@ export class TokenPrice extends BaseModel implements ITokenPrice {
         const newData = {
             ...existing,
             ...raw,
-            updatedAt: TemporalValue.now,
             updatedById,
         };
         const { success, error } = TokenPriceUpdateSchema.safeParse(raw);
@@ -110,7 +105,9 @@ export class TokenPrice extends BaseModel implements ITokenPrice {
     // Business logic methods
     isStale(maxAgeMinutes: number = 5): boolean {
         const maxAgeMs = maxAgeMinutes * 60 * 1000;
-        const ageMs = Number(TemporalValue.now - this.updatedAt);
+        const now = new Date();
+        const lastUpdate = new Date(this.updatedAt);
+        const ageMs = now.getTime() - lastUpdate.getTime();
         return ageMs > maxAgeMs;
     }
 

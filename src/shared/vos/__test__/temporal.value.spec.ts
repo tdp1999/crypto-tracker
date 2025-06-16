@@ -2,14 +2,14 @@ import { TemporalValue } from '../temporal.value';
 
 describe('TemporalValue', () => {
     describe('now', () => {
-        it('should return current timestamp as bigint', () => {
-            const before = BigInt(Date.now());
+        it('should return current timestamp as ISO string', () => {
+            const before = new Date().toISOString();
             const result = TemporalValue.now;
-            const after = BigInt(Date.now());
+            const after = new Date().toISOString();
 
-            expect(typeof result).toBe('bigint');
-            expect(result).toBeGreaterThanOrEqual(before);
-            expect(result).toBeLessThanOrEqual(after);
+            expect(typeof result).toBe('string');
+            expect(new Date(result).getTime()).toBeGreaterThanOrEqual(new Date(before).getTime());
+            expect(new Date(result).getTime()).toBeLessThanOrEqual(new Date(after).getTime());
         });
 
         it('should return different values on consecutive calls', () => {
@@ -17,111 +17,39 @@ describe('TemporalValue', () => {
             // Small delay to ensure different timestamps
             const second = TemporalValue.now;
 
-            expect(second).toBeGreaterThanOrEqual(first);
-        });
-    });
-
-    describe('isoStringToTimestamp', () => {
-        it('should convert valid ISO string to timestamp', () => {
-            const isoString = '2023-01-01T00:00:00.000Z';
-            const expected = BigInt(new Date(isoString).getTime());
-
-            const result = TemporalValue.isoStringToTimestamp(isoString);
-
-            expect(result).toBe(expected);
-            expect(typeof result).toBe('bigint');
-        });
-
-        it('should handle ISO string with timezone', () => {
-            const isoString = '2023-06-15T14:30:45.123+02:00';
-            const expected = BigInt(new Date(isoString).getTime());
-
-            const result = TemporalValue.isoStringToTimestamp(isoString);
-
-            expect(result).toBe(expected);
-        });
-
-        it('should handle ISO string without milliseconds', () => {
-            const isoString = '2023-12-31T23:59:59Z';
-            const expected = BigInt(new Date(isoString).getTime());
-
-            const result = TemporalValue.isoStringToTimestamp(isoString);
-
-            expect(result).toBe(expected);
-        });
-
-        it('should handle date-only ISO string', () => {
-            const isoString = '2023-07-20';
-            const expected = BigInt(new Date(isoString).getTime());
-
-            const result = TemporalValue.isoStringToTimestamp(isoString);
-
-            expect(result).toBe(expected);
-        });
-
-        it('should throw error for invalid ISO string', () => {
-            const invalidIsoString = 'invalid-date';
-
-            expect(() => {
-                TemporalValue.isoStringToTimestamp(invalidIsoString);
-            }).toThrow('The number NaN cannot be converted to a BigInt');
-        });
-
-        it('should throw error for empty string', () => {
-            expect(() => {
-                TemporalValue.isoStringToTimestamp('');
-            }).toThrow('The number NaN cannot be converted to a BigInt');
+            expect(new Date(second).getTime()).toBeGreaterThanOrEqual(new Date(first).getTime());
         });
     });
 
     describe('addMillis', () => {
-        it('should add positive milliseconds to timestamp', () => {
-            const baseTimestamp = BigInt(1000000);
+        it('should add positive milliseconds to ISO string', () => {
+            const baseIsoString = '2023-01-01T00:00:00.000Z';
             const millisToAdd = 5000;
-            const expected = BigInt(1005000);
+            const expected = '2023-01-01T00:00:05.000Z';
 
-            const result = TemporalValue.addMillis(baseTimestamp, millisToAdd);
+            const result = TemporalValue.addMillis(baseIsoString, millisToAdd);
 
             expect(result).toBe(expected);
-            expect(typeof result).toBe('bigint');
+            expect(typeof result).toBe('string');
         });
 
         it('should subtract when adding negative milliseconds', () => {
-            const baseTimestamp = BigInt(1000000);
+            const baseIsoString = '2023-01-01T00:00:05.000Z';
             const millisToAdd = -3000;
-            const expected = BigInt(997000);
+            const expected = '2023-01-01T00:00:02.000Z';
 
-            const result = TemporalValue.addMillis(baseTimestamp, millisToAdd);
+            const result = TemporalValue.addMillis(baseIsoString, millisToAdd);
 
             expect(result).toBe(expected);
         });
 
         it('should handle zero milliseconds', () => {
-            const baseTimestamp = BigInt(1000000);
+            const baseIsoString = '2023-01-01T00:00:00.000Z';
             const millisToAdd = 0;
 
-            const result = TemporalValue.addMillis(baseTimestamp, millisToAdd);
+            const result = TemporalValue.addMillis(baseIsoString, millisToAdd);
 
-            expect(result).toBe(baseTimestamp);
-        });
-
-        it('should handle large numbers', () => {
-            const baseTimestamp = BigInt(Number.MAX_SAFE_INTEGER);
-            const millisToAdd = 1000;
-            const expected = baseTimestamp + BigInt(millisToAdd);
-
-            const result = TemporalValue.addMillis(baseTimestamp, millisToAdd);
-
-            expect(result).toBe(expected);
-        });
-
-        it('should handle decimal milliseconds by converting to integer', () => {
-            const baseTimestamp = BigInt(1000000);
-            const millisToAdd = 1500.7; // BigInt conversion will fail for decimal numbers
-
-            expect(() => {
-                TemporalValue.addMillis(baseTimestamp, millisToAdd);
-            }).toThrow('The number 1500.7 cannot be converted to a BigInt because it is not an integer');
+            expect(result).toBe(baseIsoString);
         });
 
         it('should work with current timestamp', () => {
@@ -130,28 +58,107 @@ describe('TemporalValue', () => {
 
             const result = TemporalValue.addMillis(currentTimestamp, millisToAdd);
 
-            expect(result).toBe(currentTimestamp + BigInt(millisToAdd));
-            expect(result).toBeGreaterThan(currentTimestamp);
+            expect(new Date(result).getTime()).toBe(new Date(currentTimestamp).getTime() + millisToAdd);
+            expect(new Date(result).getTime()).toBeGreaterThan(new Date(currentTimestamp).getTime());
+        });
+    });
+
+    describe('addDays', () => {
+        it('should add days to ISO string', () => {
+            const baseIsoString = '2023-01-01T00:00:00.000Z';
+            const daysToAdd = 5;
+            const expected = '2023-01-06T00:00:00.000Z';
+
+            const result = TemporalValue.addDays(baseIsoString, daysToAdd);
+
+            expect(result).toBe(expected);
+        });
+
+        it('should subtract days when adding negative days', () => {
+            const baseIsoString = '2023-01-06T00:00:00.000Z';
+            const daysToAdd = -3;
+            const expected = '2023-01-03T00:00:00.000Z';
+
+            const result = TemporalValue.addDays(baseIsoString, daysToAdd);
+
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe('toDateOnly', () => {
+        it('should extract date part from ISO string', () => {
+            const isoString = '2023-01-01T15:30:45.123Z';
+            const expected = '2023-01-01';
+
+            const result = TemporalValue.toDateOnly(isoString);
+
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe('fromDateOnly', () => {
+        it('should convert date string to ISO string', () => {
+            const dateString = '2023-01-01';
+            const expected = '2023-01-01T00:00:00.000Z';
+
+            const result = TemporalValue.fromDateOnly(dateString);
+
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe('comparison methods', () => {
+        it('should correctly compare dates with isAfter', () => {
+            const earlier = '2023-01-01T00:00:00.000Z';
+            const later = '2023-01-02T00:00:00.000Z';
+
+            expect(TemporalValue.isAfter(later, earlier)).toBe(true);
+            expect(TemporalValue.isAfter(earlier, later)).toBe(false);
+        });
+
+        it('should correctly compare dates with isBefore', () => {
+            const earlier = '2023-01-01T00:00:00.000Z';
+            const later = '2023-01-02T00:00:00.000Z';
+
+            expect(TemporalValue.isBefore(earlier, later)).toBe(true);
+            expect(TemporalValue.isBefore(later, earlier)).toBe(false);
+        });
+    });
+
+    describe('diffInMinutes', () => {
+        it('should calculate difference in minutes', () => {
+            const time1 = '2023-01-01T00:00:00.000Z';
+            const time2 = '2023-01-01T00:05:00.000Z';
+
+            const result = TemporalValue.diffInMinutes(time1, time2);
+
+            expect(result).toBe(5);
+        });
+
+        it('should return absolute difference', () => {
+            const time1 = '2023-01-01T00:05:00.000Z';
+            const time2 = '2023-01-01T00:00:00.000Z';
+
+            const result = TemporalValue.diffInMinutes(time1, time2);
+
+            expect(result).toBe(5);
         });
     });
 
     describe('integration tests', () => {
-        it('should work together: ISO string to timestamp and add millis', () => {
+        it('should work together: add days and convert to date only', () => {
             const isoString = '2023-01-01T00:00:00.000Z';
-            const timestamp = TemporalValue.isoStringToTimestamp(isoString);
-            const millisToAdd = 60000; // 1 minute
+            const withAddedDays = TemporalValue.addDays(isoString, 5);
+            const dateOnly = TemporalValue.toDateOnly(withAddedDays);
 
-            const result = TemporalValue.addMillis(timestamp, millisToAdd);
-            const expectedTimestamp = BigInt(new Date('2023-01-01T00:01:00.000Z').getTime());
-
-            expect(result).toBe(expectedTimestamp);
+            expect(dateOnly).toBe('2023-01-06');
         });
 
-        it('should maintain precision with large timestamps', () => {
+        it('should maintain precision with ISO strings', () => {
             const currentTime = TemporalValue.now;
             const added = TemporalValue.addMillis(currentTime, 1);
 
-            expect(added - currentTime).toBe(BigInt(1));
+            expect(new Date(added).getTime() - new Date(currentTime).getTime()).toBe(1);
         });
     });
 });

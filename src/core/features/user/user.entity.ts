@@ -45,16 +45,10 @@ export const UserCreateSchema = UserSchema.pick({
 
 export const UserUpdateSchema = UserSchema.omit({ id: true })
     .partial()
-    .refine(
-        (data) => {
-            // Payload must not be empty
-            return Object.keys(data).length > 0;
-        },
-        {
-            message: ERR_COMMON_EMPTY_PAYLOAD,
-            path: ['$'],
-        },
-    );
+    .refine((data) => Object.keys(data).length > 0, {
+        message: ERR_COMMON_EMPTY_PAYLOAD,
+        path: ['$'],
+    });
 
 export type IUser = z.infer<typeof UserSchema>;
 
@@ -70,7 +64,7 @@ export class User extends BaseModel implements IUser {
     /* Created by manual registration */
     readonly isManualRegistration: boolean;
 
-    private constructor(props: IUser) {
+    private constructor(props: Partial<IUser>) {
         super(props);
         Object.assign(this, props);
     }
@@ -79,7 +73,6 @@ export class User extends BaseModel implements IUser {
         const { success, data, error } = UserCreateSchema.safeParse(raw);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'User creation failed' });
 
-        const now = TemporalValue.now;
         const password = data.hashedPassword ?? (await hashByBcrypt(data.rawPassword!));
 
         return new User({
@@ -87,9 +80,7 @@ export class User extends BaseModel implements IUser {
             password,
             salt: '',
             id: IdentifierValue.v7(),
-            createdAt: now,
             createdById,
-            updatedAt: now,
             updatedById: createdById,
         });
     }

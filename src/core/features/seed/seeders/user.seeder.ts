@@ -25,7 +25,6 @@ export class UserSeeder implements ISeed {
         }
 
         const hashedPassword = await hashByBcrypt(password);
-        const currentTimestamp = BigInt(Date.now());
         const user = this.userRepository.create({
             id: v7(),
             email,
@@ -33,9 +32,7 @@ export class UserSeeder implements ISeed {
             password: hashedPassword,
             status: USER_STATUS.ACTIVE,
             isSystem: true,
-            createdAt: currentTimestamp,
             createdById: systemId,
-            updatedAt: currentTimestamp,
             updatedById: systemId,
         });
 

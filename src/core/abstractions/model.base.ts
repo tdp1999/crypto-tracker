@@ -3,13 +3,13 @@ import { Id } from '../types/common.type';
 export abstract class BaseModel {
     readonly id: string;
 
-    readonly createdAt: bigint;
+    readonly createdAt: string;
     readonly createdById: Id;
 
-    readonly updatedAt: bigint;
+    readonly updatedAt: string;
     readonly updatedById: Id;
 
-    readonly deletedAt?: bigint;
+    readonly deletedAt?: string;
     readonly deletedById?: Id;
 
     protected constructor(props: Record<string, any>) {

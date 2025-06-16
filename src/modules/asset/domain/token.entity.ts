@@ -6,7 +6,6 @@ import { AuditableSchema } from '@core/schema/auditable.schema';
 import { IdSchema } from '@core/schema/common.schema';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
-import { TemporalValue } from '@shared/vos/temporal.value';
 import { z } from 'zod';
 
 export const TokenSchema = z.object({
@@ -58,7 +57,7 @@ export class Token extends BaseModel implements IToken {
     readonly stablecoinPeg?: string;
     readonly logoUrl?: string;
 
-    private constructor(props: IToken) {
+    private constructor(props: Partial<IToken>) {
         super(props);
         Object.assign(this, props);
     }
@@ -67,16 +66,12 @@ export class Token extends BaseModel implements IToken {
         const { success, data, error } = TokenCreateSchema.safeParse(raw);
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.DOMAIN, remarks: 'Token creation failed' });
 
-        const now = TemporalValue.now;
-
         return new Token({
             ...data,
             symbol: data.symbol.toUpperCase(), // Normalize symbol to uppercase
             isActive: true, // Default to active for new tokens
             id: IdentifierValue.v7(),
-            createdAt: now,
             createdById,
-            updatedAt: now,
             updatedById: createdById,
         });
     }
@@ -86,7 +81,6 @@ export class Token extends BaseModel implements IToken {
             ...existing,
             ...raw,
             symbol: raw.symbol ? raw.symbol.toUpperCase() : existing.symbol, // Normalize symbol if provided
-            updatedAt: TemporalValue.now,
             updatedById,
         };
         const { success, error } = TokenUpdateSchema.safeParse(raw);

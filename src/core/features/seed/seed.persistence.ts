@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('seeds')
 export class SeedPersistence {
@@ -11,6 +11,6 @@ export class SeedPersistence {
     @Column({ default: false })
     isCompleted: boolean;
 
-    @Column({ type: 'bigint', name: 'executed_at' })
-    executedAt: bigint;
+    @CreateDateColumn({ name: 'executed_at' })
+    executedAt: string;
 }

@@ -211,7 +211,16 @@ Required implementation:
 
 ```typescript
 import { ITokenPrice } from '@modules/asset/domain/token-price.entity';
-import { Column, Entity, Index, PrimaryColumn, OneToOne, JoinColumn } from 'typeorm';
+import {
+    Column,
+    Entity,
+    Index,
+    PrimaryColumn,
+    OneToOne,
+    JoinColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { TokenEntity } from './token.persistence';
 
 @Entity('token_prices_current')
@@ -232,17 +241,17 @@ export class TokenPricePersistence implements ITokenPrice {
     @Column({ name: 'price_change_24h', type: 'decimal', precision: 10, scale: 4, nullable: true })
     priceChange24h?: number;
 
-    @Column({ name: 'last_updated', type: 'bigint' })
-    lastUpdated: bigint;
+    @Column({ name: 'last_updated' })
+    lastUpdated: string;
 
     @Column({ name: 'data_source', length: 50, default: 'coingecko' })
     dataSource: string;
 
-    @Column({ name: 'created_at', type: 'bigint' })
-    createdAt: bigint;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: string;
 
-    @Column({ name: 'updated_at', type: 'bigint' })
-    updatedAt: bigint;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: string;
 
     // Relations for modeling purposes (no foreign keys in DB)
     @OneToOne(() => TokenEntity, (token) => token.currentPrice)
