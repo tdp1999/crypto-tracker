@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PortfolioModule } from '../portfolio.module';
-import { PortfolioEntity } from '../infrastructure/portfolio.persistence';
+import { PortfolioEntity } from '../infrastructure/persistence/portfolio.persistence';
 
 describe('PortfolioModule', () => {
     let module: TestingModule;

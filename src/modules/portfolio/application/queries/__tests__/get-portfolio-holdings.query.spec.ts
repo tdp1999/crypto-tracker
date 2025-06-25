@@ -23,7 +23,7 @@ describe('GetPortfolioHoldingsQueryHandler', () => {
             providers: [
                 GetPortfolioHoldingsQueryHandler,
                 {
-                    provide: PORTFOLIO_TOKENS.REPOSITORIES,
+                    provide: PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO,
                     useValue: {
                         findById: jest.fn(),
                     },
@@ -38,7 +38,7 @@ describe('GetPortfolioHoldingsQueryHandler', () => {
         }).compile();
 
         handler = module.get<GetPortfolioHoldingsQueryHandler>(GetPortfolioHoldingsQueryHandler);
-        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES);
+        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO);
         providerService = module.get(PROVIDER_SERVICE_TOKEN);
     });
 

@@ -20,7 +20,7 @@ describe('RemoveTokenCommandHandler', () => {
             providers: [
                 RemoveTokenCommandHandler,
                 {
-                    provide: PORTFOLIO_TOKENS.REPOSITORIES,
+                    provide: PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO,
                     useValue: {
                         findById: jest.fn(),
                     },
@@ -29,7 +29,7 @@ describe('RemoveTokenCommandHandler', () => {
         }).compile();
 
         handler = module.get<RemoveTokenCommandHandler>(RemoveTokenCommandHandler);
-        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES);
+        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO);
     });
 
     describe('execute', () => {

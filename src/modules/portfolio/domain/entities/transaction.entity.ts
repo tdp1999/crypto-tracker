@@ -7,7 +7,7 @@ import { IdSchema } from '@core/schema/common.schema';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { z } from 'zod';
-import { TokenSchema } from '../portfolio-holding.entity';
+import { TokenSchema } from './portfolio-holding.entity';
 
 // Transaction types enum
 export enum TransactionType {

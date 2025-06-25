@@ -4,13 +4,13 @@ import { Id } from '@core/types/common.type';
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PaginatedResponse } from '@shared/types/pagination.type';
-import { CreatePortfolioCommand } from '../application/commands/create-portfolio.command';
-import { DeletePortfolioCommand } from '../application/commands/delete-portfolio.command';
-import { UpdatePortfolioCommand } from '../application/commands/update-portfolio.command';
-import { PortfolioQueryDto } from '../application/portfolio.dto';
-import { PortfolioDetailQuery } from '../application/queries/detail-portfolio.query';
-import { PortfolioListQuery } from '../application/queries/list-portfolio.query';
-import { Portfolio } from '../domain/entities/portfolio.entity';
+import { CreatePortfolioCommand } from '../../application/commands/create-portfolio.command';
+import { DeletePortfolioCommand } from '../../application/commands/delete-portfolio.command';
+import { UpdatePortfolioCommand } from '../../application/commands/update-portfolio.command';
+import { PortfolioQueryDto } from '../../application/portfolio.dto';
+import { PortfolioDetailQuery } from '../../application/queries/detail-portfolio.query';
+import { PortfolioListQuery } from '../../application/queries/list-portfolio.query';
+import { Portfolio } from '../../domain/entities/portfolio.entity';
 
 @Controller('portfolio')
 export class PortfolioController {

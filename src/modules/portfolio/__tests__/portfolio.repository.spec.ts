@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PortfolioEntity } from '../infrastructure/portfolio.persistence';
+import { PortfolioEntity } from '../infrastructure/persistence/portfolio.persistence';
 import { PortfolioRepository } from '../infrastructure/portfolio.repository';
 
 describe('PortfolioRepository', () => {

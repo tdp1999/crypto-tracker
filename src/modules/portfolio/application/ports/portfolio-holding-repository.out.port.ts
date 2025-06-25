@@ -1,11 +1,12 @@
+import { IRepository } from '@core/interfaces/repository.interface';
 import { Id } from '@core/types/common.type';
 import { PortfolioHolding } from '../../domain/entities/portfolio-holding.entity';
+import { PortfolioHoldingQueryDto } from '../portfolio.dto';
 
-// QUESTION: Should I make this repository extend the IRepository interface? Is it necessary or redundant?
-export type IPortfolioHoldingRepository = {
-    add(token: PortfolioHolding): Promise<Id>;
+export type IPortfolioHoldingRepository = IRepository<PortfolioHolding, PortfolioHoldingQueryDto> & {
+    findByPortfolioId(portfolioId: Id): Promise<PortfolioHolding[]>;
 
-    update(id: Id, holding: PortfolioHolding): Promise<boolean>;
+    findByPortfolioAndTokenSymbol(portfolioId: Id, tokenSymbol: string): Promise<PortfolioHolding | null>;
 
-    findById(id: Id): Promise<PortfolioHolding | null>;
+    findActiveByPortfolioId(portfolioId: Id): Promise<PortfolioHolding[]>;
 };

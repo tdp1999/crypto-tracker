@@ -46,7 +46,7 @@ describe('RegisterTokenCommandHandler', () => {
             providers: [
                 RegisterTokenCommandHandler,
                 {
-                    provide: PORTFOLIO_TOKENS.REPOSITORIES,
+                    provide: PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO,
                     useValue: {
                         findById: jest.fn(),
                     },
@@ -62,7 +62,7 @@ describe('RegisterTokenCommandHandler', () => {
         }).compile();
 
         handler = module.get<RegisterTokenCommandHandler>(RegisterTokenCommandHandler);
-        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES);
+        portfolioRepository = module.get(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO);
         providerService = module.get(PROVIDER_SERVICE_TOKEN);
     });
 

@@ -8,12 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@shared/constants/default.constant';
 import { PaginatedResponse } from '@shared/types/pagination.type';
 import { paginate } from '@shared/utils/pagination.util';
+import { PromiseValue } from '@shared/vos/promise.value';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { IPortfolioRepository } from '../application/ports/portfolio-repository.out.port';
-import { PortfolioQueryDto } from '../application/portfolio.dto';
-import { IPortfolio, Portfolio } from '../domain/entities/portfolio.entity';
-import { PortfolioPersistence } from './portfolio.persistence';
-import { PromiseValue } from '../../../shared/vos/promise.value';
+import { PortfolioQueryDto } from '../../application/portfolio.dto';
+import { IPortfolioRepository } from '../../application/ports/portfolio-repository.out.port';
+import { IPortfolio, Portfolio } from '../../domain/entities/portfolio.entity';
+import { PortfolioPersistence } from '../persistence/portfolio.persistence';
 
 @Injectable()
 export class PortfolioRepository implements IPortfolioRepository {
@@ -123,7 +123,8 @@ export class PortfolioRepository implements IPortfolioRepository {
 
     async findByHoldingId(holdingId: Id): Promise<Portfolio | null> {
         // TODO: Implement when portfolio holding repository is available
-        return PromiseValue.arbitrary(null);
+
+        return await PromiseValue.arbitrary(null);
     }
 
     // --- Private helper methods ---
