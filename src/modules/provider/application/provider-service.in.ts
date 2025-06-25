@@ -1,4 +1,4 @@
-import { IProviderAsset, IProviderDetails, IProviderPrice } from '../domain/provider-asset.entity';
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { ProviderDetailsQuery, ProviderPriceQuery, ProviderQuery } from './provider.dto';
 
 // We use this interface to both adapter and application service

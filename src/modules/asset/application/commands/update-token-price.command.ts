@@ -31,6 +31,6 @@ export class UpdateTokenPriceCommandHandler implements ICommandHandler<UpdateTok
         console.log('UpdateTokenPriceCommandHandler', command);
 
         // TODO: Implement this
-        return PromiseValue.Void();
+        return PromiseValue.void();
     }
 }

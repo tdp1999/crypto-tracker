@@ -11,8 +11,9 @@ import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { IPortfolioRepository } from '../application/ports/portfolio-repository.out.port';
 import { PortfolioQueryDto } from '../application/portfolio.dto';
-import { IPortfolio, Portfolio } from '../domain/portfolio.entity';
+import { IPortfolio, Portfolio } from '../domain/entities/portfolio.entity';
 import { PortfolioPersistence } from './portfolio.persistence';
+import { PromiseValue } from '../../../shared/vos/promise.value';
 
 @Injectable()
 export class PortfolioRepository implements IPortfolioRepository {
@@ -118,6 +119,11 @@ export class PortfolioRepository implements IPortfolioRepository {
     async findDefaultByUserId(userId: Id): Promise<Portfolio | null> {
         const entity = await this.portfolioRepository.findOneBy({ userId, isDefault: true });
         return entity ? this._toDomain(entity) : null;
+    }
+
+    async findByHoldingId(holdingId: Id): Promise<Portfolio | null> {
+        // TODO: Implement when portfolio holding repository is available
+        return PromiseValue.arbitrary(null);
     }
 
     // --- Private helper methods ---

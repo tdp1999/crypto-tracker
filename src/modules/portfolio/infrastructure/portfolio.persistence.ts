@@ -1,5 +1,5 @@
 import { BasePersistence } from '@core/abstractions/persistence.base';
-import { IPortfolio } from '@modules/portfolio/domain/portfolio.entity';
+import { IPortfolio } from '@modules/portfolio/domain/entities/portfolio.entity';
 import { Column, Entity, Index, Unique } from 'typeorm';
 
 @Entity('portfolios')

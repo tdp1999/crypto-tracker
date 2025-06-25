@@ -114,31 +114,21 @@ export class TokenRepository implements ITokenRepository {
     // --- Custom methods (ITokenRepository specific) ---
     async findBySymbol(symbol: string): Promise<Token | null> {
         const entity = await this.tokenRepository.findOne({
-            where: {
-                symbol: symbol.toUpperCase(),
-                // TODO: fix this any
-                deletedAt: null as any,
-            },
+            where: { symbol: symbol.toUpperCase(), deletedAt: undefined },
         });
         return entity ? this._toDomain(entity) : null;
     }
 
     async findByRefId(refId: string): Promise<Token | null> {
         const entity = await this.tokenRepository.findOne({
-            where: {
-                refId,
-                deletedAt: null as any,
-            },
+            where: { refId, deletedAt: undefined },
         });
         return entity ? this._toDomain(entity) : null;
     }
 
     async findActiveTokens(): Promise<Token[]> {
         const entities = await this.tokenRepository.find({
-            where: {
-                isActive: true,
-                deletedAt: null as any,
-            },
+            where: { isActive: true, deletedAt: undefined },
         });
         return this._toDomainArray(entities);
     }

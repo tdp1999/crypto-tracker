@@ -1,7 +1,7 @@
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { Inject, Injectable } from '@nestjs/common';
-import { IProviderAsset, IProviderDetails, IProviderPrice } from '../domain/provider-asset.entity';
 import { IProviderService } from './provider-service.in';
 import {
     ProviderDetailsQuery,

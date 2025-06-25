@@ -3,13 +3,13 @@ import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Portfolio, PortfolioUpdateSchema } from '../../domain/portfolio.entity';
+import { Portfolio, PortfolioUpdateSchema } from '../../domain/entities/portfolio.entity';
 import {
-    ERR_PORTFOLIO_ACCESS_DENIED,
     ERR_PORTFOLIO_CANNOT_UNSET_DEFAULT,
     ERR_PORTFOLIO_NAME_EXISTS,
     ERR_PORTFOLIO_NOT_FOUND,
 } from '../../domain/portfolio.error';
+import { PortfolioOwnershipService } from '../../domain/services/portfolio-ownership.service';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
 import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
 
@@ -21,7 +21,7 @@ export class UpdatePortfolioCommand {
 @CommandHandler(UpdatePortfolioCommand)
 export class UpdatePortfolioCommandHandler implements ICommandHandler<UpdatePortfolioCommand> {
     constructor(
-        @Inject(PORTFOLIO_TOKENS.REPOSITORIES)
+        @Inject(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO)
         private readonly portfolioRepository: IPortfolioRepository,
     ) {}
 
@@ -36,13 +36,7 @@ export class UpdatePortfolioCommandHandler implements ICommandHandler<UpdatePort
         if (!existingPortfolio) {
             throw NotFoundError(ERR_PORTFOLIO_NOT_FOUND, { layer: ErrorLayer.APPLICATION });
         }
-
-        if (existingPortfolio.userId !== userId) {
-            throw BadRequestError(ERR_PORTFOLIO_ACCESS_DENIED, {
-                layer: ErrorLayer.APPLICATION,
-                remarks: 'Portfolio update failed',
-            });
-        }
+        PortfolioOwnershipService.verifyOwnership(existingPortfolio, userId);
 
         // Check name uniqueness if name is being updated
         if (data.name && data.name !== existingPortfolio.name) {

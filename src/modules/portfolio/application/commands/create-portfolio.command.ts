@@ -3,7 +3,7 @@ import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Portfolio, PortfolioCreateSchema } from '../../domain/portfolio.entity';
+import { Portfolio, PortfolioCreateSchema } from '../../domain/entities/portfolio.entity';
 import { ERR_PORTFOLIO_NAME_EXISTS } from '../../domain/portfolio.error';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
 import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
@@ -16,7 +16,7 @@ export class CreatePortfolioCommand {
 @CommandHandler(CreatePortfolioCommand)
 export class CreatePortfolioCommandHandler implements ICommandHandler<CreatePortfolioCommand> {
     constructor(
-        @Inject(PORTFOLIO_TOKENS.REPOSITORIES)
+        @Inject(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO)
         private readonly portfolioRepository: IPortfolioRepository,
     ) {}
 

@@ -1,18 +1,18 @@
 import { InternalServerError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { axiosObservableToPromise } from '@shared/utils/observable.util';
 import { IProviderAdapter } from '../../application/provider-service.in';
 import { ProviderDetailsQuery, ProviderPriceQuery, ProviderQuery } from '../../application/provider.dto';
-import { IProviderAsset, IProviderDetails, IProviderPrice } from '../../domain/provider-asset.entity';
 import { COINGECKO_PROVIDER_URL_PATH_DICTIONARY } from './coingecko.constant';
 import { COINGECKO_ERROR_MESSAGES } from './coingecko.error';
 import { ICoinGeckoDetails, ICoinGeckoPriceRawResponse, ICoinGeckoSearchRawResponse } from './coingecko.interface';
+import { DetailTransformer } from './transformers/detail.transformer';
 import { PriceTransformer } from './transformers/price.transformer';
 import { SearchTransformer } from './transformers/search.transformer';
-import { DetailTransformer } from './transformers/detail.transformer';
 
 @Injectable()
 export class CoinGeckoAdapter implements IProviderAdapter {

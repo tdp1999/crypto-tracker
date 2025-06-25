@@ -1,3 +1,4 @@
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
 import { IProviderService } from '../application/provider-service.in';
 import { ProviderPriceQuery, ProviderQuery } from '../application/provider.dto';
@@ -13,17 +14,17 @@ export class ProviderController {
     }
 
     @Get('search')
-    async search(@Query() query: ProviderQuery) {
+    async search(@Query() query: ProviderQuery): Promise<IProviderAsset[]> {
         return this.service.search(query);
     }
 
     @Get('price')
-    async price(@Query() query: ProviderPriceQuery) {
+    async price(@Query() query: ProviderPriceQuery): Promise<IProviderPrice[]> {
         return this.service.getPrice(query);
     }
 
     @Get('details/:id')
-    async details(@Param('id') id: string) {
+    async details(@Param('id') id: string): Promise<IProviderDetails> {
         return this.service.getDetails({ id });
     }
 }

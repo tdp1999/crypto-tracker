@@ -10,7 +10,7 @@ import { UpdatePortfolioCommand } from '../application/commands/update-portfolio
 import { PortfolioQueryDto } from '../application/portfolio.dto';
 import { PortfolioDetailQuery } from '../application/queries/detail-portfolio.query';
 import { PortfolioListQuery } from '../application/queries/list-portfolio.query';
-import { Portfolio } from '../domain/portfolio.entity';
+import { Portfolio } from '../domain/entities/portfolio.entity';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -36,7 +36,7 @@ export class PortfolioController {
     @Delete(':id')
     async remove(@Param('id') id: string, @Requester() user: IUser): Promise<boolean> {
         return await this.commandBus.execute<DeletePortfolioCommand, boolean>(
-            new DeletePortfolioCommand({ id, userId: user.id }),
+            new DeletePortfolioCommand({ dto: { id }, userId: user.id }),
         );
     }
 

@@ -1,5 +1,5 @@
+import { DataSource, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { ProviderPriceQuery } from '../../../application/provider.dto';
-import { DataSource, IProviderPrice } from '../../../domain/provider-asset.entity';
 import { COINGECKO_CURRENCY_DICTIONARY } from '../coingecko.constant';
 import { ICoinGeckoPriceRawResponse } from '../coingecko.interface';
 import { ITransformer } from './transformer.interface';

@@ -4,7 +4,7 @@ import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedResponse } from '@shared/types/pagination.type';
-import { Portfolio } from '../../domain/portfolio.entity';
+import { Portfolio } from '../../domain/entities/portfolio.entity';
 import { PortfolioQuerySchema } from '../portfolio.dto';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
 import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
@@ -17,7 +17,7 @@ export class PortfolioListQuery {
 @QueryHandler(PortfolioListQuery)
 export class ListPortfolioQueryHandler implements IQueryHandler<PortfolioListQuery, PaginatedResponse<Portfolio>> {
     constructor(
-        @Inject(PORTFOLIO_TOKENS.REPOSITORIES)
+        @Inject(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO)
         private readonly portfolioRepository: IPortfolioRepository,
     ) {}
 

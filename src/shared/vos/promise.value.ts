@@ -1,5 +1,9 @@
 export class PromiseValue {
-    static Void() {
+    static void() {
         return Promise.resolve();
+    }
+
+    static arbitrary<T>(value: T): Promise<T> {
+        return Promise.resolve(value);
     }
 }

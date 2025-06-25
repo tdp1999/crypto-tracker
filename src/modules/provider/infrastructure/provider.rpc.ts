@@ -1,11 +1,11 @@
 import { ProviderAction } from '@core/actions/provider.action';
+import { IProviderAsset, IProviderDetails, IProviderPrice } from '@core/features/provider/provider-asset.entity';
 import { RpcExceptionFilter } from '@core/filters/rpc-exception.filter';
 import { Controller, Inject, UseFilters } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { IProviderService } from '../application/provider-service.in';
 import { ProviderDetailsQuery, ProviderPriceQuery, ProviderQuery } from '../application/provider.dto';
 import { PROVIDER_SERVICE_TOKEN } from '../application/provider.token';
-import { IProviderAsset, IProviderDetails, IProviderPrice } from '../domain/provider-asset.entity';
 
 @Controller()
 @UseFilters(RpcExceptionFilter)

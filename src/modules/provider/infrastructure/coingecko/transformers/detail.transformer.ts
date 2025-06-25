@@ -1,5 +1,5 @@
+import { DataSource, IProviderDetails } from '@core/features/provider/provider-asset.entity';
 import { ProviderDetailsQuery } from '../../../application/provider.dto';
-import { DataSource, IProviderDetails } from '../../../domain/provider-asset.entity';
 import { ICoinGeckoDetails } from '../coingecko.interface';
 import { ITransformer } from './transformer.interface';
 

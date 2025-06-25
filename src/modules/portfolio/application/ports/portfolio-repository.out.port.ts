@@ -1,10 +1,10 @@
-import { Portfolio } from '../../domain/portfolio.entity';
 import { IRepository } from '@core/interfaces/repository.interface';
-import { PortfolioQueryDto } from '../portfolio.dto';
 import { Id } from '@core/types/common.type';
+import { Portfolio } from '../../domain/entities/portfolio.entity';
+import { PortfolioQueryDto } from '../portfolio.dto';
 
 export type IPortfolioRepository = IRepository<Portfolio, PortfolioQueryDto> & {
-    findByUserAndName(userId: Id, name: string): Promise<Portfolio | null>;
     countByUserId(userId: Id): Promise<number>;
-    findDefaultByUserId(userId: Id): Promise<Portfolio | null>;
+    findByHoldingId(holdingId: Id): Promise<Portfolio | null>;
+    findByUserAndName(userId: Id, name: string): Promise<Portfolio | null>;
 };
