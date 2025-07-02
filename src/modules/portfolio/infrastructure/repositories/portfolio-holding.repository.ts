@@ -111,12 +111,17 @@ export class PortfolioHoldingRepository implements IPortfolioHoldingRepository {
         return this._toDomainArray(entities);
     }
 
-    async findByPortfolioAndTokenSymbol(portfolioId: Id, tokenSymbol: string): Promise<PortfolioHolding | null> {
-        const entity = await this.holdingRepository.findOneBy({
-            portfolioId,
-            tokenSymbol: tokenSymbol.toUpperCase(),
-        });
+    async findByPortfolioAndTokenSymbol(portfolioId: Id, refId: string): Promise<PortfolioHolding | null> {
+        const entity = await this.holdingRepository.findOneBy({ portfolioId, refId });
         return entity ? this._toDomain(entity) : null;
+    }
+
+    /**
+     * Efficiently check if a token already exists in portfolio without fetching full entity
+     */
+    async existsByPortfolioAndTokenSymbol(portfolioId: Id, refId: string): Promise<boolean> {
+        const count = await this.holdingRepository.countBy({ portfolioId, refId, deletedAt: IsNull() });
+        return count > 0;
     }
 
     async findActiveByPortfolioId(portfolioId: Id): Promise<PortfolioHolding[]> {
@@ -129,8 +134,7 @@ export class PortfolioHoldingRepository implements IPortfolioHoldingRepository {
 
     // --- Private helper methods ---
     private _toDomain(entity: PortfolioHoldingPersistence): PortfolioHolding {
-        // Simplified mapping - consider proper mapping if PortfolioHolding has complex logic
-        return entity as unknown as PortfolioHolding;
+        return PortfolioHolding.fromPersistence(entity);
     }
 
     private _toDomainArray(entities: PortfolioHoldingPersistence[]): PortfolioHolding[] {

@@ -1,6 +1,7 @@
 import { BasePersistence } from '@core/abstractions/persistence.base';
+import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { IPortfolioHolding } from '../../domain/entities/portfolio-holding.entity';
-import { Column, Entity, Index, Unique } from 'typeorm';
+import { PortfolioPersistence } from './portfolio.persistence';
 
 @Entity('portfolio_holdings')
 @Unique('UQ_portfolio_holdings_portfolio_token', ['portfolioId', 'tokenSymbol'])
@@ -10,6 +11,13 @@ import { Column, Entity, Index, Unique } from 'typeorm';
 export class PortfolioHoldingPersistence extends BasePersistence implements IPortfolioHolding {
     @Column({ name: 'portfolio_id', type: 'uuid' })
     portfolioId: string;
+
+    @ManyToOne(() => PortfolioPersistence, (portfolio) => portfolio.holdings, {
+        onDelete: 'CASCADE',
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn({ name: 'portfolio_id' })
+    portfolio: PortfolioPersistence;
 
     @Column({ name: 'ref_id', type: 'varchar', length: 20 })
     refId: string;

@@ -62,4 +62,8 @@ export class Portfolio extends BaseModel implements IPortfolio {
 
         return new Portfolio(newData);
     }
+
+    static fromPersistence(raw: IPortfolio): Portfolio {
+        return new Portfolio(raw);
+    }
 }

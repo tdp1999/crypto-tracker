@@ -7,6 +7,7 @@ export const ERR_PORTFOLIO_CANNOT_UNSET_DEFAULT = "Cannot unset default when it'
 // Portfolio Holdings errors
 export const ERR_HOLDING_TOKEN_ALREADY_EXISTS = 'Token already exists in this portfolio';
 export const ERR_HOLDING_NOT_FOUND = 'Portfolio holding not found';
+export const ERR_HOLDING_ALREADY_REMOVED = 'Portfolio holding already removed';
 export const ERR_HOLDING_ACCESS_DENIED = 'Access denied to portfolio holding';
 export const ERR_HOLDING_INVALID_TOKEN_SYMBOL = 'Invalid token symbol format';
 

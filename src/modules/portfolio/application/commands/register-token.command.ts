@@ -1,6 +1,5 @@
 import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
-import { IdSchema } from '@core/schema/common.schema';
 import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
@@ -13,7 +12,7 @@ import { IPortfolioHoldingRepository } from '../ports/portfolio-holding-reposito
 import { IPortfolioProviderRepository } from '../ports/portfolio-provider-repository.out.port';
 import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
 
-export const RegisterTokenCommandSchema = z.object({ refId: IdSchema });
+export const RegisterTokenCommandSchema = z.object({ refId: z.string() });
 
 export class RegisterTokenCommand {
     constructor(public readonly payload: { dto: unknown; userId: Id; portfolioId: Id }) {}
@@ -41,9 +40,20 @@ export class RegisterTokenCommandHandler implements ICommandHandler<RegisterToke
             throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
         }
 
-        // Verify portfolio exists and user has access
-        const portfolio = await this.portfolioRepository.findById(portfolioId);
-        PortfolioOwnershipService.verifyOwnership(portfolio, userId);
+        // Verify portfolio exists and user has access (optimized - minimal data fetch)
+        const portfolioData = await this.portfolioRepository.getOwnershipData(portfolioId);
+        PortfolioOwnershipService.verifyOwnership(portfolioData, userId);
+
+        // Check if token already exists in portfolio (optimized - only check existence)
+        const tokenExists = await this.portfolioHoldingRepository.existsByPortfolioAndTokenSymbol(
+            portfolioId,
+            data.refId,
+        );
+        if (tokenExists) {
+            throw BadRequestError(`Token ${data.refId} already exists in portfolio`, {
+                layer: ErrorLayer.APPLICATION,
+            });
+        }
 
         // Fetch token metadata from provider
         const tokenDetails = await this.providerRepository.getTokenDetails(data.refId);

@@ -25,7 +25,7 @@ export class PortfolioOwnershipQueryHandler implements IQueryHandler<PortfolioOw
         const { success, error } = DetailQuerySchema.safeParse({ id: portfolioId });
         if (!success) throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
 
-        const portfolio = await this.portfolioRepository.findById(portfolioId);
-        return PortfolioOwnershipService.hasOwnership(portfolio, userId);
+        const portfolioData = await this.portfolioRepository.getOwnershipData(portfolioId);
+        return PortfolioOwnershipService.hasOwnership(portfolioData, userId);
     }
 }

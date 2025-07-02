@@ -1,22 +1,16 @@
-import { BadRequestError, NotFoundError } from '@core/errors/domain.error';
+// FLAG: PENDING VERIFICATION
+import { BadRequestError } from '@core/errors/domain.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { Id } from '@core/types/common.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { z } from 'zod';
-import { IPortfolioHolding } from '../../domain/entities/portfolio-holding.entity';
+import { IPortfolioHolding, PortfolioHolding } from '../../domain/entities/portfolio-holding.entity';
+import { PortfolioOwnershipService } from '../../domain/services/portfolio-ownership.service';
 import { PORTFOLIO_TOKENS } from '../portfolio.token';
 import { IPortfolioHoldingRepository } from '../ports/portfolio-holding-repository.out.port';
 import { IPortfolioProviderRepository } from '../ports/portfolio-provider-repository.out.port';
 import { IPortfolioRepository } from '../ports/portfolio-repository.out.port';
-
-export const GetPortfolioHoldingsQuerySchema = z.object({
-    portfolioId: z.string().uuid(),
-    userId: z.string().uuid(),
-    includePrices: z.boolean().default(false),
-});
-
-export type GetPortfolioHoldingsQuery = z.infer<typeof GetPortfolioHoldingsQuerySchema>;
 
 export interface IPortfolioHoldingWithMetrics extends IPortfolioHolding {
     // Calculated from transactions
@@ -36,19 +30,16 @@ export interface IPortfolioHoldingWithMetrics extends IPortfolioHolding {
     lastTransactionDate?: string;
 }
 
-export class GetPortfolioHoldingsQueryPayload implements GetPortfolioHoldingsQuery {
-    portfolioId: Id;
-    userId: Id;
-    includePrices: boolean;
-
-    constructor(props: GetPortfolioHoldingsQuery) {
-        Object.assign(this, props);
-    }
+export const GetPortfolioHoldingsQuerySchema = z.object({
+    includePrices: z.boolean().default(false),
+});
+export class GetPortfolioHoldingsQuery {
+    constructor(public readonly payload: { portfolioId: Id; userId: Id; queries: unknown }) {}
 }
 
 @Injectable()
-@QueryHandler(GetPortfolioHoldingsQueryPayload)
-export class GetPortfolioHoldingsQueryHandler implements IQueryHandler<GetPortfolioHoldingsQueryPayload> {
+@QueryHandler(GetPortfolioHoldingsQuery)
+export class GetPortfolioHoldingsQueryHandler implements IQueryHandler<GetPortfolioHoldingsQuery> {
     constructor(
         @Inject(PORTFOLIO_TOKENS.REPOSITORIES.PORTFOLIO)
         private readonly portfolioRepository: IPortfolioRepository,
@@ -60,34 +51,20 @@ export class GetPortfolioHoldingsQueryHandler implements IQueryHandler<GetPortfo
         private readonly providerRepository: IPortfolioProviderRepository,
     ) {}
 
-    async execute(query: GetPortfolioHoldingsQueryPayload): Promise<IPortfolioHoldingWithMetrics[]> {
+    async execute(query: GetPortfolioHoldingsQuery): Promise<PortfolioHolding[]> {
         // Validate query
-        const { success, error, data } = GetPortfolioHoldingsQuerySchema.safeParse(query);
+        const { portfolioId, userId, queries } = query.payload;
+        const { success, error } = GetPortfolioHoldingsQuerySchema.safeParse(queries);
         if (!success) {
             throw BadRequestError(error, { layer: ErrorLayer.APPLICATION });
         }
 
-        const { portfolioId, userId } = data;
-
         // Verify portfolio exists and user has access
-        const portfolio = await this.portfolioRepository.findById(portfolioId);
-        if (!portfolio) {
-            throw NotFoundError('Portfolio not found', { layer: ErrorLayer.APPLICATION });
-        }
+        const portfolioData = await this.portfolioRepository.getOwnershipData(portfolioId);
+        PortfolioOwnershipService.verifyOwnership(portfolioData, userId);
 
-        if (portfolio.userId !== userId) {
-            throw BadRequestError('Access denied to portfolio', {
-                layer: ErrorLayer.APPLICATION,
-            });
-        }
-
-        // TODO: Implement when repositories are available
         // Get active holdings for the portfolio
-        // const holdings = await this.portfolioHoldingRepository.findByPortfolioId(portfolioId);
-        // const activeHoldings = holdings.filter(holding => holding.isActive());
-
-        // Mock data for now - replace with actual implementation
-        const mockHoldings: IPortfolioHoldingWithMetrics[] = [];
+        const holdings = await this.portfolioHoldingRepository.findActiveByPortfolioId(portfolioId);
 
         // TODO: Calculate metrics from transactions for each holding
         // const holdingsWithMetrics = await Promise.all(
@@ -114,7 +91,7 @@ export class GetPortfolioHoldingsQueryHandler implements IQueryHandler<GetPortfo
         // }
 
         // For now, return empty array until repositories are implemented
-        return mockHoldings;
+        return holdings;
     }
 
     /**

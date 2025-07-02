@@ -1,6 +1,7 @@
 import { BasePersistence } from '@core/abstractions/persistence.base';
 import { IPortfolio } from '@modules/portfolio/domain/entities/portfolio.entity';
-import { Column, Entity, Index, Unique } from 'typeorm';
+import { Column, Entity, Index, OneToMany, Unique } from 'typeorm';
+import { PortfolioHoldingPersistence } from './portfolio-holding.persistence';
 
 @Entity('portfolios')
 @Unique('UQ_portfolios_name', ['name'])
@@ -18,4 +19,9 @@ export class PortfolioPersistence extends BasePersistence implements IPortfolio 
 
     @Column({ name: 'is_default', default: false })
     isDefault: boolean;
+
+    @OneToMany(() => PortfolioHoldingPersistence, (holding) => holding.portfolio, {
+        createForeignKeyConstraints: false,
+    })
+    holdings: PortfolioHoldingPersistence[];
 }

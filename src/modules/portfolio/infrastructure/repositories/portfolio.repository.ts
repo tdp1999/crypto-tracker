@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@shared/constants/default.constant';
 import { PaginatedResponse } from '@shared/types/pagination.type';
 import { paginate } from '@shared/utils/pagination.util';
-import { PromiseValue } from '@shared/vos/promise.value';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { PortfolioQueryDto } from '../../application/portfolio.dto';
 import { IPortfolioRepository } from '../../application/ports/portfolio-repository.out.port';
@@ -122,15 +121,33 @@ export class PortfolioRepository implements IPortfolioRepository {
     }
 
     async findByHoldingId(holdingId: Id): Promise<Portfolio | null> {
-        // TODO: Implement when portfolio holding repository is available
+        const entity = await this.portfolioRepository
+            .createQueryBuilder('portfolio')
+            .innerJoin('portfolio.holdings', 'holding')
+            .where('holding.id = :holdingId', { holdingId })
+            .getOne();
 
-        return await PromiseValue.arbitrary(null);
+        return entity ? this._toDomain(entity) : null;
+    }
+
+    /**
+     * Efficiently get portfolio ownership data without fetching full entity
+     * Returns minimal data needed by domain service for ownership verification
+     */
+    async getOwnershipData(portfolioId: Id): Promise<{ userId: Id } | null> {
+        const result = (await this.portfolioRepository
+            .createQueryBuilder('portfolio')
+            .select(['portfolio.user_id as user_id'])
+            .where('portfolio.id = :portfolioId', { portfolioId })
+            .andWhere('portfolio.deleted_at IS NULL')
+            .getRawOne()) as { user_id: Id };
+
+        return result ? { userId: result.user_id } : null;
     }
 
     // --- Private helper methods ---
     private _toDomain(entity: PortfolioPersistence): Portfolio {
-        // Simplified mapping - consider proper mapping if Portfolio has complex logic
-        return entity as unknown as Portfolio;
+        return Portfolio.fromPersistence(entity);
     }
 
     private _toDomainArray(entities: PortfolioPersistence[]): Portfolio[] {

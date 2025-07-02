@@ -111,9 +111,7 @@ export class UserRepository implements IUserRepository {
 
     // --- Private helper methods ---
     private _toDomain(entity: UserPersistence): User {
-        // Warning: Direct casting might be problematic if User has methods or complex logic.
-        // Consider a proper mapping function if needed.
-        return entity as unknown as User; // Simplified mapping
+        return User.fromPersistence(entity);
     }
 
     private _toDomainArray(entities: UserPersistence[]): User[] {

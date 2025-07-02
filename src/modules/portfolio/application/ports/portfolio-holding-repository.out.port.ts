@@ -6,7 +6,12 @@ import { PortfolioHoldingQueryDto } from '../portfolio.dto';
 export type IPortfolioHoldingRepository = IRepository<PortfolioHolding, PortfolioHoldingQueryDto> & {
     findByPortfolioId(portfolioId: Id): Promise<PortfolioHolding[]>;
 
-    findByPortfolioAndTokenSymbol(portfolioId: Id, tokenSymbol: string): Promise<PortfolioHolding | null>;
+    findByPortfolioAndTokenSymbol(portfolioId: Id, refId: string): Promise<PortfolioHolding | null>;
+
+    /**
+     * Efficiently check if a token exists in portfolio without fetching full entity
+     */
+    existsByPortfolioAndTokenSymbol(portfolioId: Id, refId: string): Promise<boolean>;
 
     findActiveByPortfolioId(portfolioId: Id): Promise<PortfolioHolding[]>;
 };

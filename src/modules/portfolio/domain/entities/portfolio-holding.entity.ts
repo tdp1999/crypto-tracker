@@ -25,7 +25,9 @@ export const PortfolioHoldingSchema = z.object({
     ...AuditableSchema.shape,
 });
 
-export const PortfolioHoldingCreateSchema = TokenSchema;
+export const PortfolioHoldingCreateSchema = TokenSchema.extend({
+    portfolioId: IdSchema,
+});
 
 export const PortfolioHoldingUpdateSchema = PortfolioHoldingCreateSchema.partial().refine(
     (data) => Object.keys(data).length > 0,
@@ -108,6 +110,10 @@ export class PortfolioHolding extends BaseModel implements IPortfolioHolding {
     static validateTokenSymbol(symbol: string): boolean {
         const symbolRegex = /^[A-Z0-9]{1,20}$/;
         return symbolRegex.test(symbol.toUpperCase());
+    }
+
+    static fromPersistence(raw: IPortfolioHolding): PortfolioHolding {
+        return new PortfolioHolding(raw);
     }
 
     /**
