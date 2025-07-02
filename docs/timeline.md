@@ -4,7 +4,7 @@
 **Based on**: Self-Contained Portfolio Tracking Implementation Plan  
 **Architecture**: Token Data Model (No Global Tokens)  
 **Current Phase**: Phase 4 (Application Layer) - Holdings Commands/Queries Complete  
-**Overall Progress**: ~35% Complete
+**Overall Progress**: ~40% Complete
 
 ---
 
@@ -167,10 +167,10 @@
 
 **Validation Criteria:**
 
-- [ ] Domain entities have no infrastructure dependencies
-- [ ] Business rules are enforced at domain level
-- [ ] All domain logic has unit test coverage
-- [ ] Holdings entity simplified (no quantity/price data)
+- [x] Domain entities have no infrastructure dependencies
+- [x] Business rules are enforced at domain level
+- [x] All domain logic has unit test coverage
+- [x] Holdings entity simplified (no quantity/price data)
 
 ---
 
@@ -248,42 +248,42 @@
 
 **Validation Criteria:**
 
-- [ ] Commands handle only business orchestration
-- [ ] Queries aggregate data from multiple sources
-- [ ] Application layer doesn't contain business logic
-- [ ] All use cases have unit test coverage
+- [x] Commands handle only business orchestration
+- [x] Queries aggregate data from multiple sources
+- [x] Application layer doesn't contain business logic
+- [x] All use cases have unit test coverage
 
 ---
 
-## Phase 5: Infrastructure Layer (Week 3) ❌ **NOT STARTED**
+## Phase 5: Infrastructure Layer (Week 3) 🔄 **PARTIALLY STARTED**
 
 ### Database Migration and Persistence
 
 #### Checkpoint 5.1: Schema Migration
 
-- [ ] Create database migration for token schema
-    - [ ] Add token fields to holdings/transactions
+- [x] Create database migration for token schema
+    - [x] Add token fields to holdings/transactions
     - [ ] Create new tables (swaps, cache, snapshots, cash_flows)
     - [ ] Add performance indexes
-    - [ ] **File**: `src/modules/portfolio/infrastructure/migrations/AddTokenSchema.ts`
+    - [x] **File**: `src/modules/portfolio/infrastructure/migrations/1750844918615-AddPortfolioHoldingTable.ts`
 
 #### Checkpoint 5.2: Persistence Layer
 
-- [ ] Implement persistence entities
-    - [ ] `PortfolioHoldingPersistence` (simplified schema)
+- [x] Implement persistence entities
+    - [x] `PortfolioHoldingPersistence` (simplified schema)
     - [ ] `TransactionPersistence` with tokens
     - [ ] `TokenSwapPersistence`
     - [ ] `PortfolioSnapshotPersistence`
     - [ ] `TokenPriceCachePersistence`
-    - [ ] **Files**: `src/modules/portfolio/infrastructure/persistence/`
+    - [x] **Files**: `src/modules/portfolio/infrastructure/persistence/portfolio-holding.persistence.ts`
 
 #### Checkpoint 5.3: Repository Implementations
 
-- [ ] Implement `PortfolioHoldingRepository`
+- [x] Implement `PortfolioHoldingRepository`
 
-    - [ ] Symbol-based lookups
-    - [ ] Soft delete handling
-    - [ ] **File**: `src/modules/portfolio/infrastructure/repositories/portfolio-holding.repository.ts`
+    - [x] Symbol-based lookups
+    - [x] Soft delete handling
+    - [x] **File**: `src/modules/portfolio/infrastructure/repositories/portfolio-holding.repository.ts`
 
 - [ ] Implement `TransactionRepository`
 
@@ -480,15 +480,15 @@
 ### 🚨 High Priority (Complete Domain Layer)
 
 - [ ] **Complete Domain Layer Foundation**
-    - [ ] Implement simplified PortfolioHolding entity (no quantities)
-    - [ ] Implement Transaction entity with token data
+    - [x] Implement simplified PortfolioHolding entity (no quantities)
+    - [x] Implement Transaction entity with token data
     - [ ] Create supporting entities (TokenSwap, PortfolioSnapshot)
-    - [ ] Build domain services for calculations
+    - [x] Build domain services for calculations
 
 ### 🔸 Medium Priority (Application Layer)
 
 - [ ] **Implement Application Layer**
-    - [ ] Create holdings commands and queries
+    - [x] Create holdings commands and queries
     - [ ] Implement transaction management
     - [ ] Build performance analytics
 
@@ -496,8 +496,8 @@
 
 - [ ] **Complete Infrastructure Layer**
 
-    - [ ] Database migrations for schema
-    - [ ] Repository implementations
+    - [x] Database migrations for schema
+    - [x] Repository implementations (portfolio-holding)
     - [ ] External service adapters
 
 - [ ] **Build API Layer**
