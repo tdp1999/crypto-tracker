@@ -11,11 +11,11 @@ import { z } from 'zod';
 export const TokenSchema = z.object({
     refId: z.string().min(1).max(20), // E.g: btc-bitcoin, eth-ethereum, sol-solana, etc.
     tokenSymbol: z.string().min(1).max(20), // E.g: BTC, ETH, SOL, etc.
-    tokenName: z.string().max(100).optional(), // E.g: Bitcoin, Ethereum, Solana, etc.
+    tokenName: z.string().max(100), // E.g: Bitcoin, Ethereum, Solana, etc.
     tokenDecimals: z.number().int().min(0).max(18).default(18),
-    tokenLogoUrl: z.string().url().optional(),
+    tokenLogoUrl: z.string().url().optional().nullable(),
     isStablecoin: z.boolean().default(false),
-    stablecoinPeg: z.string().max(10).optional(),
+    stablecoinPeg: z.string().max(10).optional().nullable(),
 });
 
 export const PortfolioHoldingSchema = z.object({
@@ -43,11 +43,11 @@ export class PortfolioHolding extends BaseModel implements IPortfolioHolding {
     readonly portfolioId: Id;
     readonly refId: string;
     readonly tokenSymbol: string;
-    readonly tokenName?: string;
+    readonly tokenName: string;
     readonly tokenDecimals: number;
-    readonly tokenLogoUrl?: string;
+    readonly tokenLogoUrl?: string | null;
     readonly isStablecoin: boolean;
-    readonly stablecoinPeg?: string;
+    readonly stablecoinPeg?: string | null;
 
     private constructor(props: Partial<IPortfolioHolding>) {
         super(props);
@@ -126,7 +126,7 @@ export class PortfolioHolding extends BaseModel implements IPortfolioHolding {
     /**
      * Gets the stablecoin peg currency if applicable
      */
-    getStablecoinPeg(): string | undefined {
+    getStablecoinPeg(): string | null | undefined {
         return this.isStablecoin ? this.stablecoinPeg : undefined;
     }
 

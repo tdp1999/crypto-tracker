@@ -3,13 +3,17 @@ import { BadRequestError } from '@core/errors/domain.error';
 import { ERR_COMMON_EMPTY_PAYLOAD } from '@core/errors/messages/common.error';
 import { ErrorLayer } from '@core/errors/types/error-layer.type.error';
 import { AuditableSchema } from '@core/schema/auditable.schema';
-import { IdSchema } from '@core/schema/common.schema';
+import { DecimalSchema, IdSchema, RemarkSchema, TimestampSchema } from '@core/schema/common.schema';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { z } from 'zod';
+import {
+    ERR_TRANSACTION_INVALID_AMOUNT,
+    ERR_TRANSACTION_INVALID_EXTERNAL_ID,
+    ERR_TRANSACTION_PRICE_REQUIRED,
+} from '../portfolio.error';
 import { TokenSchema } from './portfolio-holding.entity';
 
-// Transaction types enum
 export enum TransactionType {
     BUY = 'BUY',
     SELL = 'SELL',
@@ -18,93 +22,82 @@ export enum TransactionType {
     SWAP = 'SWAP',
 }
 
-// Transaction validation schemas
+export const TransactionTokenSchema = TokenSchema.pick({
+    refId: true,
+    tokenSymbol: true,
+    tokenName: true,
+    tokenDecimals: true,
+    tokenLogoUrl: true,
+});
+
 export const TransactionSchema = z.object({
     id: IdSchema,
     portfolioId: IdSchema,
 
-    // token information
-    tokenSymbol: TokenSchema.shape.tokenSymbol,
-    tokenName: TokenSchema.shape.tokenName,
-    tokenDecimals: TokenSchema.shape.tokenDecimals,
-    tokenLogoUrl: TokenSchema.shape.tokenLogoUrl,
-
     // Transaction details
-    amount: z.number().multipleOf(0.000000000000000001), // 18 decimal precision
-    pricePerToken: z.number().min(0).multipleOf(0.000000000000000001).optional(),
-    transactionType: z.nativeEnum(TransactionType),
-    cashFlow: z.number().multipleOf(0.000000000000000001).optional(),
-    fees: z.number().min(0).multipleOf(0.000000000000000001).default(0),
-    transactionDate: z.string().datetime(),
-    externalTransactionId: z.string().max(100).optional(),
-    notes: z.string().max(1000).optional(),
+    amount: DecimalSchema,
+    price: DecimalSchema, // USD
+    type: z.nativeEnum(TransactionType),
+    cashFlow: DecimalSchema.optional().nullable(),
+    fees: DecimalSchema.min(0).default(0),
+    timestamp: TimestampSchema,
+    externalId: IdSchema.optional().nullable(), // Only use for SWAP
+    notes: RemarkSchema.optional().nullable(),
 
-    // Portfolio impact tracking
-    portfolioValueBefore: z.number().multipleOf(0.000000000000000001).optional(),
-    portfolioValueAfter: z.number().multipleOf(0.000000000000000001).optional(),
+    // token information
+    ...TransactionTokenSchema.shape,
 
     ...AuditableSchema.shape,
 });
 
-export const TransactionCreateSchema = z
-    .object({
-        tokenSymbol: z
-            .string()
-            .min(1)
-            .max(20)
-            .transform((s) => s.toUpperCase()),
-        tokenName: z.string().max(100).optional(),
-        tokenDecimals: z.number().int().min(0).max(18).optional().default(18),
-        tokenLogoUrl: z.string().url().optional(),
-        amount: z.number().multipleOf(0.000000000000000001),
-        pricePerToken: z.number().min(0).multipleOf(0.000000000000000001).optional(),
-        transactionType: z.nativeEnum(TransactionType),
-        fees: z.number().min(0).multipleOf(0.000000000000000001).optional().default(0),
-        transactionDate: z.string().datetime(),
-        externalTransactionId: z.string().max(100).optional(),
-        notes: z.string().max(1000).optional(),
+export const TransactionCreateSchema = TransactionSchema.pick({
+    refId: true,
+    amount: true,
+    price: true,
+    type: true,
+    fees: true,
+    timestamp: true,
+    externalId: true,
+    notes: true,
+})
+    // Price is required for BUY, SELL, SWAP transactions
+    .refine((data) => !['BUY', 'SELL', 'SWAP'].includes(data.type) || data.price, {
+        message: ERR_TRANSACTION_PRICE_REQUIRED,
+        path: ['price'],
     })
+
+    // Amount must be positive for BUY, DEPOSIT; can be negative for SELL, WITHDRAWAL
     .refine(
         (data) => {
-            // Price is required for BUY, SELL, SWAP transactions
-            if (['BUY', 'SELL', 'SWAP'].includes(data.transactionType) && !data.pricePerToken) {
-                return false;
-            }
+            if (['BUY', 'DEPOSIT'].includes(data.type) && data.amount <= 0) return false;
+            if (['SELL', 'WITHDRAWAL'].includes(data.type) && data.amount >= 0) return false;
             return true;
         },
         {
-            message: 'Price per token is required for BUY, SELL, and SWAP transactions',
-            path: ['pricePerToken'],
+            message: ERR_TRANSACTION_INVALID_AMOUNT,
+            path: ['amount'],
         },
     )
+
+    // External ID is required for SWAP and must be null for other types
     .refine(
         (data) => {
-            // Amount must be positive for BUY, DEPOSIT; can be negative for SELL, WITHDRAWAL
-            if (['BUY', 'DEPOSIT'].includes(data.transactionType) && data.amount <= 0) {
-                return false;
-            }
-            if (['SELL', 'WITHDRAWAL'].includes(data.transactionType) && data.amount >= 0) {
-                return false;
-            }
-            return true;
+            if (data.type === TransactionType.SWAP) return !!data.externalId;
+            return !data.externalId;
         },
         {
-            message: 'Amount must be positive for BUY/DEPOSIT and negative for SELL/WITHDRAWAL',
-            path: ['amount'],
+            message: ERR_TRANSACTION_INVALID_EXTERNAL_ID,
+            path: ['externalId'],
         },
     );
 
 export const TransactionUpdateSchema = z
     .object({
-        tokenName: z.string().max(100).optional(),
-        tokenDecimals: z.number().int().min(0).max(18).default(18),
-        tokenLogoUrl: z.string().url().optional(),
-        amount: z.number().multipleOf(0.000000000000000001),
-        pricePerToken: z.number().min(0).multipleOf(0.000000000000000001).optional(),
-        fees: z.number().min(0).multipleOf(0.000000000000000001).default(0),
-        transactionDate: z.string().datetime(),
-        externalTransactionId: z.string().max(100).optional(),
-        notes: z.string().max(1000).optional(),
+        amount: DecimalSchema.optional(),
+        price: DecimalSchema.optional(),
+        fees: DecimalSchema.optional().default(0),
+        timestamp: TimestampSchema.optional(),
+        notes: RemarkSchema.optional(),
     })
     .partial()
     .refine((data: Record<string, any>) => Object.keys(data).length > 0, {
@@ -114,21 +107,20 @@ export const TransactionUpdateSchema = z
 export type ITransaction = z.infer<typeof TransactionSchema>;
 
 export class Transaction extends BaseModel implements ITransaction {
+    readonly refId: string;
     readonly portfolioId: Id;
     readonly tokenSymbol: string;
-    readonly tokenName?: string;
+    readonly tokenName: string;
     readonly tokenDecimals: number;
-    readonly tokenLogoUrl?: string;
+    readonly tokenLogoUrl?: string | null;
     readonly amount: number;
-    readonly pricePerToken?: number;
-    readonly transactionType: TransactionType;
-    readonly cashFlow?: number;
+    readonly price: number;
+    readonly type: TransactionType;
+    readonly cashFlow?: number | null;
     readonly fees: number;
-    readonly transactionDate: string;
-    readonly externalTransactionId?: string;
-    readonly notes?: string;
-    readonly portfolioValueBefore?: number;
-    readonly portfolioValueAfter?: number;
+    readonly timestamp: string;
+    readonly externalId?: string | null;
+    readonly notes?: string | null;
 
     private constructor(props: Partial<ITransaction>) {
         super(props);
@@ -142,7 +134,6 @@ export class Transaction extends BaseModel implements ITransaction {
         portfolioId: Id,
         transactionData: Partial<z.infer<typeof TransactionCreateSchema>>,
         createdById: Id,
-        portfolioValueBefore?: number,
     ): Transaction {
         // Apply defaults manually
         const dataWithDefaults = {
@@ -165,7 +156,6 @@ export class Transaction extends BaseModel implements ITransaction {
             id: IdentifierValue.v7(),
             createdById,
             updatedById: createdById,
-            portfolioValueBefore,
             cashFlow: Transaction.calculateCashFlow(data),
         });
 
@@ -190,7 +180,7 @@ export class Transaction extends BaseModel implements ITransaction {
 
         const newData = { ...existing, ...transactionData, updatedById };
         // Recalculate cash flow if relevant fields changed
-        if (transactionData.amount || transactionData.pricePerToken || transactionData.fees) {
+        if (transactionData.amount || transactionData.price || transactionData.fees) {
             newData.cashFlow = Transaction.calculateCashFlow(newData);
         }
 
@@ -213,21 +203,21 @@ export class Transaction extends BaseModel implements ITransaction {
      * Positive = money coming in, Negative = money going out
      */
     static calculateCashFlow(transaction: Partial<ITransaction>): number {
-        const { transactionType, amount, pricePerToken, fees } = transaction;
+        const { type, amount, price, fees } = transaction;
 
-        if (!pricePerToken) return 0;
+        if (!price) return 0;
 
         const absoluteAmount = Math.abs(amount || 0);
         const totalFees = fees || 0;
 
-        switch (transactionType) {
+        switch (type) {
             case TransactionType.BUY:
                 // Money out = -(price * quantity + fees)
-                return -(absoluteAmount * pricePerToken + totalFees);
+                return -(absoluteAmount * price + totalFees);
 
             case TransactionType.SELL:
                 // Money in = (price * quantity - fees)
-                return absoluteAmount * pricePerToken - totalFees;
+                return absoluteAmount * price - totalFees;
 
             case TransactionType.DEPOSIT:
                 // No cash flow for crypto deposits (unless it's a stablecoin)
@@ -250,8 +240,8 @@ export class Transaction extends BaseModel implements ITransaction {
      * Calculates the total value of this transaction
      */
     getTotalValue(): number {
-        if (!this.pricePerToken) return 0;
-        return Math.abs(this.amount) * this.pricePerToken;
+        if (!this.price) return 0;
+        return Math.abs(this.amount) * this.price;
     }
 
     /**
@@ -265,21 +255,21 @@ export class Transaction extends BaseModel implements ITransaction {
      * Checks if transaction increases portfolio holdings
      */
     isPositiveTransaction(): boolean {
-        return [TransactionType.BUY, TransactionType.DEPOSIT].includes(this.transactionType);
+        return [TransactionType.BUY, TransactionType.DEPOSIT].includes(this.type);
     }
 
     /**
      * Checks if transaction decreases portfolio holdings
      */
     isNegativeTransaction(): boolean {
-        return [TransactionType.SELL, TransactionType.WITHDRAWAL].includes(this.transactionType);
+        return [TransactionType.SELL, TransactionType.WITHDRAWAL].includes(this.type);
     }
 
     /**
      * Checks if this is a swap transaction
      */
     isSwapTransaction(): boolean {
-        return this.transactionType === TransactionType.SWAP;
+        return this.type === TransactionType.SWAP;
     }
 
     /**
@@ -303,26 +293,6 @@ export class Transaction extends BaseModel implements ITransaction {
     }
 
     /**
-     * Calculates portfolio impact based on before/after values
-     */
-    getPortfolioImpact(): number | undefined {
-        if (this.portfolioValueBefore === undefined || this.portfolioValueAfter === undefined) {
-            return undefined;
-        }
-        return this.portfolioValueAfter - this.portfolioValueBefore;
-    }
-
-    /**
-     * Sets portfolio value after transaction
-     */
-    withPortfolioValueAfter(portfolioValueAfter: number): Transaction {
-        return new Transaction({
-            ...this,
-            portfolioValueAfter,
-        });
-    }
-
-    /**
      * Gets token identifier for external API calls
      */
     getTokenIdentifier(): string {
@@ -340,8 +310,15 @@ export class Transaction extends BaseModel implements ITransaction {
      * Validates if transaction date is not in the future
      */
     static validateTransactionDate(date: string): boolean {
-        const transactionDate = new Date(date);
+        const timestamp = new Date(date);
         const now = new Date();
-        return transactionDate <= now;
+        return timestamp <= now;
+    }
+
+    /**
+     * Creates a Transaction instance from persistence data
+     */
+    static fromPersistence(props: ITransaction): Transaction {
+        return Object.assign(Object.create(Transaction.prototype), props);
     }
 }

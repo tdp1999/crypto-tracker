@@ -11,7 +11,7 @@ import { z } from 'zod';
 export const PortfolioSchema = z.object({
     id: IdSchema,
     name: z.string().min(1).max(255),
-    description: z.string().max(1000).optional(),
+    description: z.string().max(1000).optional().nullable(),
     userId: IdSchema,
     isDefault: z.boolean().default(false),
     ...AuditableSchema.shape,
@@ -33,7 +33,7 @@ export type IPortfolio = z.infer<typeof PortfolioSchema>;
 
 export class Portfolio extends BaseModel implements IPortfolio {
     readonly name: string;
-    readonly description?: string;
+    readonly description?: string | null;
     readonly userId: Id;
     readonly isDefault: boolean;
 

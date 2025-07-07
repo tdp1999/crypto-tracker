@@ -93,10 +93,6 @@ CREATE TABLE transactions (
     external_transaction_id VARCHAR(100), -- For linking swap transactions
     notes TEXT,
 
-    -- Portfolio impact tracking
-    portfolio_value_before DECIMAL(30,18),
-    portfolio_value_after DECIMAL(30,18),
-
     -- Audit fields
     created_at TIMESTAMP DEFAULT NOW(),
     created_by_id UUID,

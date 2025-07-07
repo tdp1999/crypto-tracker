@@ -25,18 +25,18 @@ export class PortfolioHoldingPersistence extends BasePersistence implements IPor
     @Column({ name: 'token_symbol', type: 'varchar', length: 20 })
     tokenSymbol: string;
 
-    @Column({ name: 'token_name', type: 'varchar', length: 100, nullable: true })
-    tokenName?: string;
+    @Column({ name: 'token_name', type: 'varchar', length: 100 })
+    tokenName: string;
 
     @Column({ name: 'token_decimals', type: 'integer', default: 18 })
     tokenDecimals: number;
 
     @Column({ name: 'token_logo_url', type: 'text', nullable: true })
-    tokenLogoUrl?: string;
+    tokenLogoUrl?: string | null;
 
     @Column({ name: 'is_stablecoin', type: 'boolean', default: false })
     isStablecoin: boolean;
 
     @Column({ name: 'stablecoin_peg', type: 'varchar', length: 10, nullable: true })
-    stablecoinPeg?: string;
+    stablecoinPeg?: string | null;
 }

@@ -123,11 +123,11 @@ export class GetPortfolioHoldingsQueryHandler implements IQueryHandler<GetPortfo
         // for (const transaction of transactions) {
         //     totalQuantity += transaction.amount; // Positive for buy/deposit, negative for sell/withdrawal
         //
-        //     if (transaction.amount > 0 && transaction.pricePerToken) {
-        //         totalCostBasis += transaction.amount * transaction.pricePerToken;
+        //     if (transaction.amount > 0 && transaction.price) {
+        //         totalCostBasis += transaction.amount * transaction.price;
         //     }
         //
-        //     const txDate = new Date(transaction.transactionDate);
+        //     const txDate = new Date(transaction.timestamp);
         //     if (!firstPurchase || txDate < firstPurchase) {
         //         firstPurchase = txDate;
         //     }

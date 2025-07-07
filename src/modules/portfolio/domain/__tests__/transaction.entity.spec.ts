@@ -1,5 +1,5 @@
 import { BadRequestError } from '@core/errors/domain.error';
-import { Transaction, TransactionType } from '../entities/transaction.entity';
+import { Transaction, type } from '../entities/transaction.entity';
 
 describe('Transaction Domain Entity', () => {
     const mockPortfolioId = '01234567-89ab-cdef-0123-456789abcdef';
@@ -12,10 +12,10 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'Bitcoin',
                 tokenDecimals: 8,
                 amount: 0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
+                price: 45000,
+                type: type.BUY,
                 fees: 50,
-                transactionDate: '2025-01-15T10:00:00Z',
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             const transaction = Transaction.create(mockPortfolioId, transactionData, mockUserId, 100000);
@@ -23,7 +23,7 @@ describe('Transaction Domain Entity', () => {
             expect(transaction.portfolioId).toBe(mockPortfolioId);
             expect(transaction.tokenSymbol).toBe('BTC');
             expect(transaction.amount).toBe(0.5);
-            expect(transaction.transactionType).toBe(TransactionType.BUY);
+            expect(transaction.type).toBe(type.BUY);
             expect(transaction.getTotalValue()).toBe(22500); // 0.5 * 45000
             expect(transaction.getTotalCost()).toBe(22550); // 22500 + 50 fees
             expect(transaction.cashFlow).toBe(-22550); // Money out for BUY
@@ -37,16 +37,16 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'Ethereum',
                 tokenDecimals: 18,
                 amount: -2, // Negative for SELL
-                pricePerToken: 2500,
-                transactionType: TransactionType.SELL,
+                price: 2500,
+                type: type.SELL,
                 fees: 25,
-                transactionDate: '2025-01-15T10:00:00Z',
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             const transaction = Transaction.create(mockPortfolioId, transactionData, mockUserId);
 
             expect(transaction.amount).toBe(-2);
-            expect(transaction.transactionType).toBe(TransactionType.SELL);
+            expect(transaction.type).toBe(type.SELL);
             expect(transaction.getTotalValue()).toBe(5000); // abs(-2) * 2500
             expect(transaction.cashFlow).toBe(4975); // Money in for SELL (5000 - 25 fees)
             expect(transaction.isNegativeTransaction()).toBe(true);
@@ -58,13 +58,13 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'USD Coin',
                 tokenDecimals: 6,
                 amount: 1000,
-                transactionType: TransactionType.DEPOSIT,
-                transactionDate: '2025-01-15T10:00:00Z',
+                type: type.DEPOSIT,
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             const transaction = Transaction.create(mockPortfolioId, transactionData, mockUserId);
 
-            expect(transaction.transactionType).toBe(TransactionType.DEPOSIT);
+            expect(transaction.type).toBe(type.DEPOSIT);
             expect(transaction.cashFlow).toBe(0); // No cash flow for crypto deposits
             expect(transaction.isPositiveTransaction()).toBe(true);
         });
@@ -75,26 +75,26 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'Bitcoin',
                 tokenDecimals: 8,
                 amount: -0.02, // Selling BTC in swap
-                pricePerToken: 45000,
-                transactionType: TransactionType.SWAP,
-                externalTransactionId: 'swap-123',
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SWAP,
+                externalId: 'swap-123',
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             const transaction = Transaction.create(mockPortfolioId, transactionData, mockUserId);
 
-            expect(transaction.transactionType).toBe(TransactionType.SWAP);
+            expect(transaction.type).toBe(type.SWAP);
             expect(transaction.isSwapTransaction()).toBe(true);
             expect(transaction.cashFlow).toBe(0); // No direct cash flow for swaps
-            expect(transaction.externalTransactionId).toBe('swap-123');
+            expect(transaction.externalId).toBe('swap-123');
         });
 
         it('should throw error for BUY transaction without price', () => {
             const transactionData = {
                 tokenSymbol: 'BTC',
                 amount: 0.5,
-                transactionType: TransactionType.BUY,
-                transactionDate: '2025-01-15T10:00:00Z',
+                type: type.BUY,
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             expect(() => {
@@ -106,9 +106,9 @@ describe('Transaction Domain Entity', () => {
             const transactionData = {
                 tokenSymbol: 'BTC',
                 amount: 0.5, // Should be negative for SELL
-                pricePerToken: 45000,
-                transactionType: TransactionType.SELL,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SELL,
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             expect(() => {
@@ -120,9 +120,9 @@ describe('Transaction Domain Entity', () => {
             const transactionData = {
                 tokenSymbol: 'BTC',
                 amount: -0.5, // Should be positive for BUY
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.BUY,
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             expect(() => {
@@ -134,10 +134,10 @@ describe('Transaction Domain Entity', () => {
             const transactionData = {
                 tokenSymbol: 'BTC',
                 amount: 0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
+                price: 45000,
+                type: type.BUY,
                 fees: -10,
-                transactionDate: '2025-01-15T10:00:00Z',
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             expect(() => {
@@ -157,10 +157,10 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'Bitcoin',
                 tokenDecimals: 8,
                 amount: 0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
+                price: 45000,
+                type: type.BUY,
                 fees: 50,
-                transactionDate: '2025-01-15T10:00:00Z',
+                timestamp: '2025-01-15T10:00:00Z',
                 cashFlow: -22550,
                 createdById: mockUserId,
                 updatedById: mockUserId,
@@ -202,9 +202,9 @@ describe('Transaction Domain Entity', () => {
     describe('calculateCashFlow', () => {
         it('should calculate correct cash flow for BUY transactions', () => {
             const transaction = {
-                transactionType: TransactionType.BUY,
+                type: type.BUY,
                 amount: 0.5,
-                pricePerToken: 45000,
+                price: 45000,
                 fees: 50,
             };
 
@@ -215,9 +215,9 @@ describe('Transaction Domain Entity', () => {
 
         it('should calculate correct cash flow for SELL transactions', () => {
             const transaction = {
-                transactionType: TransactionType.SELL,
+                type: type.SELL,
                 amount: -2,
-                pricePerToken: 2500,
+                price: 2500,
                 fees: 25,
             };
 
@@ -228,9 +228,9 @@ describe('Transaction Domain Entity', () => {
 
         it('should return zero cash flow for DEPOSIT transactions', () => {
             const transaction = {
-                transactionType: TransactionType.DEPOSIT,
+                type: type.DEPOSIT,
                 amount: 1000,
-                pricePerToken: 1,
+                price: 1,
                 fees: 0,
             };
 
@@ -241,9 +241,9 @@ describe('Transaction Domain Entity', () => {
 
         it('should return zero cash flow for SWAP transactions', () => {
             const transaction = {
-                transactionType: TransactionType.SWAP,
+                type: type.SWAP,
                 amount: -0.5,
-                pricePerToken: 45000,
+                price: 45000,
                 fees: 10,
             };
 
@@ -254,7 +254,7 @@ describe('Transaction Domain Entity', () => {
 
         it('should return zero cash flow when no price provided', () => {
             const transaction = {
-                transactionType: TransactionType.BUY,
+                type: type.BUY,
                 amount: 0.5,
                 fees: 50,
             };
@@ -274,10 +274,10 @@ describe('Transaction Domain Entity', () => {
                 tokenName: 'Bitcoin',
                 tokenDecimals: 8,
                 amount: 0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
+                price: 45000,
+                type: type.BUY,
                 fees: 50,
-                transactionDate: '2025-01-15T10:00:00Z',
+                timestamp: '2025-01-15T10:00:00Z',
             };
             transaction = Transaction.create(mockPortfolioId, transactionData, mockUserId, 100000);
         });
@@ -289,9 +289,9 @@ describe('Transaction Domain Entity', () => {
             const sellData = {
                 tokenSymbol: 'BTC',
                 amount: -0.3,
-                pricePerToken: 45000,
-                transactionType: TransactionType.SELL,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SELL,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const sellTransaction = Transaction.create(mockPortfolioId, sellData, mockUserId);
             expect(sellTransaction.getAbsoluteAmount()).toBe(0.3);
@@ -304,9 +304,9 @@ describe('Transaction Domain Entity', () => {
             const invalidSellData = {
                 tokenSymbol: 'BTC',
                 amount: 0.5, // Should be negative for SELL
-                pricePerToken: 45000,
-                transactionType: TransactionType.SELL,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SELL,
+                timestamp: '2025-01-15T10:00:00Z',
             };
 
             try {
@@ -333,9 +333,9 @@ describe('Transaction Domain Entity', () => {
                 {
                     tokenSymbol: 'BTC',
                     amount: 0.5,
-                    pricePerToken: 45000,
-                    transactionType: TransactionType.BUY,
-                    transactionDate: '2025-01-15T10:00:00Z',
+                    price: 45000,
+                    type: type.BUY,
+                    timestamp: '2025-01-15T10:00:00Z',
                 },
                 mockUserId,
             );
@@ -372,9 +372,9 @@ describe('Transaction Domain Entity', () => {
             const buyData = {
                 tokenSymbol: 'BTC',
                 amount: 0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.BUY,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.BUY,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const buy = Transaction.create(mockPortfolioId, buyData, mockUserId);
             expect(buy.isPositiveTransaction()).toBe(true);
@@ -383,8 +383,8 @@ describe('Transaction Domain Entity', () => {
             const depositData = {
                 tokenSymbol: 'USDC',
                 amount: 1000,
-                transactionType: TransactionType.DEPOSIT,
-                transactionDate: '2025-01-15T10:00:00Z',
+                type: type.DEPOSIT,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const deposit = Transaction.create(mockPortfolioId, depositData, mockUserId);
             expect(deposit.isPositiveTransaction()).toBe(true);
@@ -394,9 +394,9 @@ describe('Transaction Domain Entity', () => {
             const sellData = {
                 tokenSymbol: 'BTC',
                 amount: -0.5,
-                pricePerToken: 45000,
-                transactionType: TransactionType.SELL,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SELL,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const sell = Transaction.create(mockPortfolioId, sellData, mockUserId);
             expect(sell.isNegativeTransaction()).toBe(true);
@@ -405,8 +405,8 @@ describe('Transaction Domain Entity', () => {
             const withdrawalData = {
                 tokenSymbol: 'ETH',
                 amount: -2,
-                transactionType: TransactionType.WITHDRAWAL,
-                transactionDate: '2025-01-15T10:00:00Z',
+                type: type.WITHDRAWAL,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const withdrawal = Transaction.create(mockPortfolioId, withdrawalData, mockUserId);
             expect(withdrawal.isNegativeTransaction()).toBe(true);
@@ -416,9 +416,9 @@ describe('Transaction Domain Entity', () => {
             const swapData = {
                 tokenSymbol: 'BTC',
                 amount: -0.02,
-                pricePerToken: 45000,
-                transactionType: TransactionType.SWAP,
-                transactionDate: '2025-01-15T10:00:00Z',
+                price: 45000,
+                type: type.SWAP,
+                timestamp: '2025-01-15T10:00:00Z',
             };
             const swap = Transaction.create(mockPortfolioId, swapData, mockUserId);
             expect(swap.isSwapTransaction()).toBe(true);
@@ -434,7 +434,7 @@ describe('Transaction Domain Entity', () => {
                 portfolioId: mockPortfolioId,
                 tokenSymbol: 'BTC',
                 amount: 0.5,
-                transactionType: TransactionType.BUY,
+                type: type.BUY,
             };
 
             const deletedTransaction = Transaction.markDeleted(existingTransaction, mockUserId);

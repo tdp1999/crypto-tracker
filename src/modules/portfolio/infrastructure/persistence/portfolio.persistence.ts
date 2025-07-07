@@ -12,7 +12,7 @@ export class PortfolioPersistence extends BasePersistence implements IPortfolio 
     name: string;
 
     @Column({ name: 'description', type: 'text', nullable: true })
-    description?: string;
+    description?: string | null;
 
     @Column({ name: 'user_id', type: 'uuid' })
     userId: string;
