@@ -1,4 +1,4 @@
-import { BaseModel, IBaseModelProps } from '@core/abstractions/model.base';
+import { IBaseModelProps } from '@core/abstractions/model.base';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
@@ -14,12 +14,15 @@ export type IUpdateAssetTargetPayload = Partial<
     Omit<IAssetTargetProps, 'id' | 'assetId' | 'createdById' | 'createdAt'>
 >;
 
-export class AssetTarget extends BaseModel {
+export class AssetTarget {
     readonly props: IAssetTargetProps;
 
     private constructor(props: IAssetTargetProps) {
-        super(props);
         this.props = props;
+    }
+
+    static load(raw: IAssetTargetProps): AssetTarget {
+        return new AssetTarget(raw);
     }
 
     static create(data: ICreateAssetTargetPayload, assetId: Id, createdById: Id): AssetTarget {
@@ -42,9 +45,5 @@ export class AssetTarget extends BaseModel {
         const newProps = { ...this.props, ...data, updatedById };
 
         return new AssetTarget(newProps);
-    }
-
-    static fromPersistence(raw: IAssetTargetProps): AssetTarget {
-        return new AssetTarget(raw);
     }
 }

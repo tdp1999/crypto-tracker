@@ -1,4 +1,4 @@
-import { BaseModel, IBaseModelProps } from '@core/abstractions/model.base';
+import { IBaseModelProps } from '@core/abstractions/model.base';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
@@ -25,16 +25,15 @@ export type IUpdateAssetPayload = Partial<
     target?: IUpdateAssetTargetPayload;
 };
 
-export class Asset extends BaseModel {
+export class Asset {
     readonly props: IAssetProps;
 
     private constructor(props: IAssetProps) {
-        super(props);
         this.props = props;
     }
 
     /* Static Methods */
-    static fromPersistence(raw: IAssetProps): Asset {
+    static load(raw: IAssetProps): Asset {
         return new Asset(raw);
     }
 

@@ -1,0 +1,322 @@
+openapi: 3.0.3
+info:
+    title: Financial Goal API
+    version: 1.0.0
+    description: OpenAPI specification for Financial Goal endpoints.
+servers:
+    - url: http://localhost:3000/api
+      description: Local Server
+    - url: https://crypto.thunderphong.com/api
+      description: Prod Server
+tags:
+    - name: Financial Goals
+paths:
+    /financial-goals:
+        post:
+            tags: [Financial Goals]
+            summary: Create a financial goal
+            operationId: createFinancialGoal
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/FinancialGoalCreate'
+            responses:
+                '201':
+                    description: Created. Returns created goal id.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponseId'
+                '400':
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        get:
+            tags: [Financial Goals]
+            summary: List financial goals
+            operationId: listFinancialGoals
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: key
+                  schema:
+                      type: string
+                  description: General search keyword
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      minimum: 1
+                  description: Page size
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      minimum: 1
+                  description: Page number (1-based)
+                - in: query
+                  name: orderBy
+                  schema:
+                      type: string
+                      enum: [id, userId, name, targetDate, isActive, createdAt, updatedAt]
+                  description: Field to sort by
+                - in: query
+                  name: orderType
+                  schema:
+                      type: string
+                      enum: [ASC, DESC]
+                  description: Sort direction
+                - in: query
+                  name: visibleColumns
+                  style: form
+                  explode: true
+                  description: Columns to include in result or '*' for all columns
+                  schema:
+                      oneOf:
+                          - type: array
+                            items:
+                                type: string
+                                enum: [id, userId, name, targetDate, isActive, createdAt, updatedAt]
+                          - type: string
+                            enum: ['*']
+                - in: query
+                  name: name
+                  schema:
+                      type: string
+                  description: Filter by name (exact match)
+                - in: query
+                  name: userId
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Filter by user id
+                - in: query
+                  name: isActive
+                  schema:
+                      type: boolean
+                  description: Filter by active status
+                - in: query
+                  name: targetDate
+                  schema:
+                      type: string
+                      format: date
+                  description: Filter by target date
+            responses:
+                '200':
+                    description: OK. Returns a list of goals.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponseFinancialGoalArray'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /financial-goals/{id}:
+        patch:
+            tags: [Financial Goals]
+            summary: Update a financial goal
+            operationId: updateFinancialGoal
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/FinancialGoalUpdate'
+            responses:
+                '200':
+                    description: Updated. Returns true on success.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponseBoolean'
+                '400':
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /financial-goals/{id}/activate:
+        patch:
+            tags: [Financial Goals]
+            summary: Activate a financial goal
+            operationId: activateFinancialGoal
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                '200':
+                    description: Activated. Returns true on success.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponseBoolean'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        Id:
+            type: string
+            format: uuid
+        FinancialGoal:
+            type: object
+            required: [id, userId, name, targetDate, isActive, createdAt, createdById, updatedAt, updatedById]
+            properties:
+                id:
+                    $ref: '#/components/schemas/Id'
+                userId:
+                    $ref: '#/components/schemas/Id'
+                name:
+                    type: string
+                    maxLength: 255
+                targetDate:
+                    type: string
+                    format: date
+                isActive:
+                    type: boolean
+                    default: false
+                createdAt:
+                    type: string
+                    format: date-time
+                createdById:
+                    $ref: '#/components/schemas/Id'
+                updatedAt:
+                    type: string
+                    format: date-time
+                updatedById:
+                    $ref: '#/components/schemas/Id'
+                deletedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                deletedById:
+                    allOf:
+                        - $ref: '#/components/schemas/Id'
+                    nullable: true
+        FinancialGoalCreate:
+            type: object
+            required: [name, targetDate]
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                targetDate:
+                    type: string
+                    format: date
+        FinancialGoalUpdate:
+            type: object
+            description: At least one field must be provided
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                targetDate:
+                    type: string
+                    format: date
+            minProperties: 1
+        SuccessResponseId:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/Id'
+                statusCode:
+                    type: integer
+            required: [data, statusCode]
+        SuccessResponseBoolean:
+            type: object
+            properties:
+                data:
+                    type: boolean
+                statusCode:
+                    type: integer
+            required: [data, statusCode]
+        SuccessResponseFinancialGoalArray:
+            type: object
+            properties:
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FinancialGoal'
+                statusCode:
+                    type: integer
+            required: [data, statusCode]
+        Error:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                error:
+                    type: string
+                message:
+                    oneOf:
+                        - type: string
+                        - type: array
+                          items:
+                              type: string
+                errorCode:
+                    type: string
+                    nullable: true
+                remarks:
+                    type: string
+                    nullable: true
+security:
+    - bearerAuth: []

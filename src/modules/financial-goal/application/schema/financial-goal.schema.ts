@@ -2,6 +2,7 @@ import z from 'zod';
 import { ERR_COMMON_EMPTY_PAYLOAD } from '@core/errors/messages/common.error';
 import { AuditableSchema } from '@core/schema/auditable.schema';
 import { IdSchema } from '@core/schema/common.schema';
+import { createEntityQuerySchema } from '@core/factories/query.factory';
 
 export const FinancialGoalSchema = z.object({
     id: IdSchema,
@@ -19,4 +20,19 @@ export const FinancialGoalUpdateSchema = FinancialGoalCreateSchema.partial().ref
     {
         message: ERR_COMMON_EMPTY_PAYLOAD,
     },
+);
+
+export const visibleFinancialGoalColumns = [
+    'id',
+    'userId',
+    'name',
+    'targetDate',
+    'isActive',
+    'createdAt',
+    'updatedAt',
+] as const;
+
+export const FinancialGoalQuerySchema = createEntityQuerySchema(
+    visibleFinancialGoalColumns,
+    FinancialGoalSchema.pick({ name: true, userId: true, isActive: true, targetDate: true }).shape,
 );

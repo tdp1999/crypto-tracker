@@ -11,7 +11,8 @@ import { paginate } from '@shared/utils/pagination.util';
 import { FindOptionsWhere, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { AssetQueryDto } from '../../application/asset.dto';
 import { IAssetRepository } from '../../application/ports/asset-repository.out.port';
-import { Asset, IAssetProps } from '../../domain/entities/asset.entity';
+import { Asset } from '../../domain/entities/asset.entity';
+import { AssetMapper } from '../mapper/asset.mapper';
 import { AssetPersistence } from '../persistence/asset.persistence';
 
 @Injectable()
@@ -24,14 +25,14 @@ export class AssetRepository implements IAssetRepository {
     ) {}
 
     async add(asset: Asset): Promise<Id> {
-        const created = this.repository.create(asset);
+        const created = this.repository.create(AssetMapper.toPersistence(asset));
         const saved = await this.repository.save(created);
         return saved.id;
     }
 
     async update(id: Id, entity: Asset): Promise<boolean> {
-        const entityWithId = { ...entity.props, id };
-        const instance = this.repository.create(entityWithId);
+        const persistence = AssetMapper.toPersistence(entity);
+        const instance = this.repository.create({ ...persistence, id });
         await this.repository.save(instance);
         return true;
     }
@@ -52,7 +53,7 @@ export class AssetRepository implements IAssetRepository {
         }
 
         const entities = await qb.getMany();
-        return this._toDomainArray(entities);
+        return AssetMapper.toDomainArray(entities);
     }
 
     async paginatedList(query?: AssetQueryDto): Promise<PaginatedResponse<Asset>> {
@@ -72,19 +73,19 @@ export class AssetRepository implements IAssetRepository {
         qb.skip(offset).take(limit);
 
         const [entities, total] = await qb.getManyAndCount();
-        const items = this._toDomainArray(entities);
+        const items = AssetMapper.toDomainArray(entities);
         return paginate(items, total, page, limit);
     }
 
     async findById(id: Id): Promise<Asset | null> {
         const entity = await this.repository.findOneBy({ id });
-        return entity ? this._toDomain(entity) : null;
+        return entity ? AssetMapper.toDomain(entity) : null;
     }
 
     async findByIds(ids: Id[]): Promise<FindByIdsResult<Asset, Id>> {
         const entities = await this.repository.findBy({ id: In(ids) });
-        const found = this._toDomainArray(entities);
-        const foundIds = new Set(found.map((a) => a.id));
+        const found = AssetMapper.toDomainArray(entities);
+        const foundIds = new Set(found.map((a) => a.props.id));
         const notFound = ids.filter((id) => !foundIds.has(id));
         return { found, notFound };
     }
@@ -92,7 +93,7 @@ export class AssetRepository implements IAssetRepository {
     async findOne(conditions: Partial<Asset>): Promise<Asset | null> {
         const findConditions: FindOptionsWhere<AssetPersistence> = conditions as FindOptionsWhere<AssetPersistence>;
         const entity = await this.repository.findOneBy(findConditions);
-        return entity ? this._toDomain(entity) : null;
+        return entity ? AssetMapper.toDomain(entity) : null;
     }
 
     async exists(id: Id): Promise<boolean> {
@@ -103,7 +104,7 @@ export class AssetRepository implements IAssetRepository {
     async getById(id: Id, userId: Id): Promise<Asset> {
         const found = await this.repository.findOne({ where: { id, userId } });
         if (!found) throw new Error('Asset not found');
-        return this._toDomain(found);
+        return AssetMapper.toDomain(found);
     }
 
     async findByUserId(userId: Id, query: AssetQueryDto): Promise<Asset[]> {
@@ -116,16 +117,7 @@ export class AssetRepository implements IAssetRepository {
         qb = withDefaultOrder(qb, this.alias, query);
 
         const entities = await qb.getMany();
-        return this._toDomainArray(entities);
-    }
-
-    // TODO: Rewrite this with a mapper factory
-    private _toDomain(entity: AssetPersistence): Asset {
-        return Asset.fromPersistence(entity as unknown as IAssetProps);
-    }
-
-    private _toDomainArray(entities: AssetPersistence[]): Asset[] {
-        return entities.map((e) => this._toDomain(e));
+        return AssetMapper.toDomainArray(entities);
     }
 
     private _buildWhereClause(

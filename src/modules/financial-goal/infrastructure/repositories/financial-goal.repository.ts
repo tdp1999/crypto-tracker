@@ -2,7 +2,8 @@ import { Id } from '@core/types/common.type';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { IFinancialGoalRepository } from '../../application/ports/financial-goal.port';
-import { FinancialGoal, IFinancialGoalProps } from '../../domain/entities/financial-goal.entity';
+import { FinancialGoal } from '../../domain/entities/financial-goal.entity';
+import { FinancialGoalMapper } from '../mapper/financial-goal.mapper';
 import { FinancialGoalPersistence } from '../persistence/financial-goal.persistence';
 
 export class FinancialGoalRepository implements IFinancialGoalRepository {
@@ -13,8 +14,8 @@ export class FinancialGoalRepository implements IFinancialGoalRepository {
         private readonly dataSource: DataSource,
     ) {}
 
-    async add(goal: Partial<FinancialGoalPersistence>): Promise<Id> {
-        const entity = this.repository.create(goal);
+    async add(goal: FinancialGoal): Promise<Id> {
+        const entity = this.repository.create(goal.props);
         const saved = await this.repository.save(entity);
         return saved.id;
     }
@@ -34,17 +35,17 @@ export class FinancialGoalRepository implements IFinancialGoalRepository {
     async getActive(userId: Id): Promise<FinancialGoal> {
         const entity = await this.repository.findOne({ where: { userId, isActive: true } });
         if (!entity) throw new Error('Financial goal not found');
-        return this._toDomain(entity);
+        return FinancialGoalMapper.toDomain(entity);
     }
 
     async findById(id: Id): Promise<FinancialGoal | null> {
         const entity = await this.repository.findOneBy({ id });
-        return entity ? this._toDomain(entity) : null;
+        return entity ? FinancialGoalMapper.toDomain(entity) : null;
     }
 
     async findByUserId(userId: Id): Promise<FinancialGoal[]> {
         const entities = await this.repository.findBy({ userId });
-        return this._toDomainArray(entities);
+        return FinancialGoalMapper.toDomainArray(entities);
     }
 
     async activateGoalAndDeactivateOthers(id: string): Promise<void> {
@@ -71,13 +72,5 @@ export class FinancialGoalRepository implements IFinancialGoalRepository {
                 .where('id = :goalId', { goalId: id })
                 .execute();
         });
-    }
-
-    private _toDomain(entity: FinancialGoalPersistence): FinancialGoal {
-        return FinancialGoal.fromPersistence(entity as unknown as IFinancialGoalProps);
-    }
-
-    private _toDomainArray(entities: FinancialGoalPersistence[]): FinancialGoal[] {
-        return entities.map((e) => this._toDomain(e));
     }
 }

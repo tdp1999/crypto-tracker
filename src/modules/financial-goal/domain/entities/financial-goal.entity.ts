@@ -1,4 +1,4 @@
-import { BaseModel, IBaseModelProps } from '@core/abstractions/model.base';
+import { IBaseModelProps } from '@core/abstractions/model.base';
 import { Id } from '@core/types/common.type';
 import { IdentifierValue } from '@shared/vos/identifier.value';
 import { TemporalValue } from '@shared/vos/temporal.value';
@@ -14,16 +14,15 @@ export type ICreateFinancialGoalPayload = Pick<IFinancialGoalProps, 'name' | 'ta
 
 export type IUpdateFinancialGoalPayload = Pick<IFinancialGoalProps, 'name' | 'targetDate' | 'isActive'>;
 
-export class FinancialGoal extends BaseModel {
+export class FinancialGoal {
     readonly props: IFinancialGoalProps;
 
     private constructor(props: IFinancialGoalProps) {
-        super(props);
         this.props = props;
     }
 
     /* Static Methods */
-    static fromPersistence(raw: IFinancialGoalProps): FinancialGoal {
+    static load(raw: IFinancialGoalProps): FinancialGoal {
         return new FinancialGoal(raw);
     }
 
