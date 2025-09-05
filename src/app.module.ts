@@ -15,8 +15,17 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
+import { AssetModule } from './modules/asset/asset.module';
+import { FinancialGoalModule } from './modules/financial-goal/financial-goal.module';
 
-const featuredModules = [ProviderModule, UserModule, AuthModule, PortfolioModule] as unknown as DynamicModule[];
+const featuredModules = [
+    ProviderModule,
+    UserModule,
+    AuthModule,
+    PortfolioModule,
+    AssetModule,
+    FinancialGoalModule,
+] as unknown as DynamicModule[];
 
 @Module({
     imports: [

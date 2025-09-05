@@ -1,0 +1,5 @@
+export const FINANCIAL_GOAL_TOKENS = {
+    REPOSITORIES: {
+        GOAL: Symbol('FINANCIAL_GOAL.REPOSITORY.GOAL'),
+    },
+};
